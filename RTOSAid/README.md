@@ -296,13 +296,9 @@ event.
 
 Waiting tasks do absolutely nothing and impose no load on the CPU.
 
-{% warning %}
-
 :warning: **Warning:** when a task is waiting, be sure to wake it properly.
-If, for example, application code must not attempt to resume a task that is
+For example, application code must not attempt to resume a task that is
 waiting for a timer to expire.
-
-{% endwarning %}
 
 ## Creating a Task
 
@@ -315,13 +311,8 @@ To create a task, users must provide
 3. A `TaskWithAction` instance, which starts and manages the task.
 3. A priority, an unsigned integer between 0 and 24
 
-{% warning %}
-
-:warning: **Warning**: the system idle task runs at priority 0. User tasks 
+:warning: **Warning**: the system idle task runs at priority 0. User tasks
 should run at priority 1 or higher.
-
-{% endwarning %}
-
 
 
 The `BlinkAction` class shown below provides the required logic.
@@ -353,7 +344,7 @@ public:
   }
 };
 ```
-Note that the `BlinkAction` constructor accepts the target GPIO number and
+The `BlinkAction` constructor accepts the target GPIO number and
 delay, and sets the specified GPIO to `OUTPUT`. Its `run()` implementation
 provides our desired independently running blink logic.
 
@@ -374,7 +365,7 @@ static TaskWithAction builtin_task(
     sizeof(builtin_led_stack));
 ```
 
-Note that the `builtin_led_stack` array provides the temporary storage
+The `builtin_led_stack` array provides the temporary storage
 needed to run the task. Since this is a small, simple task, 2048 bytes
 is more than enough.
 
@@ -437,7 +428,7 @@ TaskWithAction(
 ```
 
 Creates a `TaskWithAction` that runs the logic provided in the specified
-`TaskAction`. Note that all required storage is provided by the caller
+`TaskAction`. All required storage is provided by the caller
 or within the newly created instance. The newly created task will be
 stopped and will not run until the appliction invokes `start()` .
 
@@ -455,9 +446,8 @@ stopped and will not run until the appliction invokes `start()` .
   provide a `uint8_t` (i.e. byte) array.
 * `stack_size` - the length of the `stack` arguments in bytes.
 
-{% note %}
 
-**Note:** determining the proper stack size is more an art than a science.
+:arrow_forward: **Note:** determining the proper stack size is more an art than a science.
 Simple tasks that use a few small automatic variables and do not have
 deeply nested function calls require small stacks, while tasks that requre
 extensive storage or deeply nested function calls require more. 4096 bytes is
@@ -465,19 +455,13 @@ a good starting sizes, though the very simplest tasks can get by with
 2048.
 
 
-{% endnote %}
-
 ### Destructor
 
 Stops a task if it is running.
 
-{% note %}
-
-**Note:** tasks instances are seldom deleted, so the destructor is implemented
+:arrow_forward: **Note:** tasks instances are seldom deleted, so the destructor is implemented
 for the sake of completeness. Deleting a running task is extremely poor
 practice. Prefer invoking `stop()` first.
-
-{% endnote %}
 
 ### notify
 
@@ -499,28 +483,21 @@ Resumes a suspended task. Does nothing if the task is running. To avoid
 unspecified and undesirable behavior, be sure to invoke `start` before
 invoking this method.
 
-{% note %}
-
-**Note:** suspended tasks do not respond to notifications.
-
-{% endnote %}
+:arrow_forward: **Note:** suspended tasks do not respond to notifications.
 
 ### start
 
 Starts a task. The task must be stopped. Invoking `start()` on a running
-task will cause unspecified behavior. Note that the task **must** be started
+task will cause unspecified behavior. The task **must** be started
 before any other methods can be invoked.
 
 ### stop
 
 Stops and destroys a task. The task can be restarted with `start()`.
 
-{% warning %}
 
-`stop()` will destroy a task in any state. Improper use can leave the system
+:warning: **Warning:** `stop()` will destroy a task in any state. Improper use can leave the system
 in an upspecified state.
-
-{% endwarning %}
 
 ### suspend
 
@@ -533,12 +510,14 @@ The `resume()` method (see above) resumes suspended tasks.
 
 Base class whose subclasses provide task logic. To use it:
 
-1. Declare a concrete class that inherits `TaskAction` publicly. Note that
-   the concrete class must provide an implementation for its `run()` method.
-2. Implement that logic loop in the concrete class's `run()`.
+1. Declare a concrete class that inherits `TaskAction` publicly.
+   The concrete class **must** declare a `run()` function which
+   must **not** be pure, which means that `= 0` must **not** follow
+   its declaration..
+2. Implement that logic loop in the class's `run()` function.
 
-`TaskAction` has no public functions. All of its functions are `protected`.
-From the user's perspective, reserved for use within inheriting classes.
+`TaskAction` has no public functions. All of its functions are `protected`
+that are reserved for use within inheriting classes.
 
 ### delay_millis
 
