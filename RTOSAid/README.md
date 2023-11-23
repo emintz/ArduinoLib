@@ -15,7 +15,7 @@ whose text resides
 ## Intended Use
 
 RTOSAid is intended for use in open source ESP32 software projects that
-are based on the Arduino API. It's intended for use cases whose complexity makes
+are based on the Arduino API Its intended for use whose complexity makes
 them difficult to implement within the Arduino's `setup()`/`loop()`
 framework.
 
@@ -78,7 +78,7 @@ about the following FreeRTOS features.
 
 ### Low Level ESP32 Features
 
-Even though RTOSAid eliminates the need, it might be helpful to know a bit
+Even though RTOSAid to eliminate the need, it might be helpful to know a bit
 about the following low level ESP32 capabilities.
 
 * GPIO interrupts
@@ -440,7 +440,7 @@ Parameters:
 | `priority` | Task priority, 1 and 24, inclusive. The scheduler favors higher numbered priorities. |
 | `action` | The task's runtime logic, the program that the task runs        |
 | `stack`  | Storage for function invocation and automatic variables         |
-* `stack_size` - the length of the `stack` arguments in bytes.
+| `stack_size` | The `stack` size, e.g. `sizeof(stack)` in bytes.            |
 
 :arrow_forward: **Note**: `name` should be unique, as it identifies the
 guilty task when an error occurrs.
