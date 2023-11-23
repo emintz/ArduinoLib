@@ -432,36 +432,39 @@ Creates a `TaskWithAction` that runs the logic provided in the specified
 or within the newly created instance. The newly created task will be
 stopped and will not run until the appliction invokes `start()` .
 
-**Parameters:**
+Parameters:
 
-* `name` - short, descriptive, `NULL`-terminated task name. This is
-  mainly used to facilitate debugging, and should be unique.
-* `priority` - task priority, a value between 1 (lowest) to 24 (highest).
-  The task scheduler favors higher value priorities
-* `action` -  provides the task's runtime logic, the program that the
-  task runs
-* `stack` - storage that the task uses to support function call and return,
-  and to hold automatic variables. This argument is typeless, meaning that
-  it can have any time, however it is strongly recommend that the caller
-  provide a `uint8_t` (i.e. byte) array.
+| Name   | Contents                                                          |
+| ------ | ------------------------------------------------------------------|
+| `name` | short, descriptive, `NULL`-terminated task name.                  |
+| `priority` | Task priority, 1 and 24, inclusive. The scheduler favors higher numbered priorities. |
+| `action` | The task's runtime logic, the program that the task runs        |
+| `stack`  | Storage for function invocation and automatic variables         |
 * `stack_size` - the length of the `stack` arguments in bytes.
 
+:arrow_forward: **Note**: `name` should be unique, as it identifies the
+guilty task when an error occurrs.
 
-:arrow_forward: **Note:** determining the proper stack size is more an art than a science.
-Simple tasks that use a few small automatic variables and do not have
-deeply nested function calls require small stacks, while tasks that requre
-extensive storage or deeply nested function calls require more. 4096 bytes is
-a good starting sizes, though the very simplest tasks can get by with
-2048.
+:arrow_forward: **Note**: the stack is untyped. In the absence of compelling
+reasons to the contrary, declare stack storage as `uint8_t` (a.k.a.
+ `unsigned char`).
+ 
+:arrow_forward: **Note**: determining the proper stack size is more an art
+than a science. Simple tasks that use a few small automatic variables and do
+not have deeply nested function calls need little stack storage, while
+tasks that consume lots of automatic storage or perform deeply nested
+function calls require more. 4096
+bytes is a good starting size, though the very simplest tasks can get by with
+2048 or even less.
 
 
 ### Destructor
 
 Stops a task if it is running.
 
-:arrow_forward: **Note:** tasks instances are seldom deleted, so the destructor is implemented
-for the sake of completeness. Deleting a running task is extremely poor
-practice. Prefer invoking `stop()` first.
+:arrow_forward: **Note:** tasks instances are seldom deleted, so the destructor
+is implemented for the sake of completeness. Deleting a running task is
+extremely poor practice. Prefer invoking `stop()` first.
 
 ### notify
 
@@ -496,8 +499,8 @@ before any other methods can be invoked.
 Stops and destroys a task. The task can be restarted with `start()`.
 
 
-:warning: **Warning:** `stop()` will destroy a task in any state. Improper use can leave the system
-in an upspecified state.
+:warning: **Warning:** `stop()` will destroy a task in any state. Improper
+use can leave the system in an upspecified state.
 
 ### suspend
 
@@ -566,6 +569,229 @@ Returns: 0 if the task was notified, non-zero if the wait timed out.
 
 Relinquish control to higher priority tasks. Returns when all higher
 priority tasks are waiting.
+
+# Pull Queues
+
+Applications use pull queues, which transmit messages in first in, first out
+(FIFO) order, to send data between tasks. Typically, a receiving task removes
+messages from the queue and responds to them, while any number of sending
+tasks add messages to the queue.
+
+## Overview
+
+Queues provide reliable transport between tasks. Their advantages include:
+
+1. Asynchronous send and receive: queues automatically interleave sending
+   and receiving, meaning that applications don't have to serialize
+   queue mutations.
+2. Overlap: sending and receiving take place simultaneously (nominally, at
+   least) without requiring application-level logic.
+3. Scalability: developers can add queue capacity by enlarging the queue's
+   buffer, which is extremely simple to do.
+4. Load leveling: queues absorb load spikesd by holding messages for later
+   processing. This simplifies background processing, where the queue holds
+   messages for processing by a low priority task.
+   
+The only cost is storage, the memory required to store messages for later
+processing, and the possibility of queue overflow should the queue run out
+of storage.
+
+
+## Details
+
+Pull queue code resides in two classes: `BasePullQueue` a base class that
+implements the core queue logic, and `PullQueueT`, a templated wrapper class
+that adds type safely. To enforce type safely, the base class a protected API,
+making its services available only to child classes (i.e. classes,
+like `PullQueueT` that inherit the base class). Since the two classes work
+in concert, we document their public messages as a single API.
+
+Users access queues via the `PullQueueT` class, though the `BasePullQueue`
+class contributes some of its public API. 
+
+The `PullQueueT` class is templated by the message type, which users must
+provide in a queue declaration. In principal, `PullQueueT` defines a unique
+class for each message type.
+
+:warning: wpecify a message as plain, C-style `struct`, a structure (as opposed
+to a class) without functions, including constructors and destructor, as in
+
+
+```c++
+struct LedCommand {
+  uint16_t step_time;
+  uint16_t inter_cycle_time;
+  uint16_t repititions;
+```
+
+Attempting to send a `class` is risky and likely to fail.
+## Creating a Queue
+
+To create a queue, users must provide
+
+1. Its message type
+2. Storage for enqueued messages
+3. Storage capacity, the maximum number of messages that the queue can hold
+
+Users supply an array of `T` to hold enqueued messages. The queue capacity
+is the array length, as in.
+
+```c++
+#include "LedCommand.h"
+#include "PullQueueT.h"
+
+#define QUEUE_CAPACITY 5
+
+static LedCommand queue_storage[QUEUE_CAPACITY];
+
+static PullQueueT<LedCommand> led_command_queue(
+    queue_storage,
+    QUEUE_CAPACITY);
+```
+
+
+## PullQueueT and BasePullQueue classes
+
+### Constructor
+
+```c++
+PullQueueT(
+    T *queue_storage,
+    UBaseType_t queue_length);
+```
+
+Parameters:
+
+| Name            | Contents |
+| --------------- | ----------------------------------------------------------|
+| `T`             | Message as a `struct`, the template avalue                |
+| `queue_storage` | An array of `T` to hold enqueued messages                 |
+| `queue_lendgh`  | Number of elements in the `queue_storage` array           |
+
+The constructor declares a queue. The created queue is not running. Applications
+must start it to make it usable.
+
+### Destructor
+
+The destructor stops the queue if it is running, and has no effect otherwise.
+
+### peek_message (single parameter)
+
+```c++
+peek_message(
+    T *message);
+```
+
+Receive a message from the queue, waiting forever for a message to arrive
+without removing the message from the queue. The message remains available
+for reading.
+
+Paremters:
+
+| Name      | Contents                                           |
+| --------- | -------------------------------------------------- |
+| `message` | Holds the retrieved message when the call returns. |
+
+Returns: `true`
+
+:arrow_forward: **Note** this variant of the `peek_message` method returns a
+`bool` for compatibility with its two parameter version documented below.
+
+### `peek_message` (two parameters)
+
+Waits a specified interval for a message arrives, and receives it from the
+queue, without removing the message (if come) from the queue. Should a message
+arrive, it remains available for reading. If a message arrives, the function
+returns immediately.
+
+Paremters:
+
+| Name          | Contents                                           |
+| ------------- | -------------------------------------------------- |
+| `message`     | Holds the retrieved message when the call returns. |
+| `max_wait_ms` | The maximum time to wait in milliseconds.          |
+
+Returns: `true` if a message arrived, `false` otherwise.
+
+### pull_message (single parameter)
+
+```c++
+pull_message(
+    T *messsage);
+```
+
+Receive and remove a message from the queue, waiting forever for a message
+to arrive.
+
+Paremters:
+
+| Name      | Contents                                           |
+| --------- | -------------------------------------------------- |
+| `message` | Holds the retrieved message when the call returns. |
+
+Returns: `true`
+
+:arrow_forward: **Note** this variant of the `pull_message` method returns a
+`bool` for compatibility with its two parameter version documented below.
+
+### pull_message (two parameter)
+
+Wait a specified time and pull a message from the queue should a message arrive
+during time. If a message is received, it is removed from the queue. If a
+message arrives, the function returns immediately.
+
+
+Paremters:
+
+| Name          | Contents                                           |
+| ------------- | -------------------------------------------------- |
+| `message`     | Holds the retrieved message when the call returns. |
+| `max_wait_ms` | The maximum time to wait in milliseconds.          |
+
+Returns: `true` if a message arrived, `false` otherwise.
+
+### send_message (single parameter)
+
+```c++
+send_message(
+    T *messsage);
+```
+
+Send a message to the rear of the queue, waiting forever for the queue
+to accept the message. 
+
+:arrow_forward: **Note**: the newly added message will arrive at the receiver
+**after** preexisting messages arrive.
+
+Paremters:
+
+| Name      | Contents                                           |
+| --------- | -------------------------------------------------- |
+| `message` | Holds the retrieved message when the call returns. |
+
+Returns: `true`
+
+:arrow_forward: **Note** this variant of the `send_message` method returns a
+`bool` for compatibility with its two parameter version documented below.
+
+### send_message (two parameter)
+
+Send a message to the rear of the queue, waiting the specified time for the queue
+to accept the message. The newly added message will arrive at the receiver
+**after** preexisting messages arrive.
+
+
+Paremters:
+
+| Name          | Contents                                           |
+| ------------- | -------------------------------------------------- |
+| `message`     | Holds the retrieved message when the call returns. |
+| `max_wait_ms` | The maximum time to wait in milliseconds.          |
+
+Returns: `true` if the queue accepts the message, `false` otherwise.
+
+:arrow_forward: **Note**: the newly added message will arrive at the receiver
+**after** preexisting messages arrive.
 
 # C++ Style
 
