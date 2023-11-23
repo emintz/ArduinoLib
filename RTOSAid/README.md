@@ -6,7 +6,7 @@ developers.
 
 ## Licence
 
-RTOSAid is open source software, free as in beer and as in speach. It has
+RTOSAid is open source software, free as in beer and as in speech. It has
 been released under the 
 [Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html)
 whose text resides
@@ -15,7 +15,7 @@ whose text resides
 ## Intended Use
 
 RTOSAid is intended for use in open source ESP32 software projects that
-are based on the Arduino API It's intended for use in whose complexity makes
+are based on the Arduino API. It's intended for use cases whose complexity makes
 them difficult to implement within the Arduino's `setup()`/`loop()`
 framework.
 
@@ -26,7 +26,7 @@ have outgrown the Arduino framework.  Users should understand basic
 logic design and be comfortable programming C++. Familiarity with
 the ESP32 FreeRTOS APIs is helpful, but not required.
 
-Since the library is (meant to be, at least) self documenting, it
+Since the library is (meant to be, at least) self-documenting, it
 features long class, function, and variable names. We hope that this
 doesn't burden our users.
 
@@ -64,7 +64,7 @@ Users should understand and be comfortable using
 * Storage classes: static, automatic, and dynamic
 
 Explanation of C++ and its many features are beyond the scope of this
-document. It does contain extensive examples and hope that you find them
+document. It does contain extensive examples and we hope that you find them
 helpful and informative.
 
 ### FreeRTOS on the ESP32
@@ -78,7 +78,7 @@ about the following FreeRTOS features.
 
 ### Low Level ESP32 Features
 
-Even though RTOSAid to eliminate the need, it might be helpful to know a bit
+Even though RTOSAid eliminates the need, it might be helpful to know a bit
 about the following low level ESP32 capabilities.
 
 * GPIO interrupts
