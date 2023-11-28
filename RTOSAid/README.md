@@ -191,8 +191,9 @@ void loop() {
 }
 ```
 Now let's blink two LEDs, the builtin as above, and another at
-twice per second. We can split rhw 500 millisecond delays in
-two and interleave code to blink the second LED.
+twice per second. We can split the 500 millisecond delays into
+two 250 millisecond delays and interleave the code tthat blinks
+the second LED.
 
 ```c++
 #include "Arduino.h"
@@ -272,14 +273,17 @@ the lowest possible priority. It resets the timer whenever it runs, and if
 the watchdog timer expires, FreeRTOS restarts the application. This means
 that the idle task **must** run periodically.
 
-FreeRTOS is a cooperative multitasking system, which means that tasks must
-periodically cede control. They can do this in several ways:
+FreeRTOS is a cooperative multitasking system, which means that the
+operating system cannot interrupt a running task. Instead, FreeRTOS
+switches between tasks when the running task cedes control.This means
+that tasks must periodically volunteer for preemption, wich they can do
+in several ways:
 
 1. Waiting, i.e. invoking 
    [`vTaskDelay()`](https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-reference/system/freertos.html#_CPPv410vTaskDelayK10TickType_t), 
    [`delay()`](https://www.arduino.cc/reference/en/language/functions/time/delay/),
    or a similar function
-2. Being suspended
+2. Suspending
 3. Waiting for a notification
 4. Waiting on a queue or timer
 5. Waiting on a hardware event such as a GPIO level change, or similar event
@@ -291,7 +295,7 @@ Tasks can be in the following states
 * Suspended: quiescent, waiting to be resumed
 * Waiting: waiting for a notification or an event
 
-In addition, tasks can be waiting on a semaphore or queue, or for a hardware
+Tasks wait on a semaphore or queue, or wait for a hardware
 event.
 
 Waiting tasks do absolutely nothing and impose no load on the CPU.
@@ -412,9 +416,10 @@ Please refer to Appendex II for the entire sketch.
 
 ## `TaskWithAction` Class
 
-The `TaskWithAction` class manages an ESP32 FreeRTOS task. Application
-code can create, start, stop, suspend, resume, and notify tasks. Task logic can
-also wait for notification and yield to higher priority tasks.
+The `TaskWithAction` class manages an ESP32 FreeRTOS task, and provides
+an API that lets callers, start, stop, suspend, resume, and notify tasks.
+The managed task can also for notification pause for a specified duration,
+suspend itself, and yield to higher priority tasks.
 
 ### Constructor
 
@@ -469,20 +474,20 @@ extremely poor practice. Prefer invoking `stop()` first.
 ### notify
 
 Resumes a task that is waiting for a notification. Does nothing if the
-task is suspended or not waiting for a notification. This method is for
+task is suspended or not waiting for a notification. This method is **only** for
 use by application code. ISR code **must** invoke `notify_from_ISR()`
 instead.
 
 ### notify_from_ISR
 
 Resumes a task that is waiting for notification. Does nothing if the
-task is suspended or not waiting for a notification. This method is for
+task is suspended or not waiting for a notification. This method is **only** for
 use by interupt service routines (ISRs). Application code **must**
 invoke `notify()` instead.
 
 ### resume
 
-Resumes a suspended task. Does nothing if the task is running. To avoid
+Resumes a suspended task and does nothing if the task is running. To avoid
 unspecified and undesirable behavior, be sure to invoke `start` before
 invoking this method.
 
@@ -500,14 +505,16 @@ Stops and destroys a task. The task can be restarted with `start()`.
 
 
 :warning: **Warning:** `stop()` will destroy a task in any state. Improper
-use can leave the system in an upspecified state.
+use can leave the system in an invalud state or cause undesirable behavior.
 
 ### suspend
 
-Suspends a running task. Does nothing if the task is already suspended.
+Suspends a running task and does nothing if the task is already suspended.
 The `resume()` method (see above) resumes suspended tasks.
 
-
+:arrow_forward: **Note**: suspending a suspended task has no effect. No matter
+how many times the user invols `suspend()` on a suspended task, the next call
+to `resume()` will reactivate it.
 
 ## `TaskAction` Class
 
@@ -516,8 +523,9 @@ Base class whose subclasses provide task logic. To use it:
 1. Declare a concrete class that inherits `TaskAction` publicly.
    The concrete class **must** declare a `run()` function which
    must **not** be pure, which means that `= 0` must **not** follow
-   its declaration..
-2. Implement that logic loop in the class's `run()` function.
+   its declaration.
+2. Implement that logic loop in the class's `run()` function. Implementation
+   is mandatory.
 
 `TaskAction` has no public functions. All of its functions are `protected`
 that are reserved for use within inheriting classes.
@@ -591,11 +599,18 @@ Queues provide reliable transport between tasks. Their advantages include:
 4. Load leveling: queues absorb load spikesd by holding messages for later
    processing. This simplifies background processing, where the queue holds
    messages for processing by a low priority task.
-   
+5. Fan in: any number of tasks can add messages to a queue, simplifying
+   the implementation of client/server architectures
+6. Multi-task and multi-thread safety: multiple tasks can send and receive
+   queue entries simultaneously without colliding, which makes queues the
+   preferred inter-task communication mechanism.
+
 The only cost is storage, the memory required to store messages for later
 processing, and the possibility of queue overflow should the queue run out
 of storage.
 
+:arrow_forward: **Note**: as stated above, queues are the preferred
+inter-task communication mechanism. Prefer them in wherever possible.
 
 ## Details
 
@@ -633,8 +648,8 @@ To create a queue, users must provide
 2. Storage for enqueued messages
 3. Storage capacity, the maximum number of messages that the queue can hold
 
-Users supply an array of `T` to hold enqueued messages. The queue capacity
-is the array length, as in.
+Users supply an array of `T` to hold enqueued messages. The resulting
+queue capacity capacity is the array length.
 
 ```c++
 #include "LedCommand.h"
@@ -792,6 +807,165 @@ Returns: `true` if the queue accepts the message, `false` otherwise.
 
 :arrow_forward: **Note**: the newly added message will arrive at the receiver
 **after** preexisting messages arrive.
+
+# Mutual Exclusion Semaphore (Mutex)
+
+Mutual Exclusion Semaphores, a.k.a. Mutexes, prevent multiple
+tasks from colliding. When used properly, A Mutex ensures that logic
+runs only in a single task by forcing other tasks to wait until the current
+task finishes.
+
+## Overview
+
+A mutex can be in one of two states: unlocked and locked. Any task can
+attempt to lock the mutex, with two possible results:
+
+If the mutex is currently unlocked, the attempt succeeds. The requesting
+task holds the lock and keeps running. When the task no longer needs to
+hold the lock, it must surrender it, unlocking the mutex.
+
+If, on the other hand, a task attempts to lock a mutex that is already
+locked, it blocks until the lock becomes available. It then acquires the lock
+as described immediately above, surrendering it, as always, when it no longer
+needs the lock.
+
+:arrow_forward: **Note**: tasks should unlock semaphores as quickly as possible,
+holding the mutex lock for the shortest possible time. Holding locks too long
+can degrade performance and could trip the watchdog timer and reboot the
+system.
+
+Mutexes are used as follows.
+
+1. A task attempts to lock the mutex. The request can specify a
+   maximum wait time or request that the call should wait
+   indefinitely for the lock.
+2. If the lock attempt fails, handle the error.
+3. If the lock attempt succeeds, continue to perform
+   the application logic
+4. Release the mutex lock. If other tasks have attempted
+   to lock the semaphore, select one to run and grant it
+   the lock.
+
+:warning: **Warning**: a task holding a lock **MUST** release it
+promptly. Holding a lock forever can hang the system, triggering the
+watchdog timer and rebooting the system.
+
+:warning: **Warning**: release locked mutexes promptly. Holding
+a lock too long can hang the system, triggering the watchdog timer
+and causing a reboot.
+
+:warning: **Warning**: a task **MUST** lock a mutex **at most once**. The `Mutex`
+class does **not** support recursive locks. Attempting to relock a
+`Mutex` will cause unspecified and undesirable behavior.
+
+The API is designed to assure that locks are released eventually. Users
+are responsible for ensuring prompt release.
+
+## The `Mutex` Class
+
+The `Mutex` class maintain a list of tasks that are waiting for its lock,
+and doles out its lock to one task at a time.
+
+:arrow_forward: **Note**: applications **MUST** lock a `Mutex` with a `MutexLock`. 
+`Mutex` does not provide an application-visible locking API.
+
+### `begin()`
+
+Configures a `Mutex` and makes it available to receive lock requests.
+Applications **MUST** invoke `begin()` **exactly once** before atempting
+to use the mutex.
+
+Returns: `true` if the `Mutex` is configured and ready to use, `false` otherwise.
+
+### `valid()`
+
+Checks if the mutex is valid
+
+Returns: `true` if the mutex is ready to use, `false` otherwise. `valid()` always returns `false` until `begin()`
+runs successfully.
+
+## The `MutexLock` Class
+
+The `MutexLock` class locks `Mutex` instances. Its constructor takes the `Mutex`
+to be locked, together with an optional time to wait. If the caller provides a
+wait time, the lock will time out when the interval expires and the constructor
+will return without locking the mutex. Otherwise, the constructor will
+wait for the lock indefinitely.
+
+:warning: **Warning**: check the lock status of a newly created `MutexLock`.
+
+:warning: **Warning**: `MutexLock` instances **MUST** reside on the stack, i.e.
+be automatic variables. Never create them with `new`.
+
+:warning: **Warning** never create a `MutexLock` class field.
+
+:warning: **Warning**: never subclass `MutexLock`.
+
+To enforce the foregoing,
+
+* All forms of the `new` operator have been declared `private`.
+* `MutexLock` is declared `final`.
+
+### Example of Use
+
+Here's how to use a `MutexLock` in a class function. Assume that
+the class contains a `Mutex` member named `mutex`.
+
+```c++
+void SomeClass::do_something(void) {
+  MutexLock lock(mutex);  // Try to lock the mutex
+  if (lock.succeeded()) {
+    // Lock succeeded; carry on processing. Note that the
+    // current task is the only task that is running this
+    // code ...
+  } else {
+    // Lock request failed. Handle the error ...
+  }
+  
+  // All automatic variables, including the MutexLock lock, are
+  // destroyed here. When the lock variable is destroyed, its
+  // destructor releases the lock acquired during construction.
+  // There is no other way to release the lock.
+}
+```
+
+### Constructor (One Argument)
+
+Lock a mutex, waiting indefinitely for the lock to be granted
+
+Parameters:
+
+| Name    | Contents            |
+| ------- | ------------------- |
+| `mutex` | The `Mutex` to lock |
+
+:warning: **Warning**: check the lock status before proceeding.
+
+### Constructor (Two Arguments)
+
+Lock a `Mutex` with timeout. If the wait time exceeds the specified
+timeout, return without locking.
+
+Parameters:
+
+| Name                  | Contents                                               |
+| --------------------- | ------------------------------------------------------ |
+| `mutex`               | The `Mutex` to lock                                    |
+| `wait_time_in_millis` | The maximum time to wait for the lock, in milliseconds |
+
+:warning: **Warning**: check the lock status before proceeding.
+
+### Destructor
+
+Releases the `Mutex` lock if acquired, does nothing otherwise
+
+### `succeeded()`
+
+Check the lock status
+
+Returns: `true` if the underlying `Mutex` is locked, `false` otherwise. Applications
+should always invoke this after constructing a `MutexLock`.
+
 
 # C++ Style
 
