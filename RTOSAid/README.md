@@ -112,7 +112,7 @@ RTOSAid supports the following FreeRTOS features.
 
 # Design Philosophy
 
-ELike most embedded system, the SP32 imposes the following constraints
+Like most embedded system, the SP32 imposes the following constraints
 on its software.
 
 * Resources: the ESP32 runs slower and has far less memory than
@@ -139,6 +139,13 @@ To comply with the foregoing requirements, RTOSAid
   classes..
 * Type safety: APIs are designed to minimize the risk of type errors,
   to ensure that functions only receive values of expected types. 
+
+In the author's experience, the presence of "do everything" classes
+limits a library's usefulness. Designers cannot anticipate their
+users' future needs, so over time, large, multifunction classes lose
+their usefulness. Hence, each class in the RTOSAid library performs
+one and only one a basic function. The classes are designed for
+composition, so users can mix and match them as use cases require.
 
 ## Documentation Conventions
 
@@ -775,8 +782,8 @@ send_message(
 Send a message to the rear of the queue, waiting forever for the queue
 to accept the message. 
 
-:arrow_forward: **Note**: the newly added message will arrive at the receiver
-**after** preexisting messages arrive.
+:arrow_forward: **Note**: massages arrive in order. The newly added message will
+arrive at the receiver **after** previously added messages.
 
 Paremters:
 
@@ -957,7 +964,7 @@ Parameters:
 
 ### Destructor
 
-Releases the `Mutex` lock if acquired, does nothing otherwise
+Release the `Mutex` lock if acquired, does nothing otherwise
 
 ### `succeeded()`
 
@@ -966,6 +973,98 @@ Check the lock status
 Returns: `true` if the underlying `Mutex` is locked, `false` otherwise. Applications
 should always invoke this after constructing a `MutexLock`.
 
+# Function Classes
+
+A function class is a class that acts as a stand in for a function.
+
+## Overview
+
+Typically, a function class has a single pure virtual function where
+subclasses place the function's logic. We have already seen an example
+in the `TaskAction` described previously.
+
+## The VoidFunction Class
+
+The `VoidFunction` class stands in for a void no-argument function,
+one that takes no parameters and returns nothing. It is not usable
+directly. Users must subclass it and implement the function.
+
+### Constructor
+
+The constructor is a placeholder that does nothing.
+
+### Destructor
+
+The destructor is a placeholder that does nothing.
+
+### `apply()`
+
+`apply()` is a pure virtual void, no argument function that the
+`VoidFunction` class does not implement. Subclasses must provide an
+implementation. Implementations can do anything including keeping
+arbitrary state and causing arbitrary side effects. There is only
+one restriction, implementatons **must** return eventually, and
+might, in some circumstances, be required to return promptly.
+
+
+# Timers
+
+Timers provide a non-blocking mechanism to run an action after
+a precise delay.
+
+## Overview
+
+So far, we have only one way to run a task in the future: wait the
+desired time, then proceed. Sometimes, though it is handy to have
+a "fire and forget" mechanism, a way to stage a task to be run,
+then get on with the application logic. Timers provide that
+mechanism.
+
+## The MicrosecondTimer Class
+
+A `MicrosecondTimer` allows applications to schedule a `VoidFunction`
+invocation after a precise delay. The delay is specified in microseconds.
+Contrast this with `vTaskDelay()` and `delay()` whose times are specified
+in microseconds.
+
+### Constructor
+
+The constructor creates a `MicrosecondTimer` instance that runs
+a `VoidFunction` on expiration.
+
+Parameters:
+
+| Name              | Contents                                                    |
+| ----------------- | ----------------------------------------------------------- |
+| `timer_name`      | The timer's name, primarily used for debugging. Should be unique | 
+| `target_function` | A `VoidFunction` subtype. The timer invokes its `apply()` function when it expires |
+
+### Destructor
+
+If the timer has been initialized (see `begin()` below), the destructor tears it down.
+
+### `begin()`
+
+`begin()` initializes the timer. Applications must call it **exactly once** before
+attempting to use the timer.
+
+Returns: `true` if timer initialization succeeded, `false` if it failed.
+
+### `start()`
+
+`start()` sets the timout delay and starts the timer. If the timer
+is already running, `start()` resets the timeout delay, and the
+timer keeps running.
+
+Parameters:
+
+| Name                      | Contents                                                |
+|-------------------------- | ------------------------------------------------------- |
+| `timeout_in_microseconds` | Expiration time in microseconds                         |
+
+### `stop()`
+
+`stop()` stopsthe timer if it is running and does nothing if it is stopped.
 
 # C++ Style
 
