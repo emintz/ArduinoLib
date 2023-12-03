@@ -12,6 +12,19 @@ been released under the
 whose text resides
 [here](https://www.gnu.org/licenses/agpl-3.0.txt).
 
+# To the Reader
+
+Welcome to the RTOSAid library, the classes that I wish I had
+when I started to develop ESP32 software. I hope that the
+library provides good service and simplifies your projects.
+
+At the time of this writing, late 2023, the software is new,
+possibly incomplete, and probably contains defects. I would
+be grateful if you would draw my attention to either or for
+any feedback you'd care to provide.
+
+In the meantime, enjoy!
+
 ## Intended Use
 
 RTOSAid is intended for use in open source ESP32 software projects that
@@ -19,7 +32,7 @@ are based on the Arduino API Its intended for use whose complexity makes
 them difficult to implement within the Arduino's `setup()`/`loop()`
 framework.
 
-## Intended Audience
+## What You Need To Know
 
 RTOSAid is intended for experienced Arduino developers whose projects
 have outgrown the Arduino framework.  Users should understand basic
@@ -50,6 +63,9 @@ Users should understand and be comfortable using
 * Active low logic
 * ESP32 GPIO pin functions
 
+Since the documentation does not include diagrams,
+users need to be able to assemble simple circuits
+from their description.
 
 ### C++-Related Prerequisites
 
@@ -69,7 +85,7 @@ helpful and informative.
 
 ### FreeRTOS on the ESP32
 
-Even though RTOSAid eliminates the need, it could be helpful to know a bit
+Even though RTOSAid minimizes the need, it could be helpful to know a bit
 about the following FreeRTOS features.
 
 * Tasks
@@ -78,25 +94,161 @@ about the following FreeRTOS features.
 
 ### Low Level ESP32 Features
 
+#### Useful Background
+
 Even though RTOSAid to eliminate the need, it might be helpful to know a bit
 about the following low level ESP32 capabilities.
 
-* GPIO interrupts
 * Timers
 * EEPROM memory
+
+#### Interrupts
+
+Since some RTOSAid classes use interrupts, a brief explanation is in order.
+
+Interrupts are a hardware feature that support efficient event handling,
+especially signals from peripheral devices. A
+[real-time clock](https://www.analog.com/media/en/technical-documentation/data-sheets/ds3231.pdf),
+for example, can notify a microcontroller every second with extremely high
+accuracy. Other sensors, the
+[BNo055 Gyroscope](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf),
+can notify their microcontroller when they have data
+available. 
+
+While programs can check signals periodically, doing so
+has significant disadvantages.
+
+* The checks occupy the CPU. If the application has to check
+  for input continuously, the resulting CPU load can slou the
+  application unacceptably.
+* It is possible for the application to miss available data.
+
+Interrupts provide a way to detect events like these
+with little CPU involvement. To use them,
+
+1. Write an interrupt service routing (ISR) that responds
+   to the expected event. ISRs need to complete quickly,
+   so they usually notify the application that the event
+   occurred. See below for details.
+2. Implement application code to process the event.
+3. Enable the ISR during application startup.
+
+The library provides examples.
+
+ISR implementations must
+
+* Have no parameters
+* Return nothing
+* Complete quickly, the quicker the better. ISRs block their
+  containing applications.
+* **Never ever block**
+* Invoke **only** ISR-compatible APIs. Note that most widely used
+  library capabilities are **not** usable from ISRs.
+
+Unless otherwise noted, RTOSAid functions **cannot** be used in ISRs. The
+names of compatible functions usually end with `from_isr`, as in the
+`TaskWithAction`'s (see below) `notify_from_ISR()` function.
+
+Pro tips:
+
+* Implement as much interrupt processing in application code.
+* Do no I/O in ISRs. `Serial`, for example, is right out, as are
+  other streams.
+  [SPI](https://www.arduino.cc/reference/en/language/functions/communication/spi/),
+  [Wire](https://www.arduino.cc/reference/en/language/functions/communication/wire/),
+  WiFi, and other external communication are also out of bounds, as are
+  the Advanced I/O Arduino functions.
+* **Do not block, ever.** `vTaskDelay()`, `delay()`, and `delayMicroseconds()`
+  and the like are incompatible with interrupt handling. Don't even think about
+  invoking them.
+  
+The ESP32 chip contains several memory types, including static RAM (SRAM).
+SRAM is the fastest kind, but even modest amounts consume a lot of chip
+area. Unless otherwise noted, ISRs **must** reside in SRAM.
+
+The `IRAM_ATTR` attribute, defined in `Arduino.h`, forces a function into
+SRAM. It applies to free standing functions and to functions in classes.
+Here's an example of a free-standing function.
+
+```
+#include "Arduino.h"
+
+// ...
+
+void IRAM_ATTR isr_handler(void) {
+  // ...
+}
+```
+
+ISRs in classes must be `static` in the class definition.
+
+```
+#include "Arduino.h"
+
+class ShortLongRedGreenEventHandler {
+
+  // Fields and other stuff
+
+  // Interrupt service routines can be private, if desired.
+  static void IRAM_ATTR take_interrupt(void);
+  
+  // ...
+} 
+```
+
+and implemented 
+
+```
+#include "ShortLongRedGreenEventHandler"
+
+void IRAM_ATTR ShortLongRedGreenEventHandler::take_interrupt(void) {
+  // ...
+}
+```
+
 
 ### Hardware-Related Prerequisites
 
 Users should also have a set of basic electronic tools and be able to
 wire simple circuits from their descriptions.
 
+#### Bill of Materials
+
 Users should have the following parts on hand.
 
-* Solderless breadboard
-* Hookup wire or Dupont wire
-* LEDs in assorted colors
-* 510 Ohm, 5 percent, 1/4 Watt resistors
-* A push button or switch
+* 1 ESP32 development (a.k.a. breakout) board. Mine has a generic ESP32 S2.
+* 1 solderless breadboard
+* Hookup wire or Dupont cabkes
+* LEDs in assorted colors, 1 each red, yellow, green, blue, and white
+* 5 510 Ohm , 5 percent (green, brown, black, gold), 1/4 Watt resistors
+* 1 push button switch or equivalent
+
+#### Wiring
+
+The test system is wired. Note that LEDs are wired by connecting
+
+1. A GPIO pin to one lead of a 510 Ohm resistor
+2. The other resistor lead to the long (positive) LED lead
+3. The short (negative) LED pin to ground
+
+Connect the pins as follows:
+
+| GPIO Pin | Connect to                   |
+| -------- | ---------------------------- |
+| 13       | Red LED                      |
+| 14       | Yellow LED                   |
+| 15       | Green LED                    |
+| 16       | Blue LED                     |
+| 23       | White LED                    |
+| 25       | Pin 26                       |
+| 26       | Pin 25                       |
+| 27       | Push button switch to ground |
+
+In addition to the foregoing, the example sketches use the development
+board's built in LED, which is connected to GPIO pin 2. If your board's
+built in LED is connected to a different pin, you will have to change the
+sketch accordingly. If your board does not have a builtin LED, you will
+need to add one and change the example sketches as needed.
 
 ## RTOSAid Features
 
@@ -1064,7 +1216,127 @@ Parameters:
 
 ### `stop()`
 
-`stop()` stopsthe timer if it is running and does nothing if it is stopped.
+`stop()` stops the timer if it is running and does nothing if it is stopped.
+
+# GPIO Input Change Detector
+
+The GPIO Change Detectors watch for voltage to change on GPIO input
+pins.
+
+## Overview
+
+The detectors can respond to
+
+* `LOW` to `HIGH` transitions
+* `HIGH` to `LOW` transitions
+* Both `LOW` to `HIGH` and `HIGH` to `LOW` transitions
+
+The detectors implement a `VoidFunction` when they sense a
+transition.
+
+The change detector provides two classes, `GpioChangeService` to manage
+the low level FreeRTOS GPIO change detection service, and
+`GpioChangeDetector` which watches individual GPIO pins.
+
+## `GpioChangeService`
+
+`GpioChangeService` is a global singleton akin to the Arduino
+library's `Serial` component. It installs the FreeRTOS low
+level GPIO level change sensor, and must be started for change
+detectors to work. It supports the two cannonical service
+management functions: `begin()` and `end()`.
+
+### begin()
+
+`begin()` starts the low level FreeRTOS GPIO change detection service
+if it is not already running. If the service is running,
+`begin()` does nothing. Applications should invoke `begin()` before
+starting any change detectors.
+
+### `end()`
+
+`end()` stops the low level FreeRTOS GPIO change detection service.
+Be sure to stop all change detection before invoking `end()`.
+
+## `GpioChangeType` Enumeration
+
+`GpioChangeType` specifies the change to detect. It has the following
+values.
+
+| Name          | Transition                                                    |
+| ------------- | ------------------------------------------------------------- |
+| `LOW_TO_HIGH` | Voltage change from `LOW` to `HIGH`                           |
+| `HIGH_TO_LOW` | Voltage change from `HIGH` to `LOW`                           |
+| `ANY_CHANGE`  | Any voltage change, either `LOW` to `HIGH` or `HIGH` to `LOW` |
+
+The enumeration is used to configure `GpioChangeDetector` instances as described below.
+
+## `GpioChangeDetector` Class
+
+`GpioChangeDetector` changes watch input GPIO pin voltage for a specified
+transition and invoke a `VoidFunction` when a configured transition
+occurs. It runs in an ISR, but its code does not need to reside in SRAM
+but **must** conform to all other ISR constraints.
+
+### `start()`
+
+`start()` starts its `GpioChangeHandler`, making it respond when
+the voltage on its associated GPIO pin changes. Make sure to invoke
+`GpioChangeService.begin()` before invoking `start()` on any
+`GpioChangeHandler`.
+
+Returns: `true` if the handler started successfully, false if startup
+failed.
+
+### Constuctor
+
+The constructor creates a `GpioChangeDetector` instance that watches
+an input GPIO input pin for a specified voltage change and invokes a
+`VoidFunction` when the change occurs.
+
+Parameters
+
+| Name             | Contents                                                                        |
+| ---------------- | ------------------------------------------------------------------------------- |
+| `pin_no`         | The GPIO pin to watch. The caller must configure the pin for input              |
+| `change_type`    | the `GpioChangeType` to detect                                                  |
+| `on_pin_changed` | The `VoidFunction` to invoke when the `change_type` occurs on GPIO pin `pin_no` |
+
+`on_pin_changed->apply()` runs in an interrupt service routine. It need not reside
+in SRAM, but must comply with all other ISR restrictions.
+
+### Destructor
+
+Invokes `stop()` to stop this `GpioChangeHandler`
+
+### `stop()`
+
+`stop()` stops its `GpioChangeHandler`, making it unresponsive
+to voltage changes on its GPIO input pin. Be sure to invoke
+`stop()` on every `GpioChangeHandler` before invoking 
+`GpioChangeService.end()`.
+
+### `change_interrupt_handler()`
+
+The low level `FreeRTOS` change handler invokes the static
+`change_interrupt_handler()` method when the desired voltage change
+occurs. Application code cannot invoke it.
+
+Parameters:
+
+| Name      | Contents                                             |
+| --------- | ---------------------------------------------------- |
+| `params`  | A `void` pointer containing an unspecified parameter |
+
+`params` always points to the `GpioChangeDetector` configured to handle
+voltage changes on the signaling the `GpioChangeDetector`. The
+function invokes the target detector's `handle_pin_change()` function.
+
+### `handle_pin_change()`
+
+`handle_pin_change` invokes the `VoidFunction` that was bound to this
+`GpioChangeDetector` instance.  Application code cannot invoke it.
+
 
 # C++ Style
 
@@ -1080,6 +1352,8 @@ The code is laid out as follows:
 * Class and enum names are in `UpperCamelCase`.
 * Variable and function names are in `lower_snake_case`.
 * `#define` constants and macros are in `UPPER_SNAKE_CASE`.
+* Global variables are in `UpperCamelCase` like their counterparts
+  in the Arduino libraries.
 
 # Appendix I: Single Task 500/333 Milliseconds Blink
 
