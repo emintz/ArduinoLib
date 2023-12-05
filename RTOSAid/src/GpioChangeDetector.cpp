@@ -70,7 +70,8 @@ void GpioChangeDetector::handle_pin_change(void) {
 bool GpioChangeDetector::start(void) {
   return
       (gpio_set_intr_type(gpio_num, interrupt_type) == ESP_OK)
-      && (gpio_isr_handler_add(gpio_num, change_interrupt_handler, this));
+      && (gpio_isr_handler_add(gpio_num, change_interrupt_handler, this) ==
+          ESP_OK);
 }
 
 void GpioChangeDetector::stop(void) {
