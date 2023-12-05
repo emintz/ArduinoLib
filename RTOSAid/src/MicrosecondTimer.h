@@ -95,16 +95,24 @@ public:
   virtual ~MicrosecondTimer();
 
   /**
-   * Initializes the timer. Users must invoke this exactly once before
+   * Initializes the timer and makes it usable. Invoke this exactly once before
    * using the timer.
    */
   bool begin(void);
+
+  /**
+   * Tears down the timer. When this function succeeds, the timer becomes
+   * unusable, but can be started again. Make sure that the begin() has run
+   * successfully before invoking this function.
+   */
+  bool end(void);
 
   /**
    * Starts the timer. If the timer is already running, its timeout is changed
    * to the specified value. Note that the Timer invokes task->notify() when
    * on expiration.
    */
+
   bool start(uint64_t timeout_in_microseconds);
 
   /**

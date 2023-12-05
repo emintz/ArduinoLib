@@ -54,6 +54,14 @@ bool MicrosecondTimer::begin(void) {
   return result;
 }
 
+bool MicrosecondTimer::end(void) {
+  bool result = (esp_timer_delete(h_timer) == ESP_OK);
+  if (result) {
+    h_timer = NULL;
+  }
+  return result;
+}
+
 bool MicrosecondTimer::start(uint64_t timeout_in_microseconds) {
   MutexLock lock(mutex);
   bool result = h_timer != NULL;
