@@ -2,7 +2,7 @@
 
 Welcome to the RTOSAid library, a collection of C++ convenience classes
 that simplify the use of advanced FreeRTOS features for ESP32
-developers. 
+developers.
 
 ## Licence
 
@@ -40,8 +40,8 @@ logic design and be comfortable programming C++. Familiarity with
 the ESP32 FreeRTOS APIs is helpful, but not required.
 
 Since the library is (meant to be, at least) self-documenting, it
-features long class, function, and variable names. We hope that this
-doesn't burden our users.
+features long class, function, and variable names. We hope that 
+doesn't overly inconvenience you.
 
 ### Arduino-Related Prerequisites
 
@@ -110,8 +110,8 @@ Interrupts are a hardware feature that support efficient event handling,
 especially signals from peripheral devices. A
 [real-time clock](https://www.analog.com/media/en/technical-documentation/data-sheets/ds3231.pdf),
 for example, can notify a microcontroller every second with extremely high
-accuracy. Other sensors, the
-[BNo055 Gyroscope](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf),
+accuracy. Other sensors, such as the
+[BNO055 Gyroscope](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf),
 can notify their microcontroller when they have data
 available. 
 
@@ -147,7 +147,7 @@ ISR implementations must
 
 Unless otherwise noted, RTOSAid functions **cannot** be used in ISRs. The
 names of compatible functions usually end with `from_isr`, as in the
-`TaskWithAction`'s (see below) `notify_from_ISR()` function.
+`TaskWithAction`'s (see below) `notify_from_isr()` function.
 
 Pro tips:
 
@@ -191,9 +191,9 @@ class ShortLongRedGreenEventHandler {
 
   // Interrupt service routines can be private, if desired.
   static void IRAM_ATTR take_interrupt(void);
-  
+
   // ...
-} 
+}
 ```
 
 and implemented 
@@ -218,7 +218,8 @@ Users should have the following parts on hand.
 
 * 1 ESP32 development (a.k.a. breakout) board. Mine has a generic ESP32 S2.
 * 1 solderless breadboard
-* Hookup wire or Dupont cabkes
+* Hookup wire or Dupont cabkes. 24 guage solid wire works well in solderless
+  breadboards.
 * LEDs in assorted colors, 1 each red, yellow, green, blue, and white
 * 5 510 Ohm , 5 percent (green, brown, black, gold), 1/4 Watt resistors
 * 1 push button switch or equivalent
@@ -245,8 +246,10 @@ Connect the pins as follows:
 | 27       | Push button switch to ground |
 
 In addition to the foregoing, the example sketches use the development
-board's built in LED, which is connected to GPIO pin 2. If your board's
-built in LED is connected to a different pin, you will have to change the
+board's built in LED, which is connected to GPIO pin 2 on my preferred
+cheap and cheerful
+[breakout board](https://www.amazon.com/AITRIP-ESP-WROOM-32-Development-Microcontroller-Integrated/dp/B09DPH1KXF/ref=sr_1_1_sspa?th=1).
+If your board's built in LED is wired differently, you will have to change the
 sketch accordingly. If your board does not have a builtin LED, you will
 need to add one and change the example sketches as needed.
 
@@ -313,21 +316,23 @@ The documentation provides the following information for each class:
    4. Example of use, where appropriate. We elide examples that provide no
       useful information
 
-Documentation does not cover implementation details, such as private fields
-and methods. The code is extensively commented where necessary.
+Documentation glosses over implementation details like private fields
+and methods, especially when coverage would add little relevant information.
+To make up for this, the code is extensively commented.
 
 # Tasks
 
 The task is the basic execution unit on the ESP32 and the central RTOSAid
-class. Almost every other class in the library interacts with the `Task`
-class.
+class. FreeRTOS is _multitasking_ meaning that many tasks can run
+simultaneously. Tasks have priorities, and RTOS runs the highest
+priority available task.
 
 Since Arduino style, `setup()`/`loop()`-based sketches, run in
-tasks, already use them. The `Task` class merely makes this explicit.
+tasks, your existing sketches already use them. 
 
 ## Overview
 
-To to understand the need for multiple tasks, let's start with a sketch that
+Let's start sidling up to tasks by considering a sketch that
 blinks the built in LED once per second, 500 milliseconds on,
 500 milliseconds off.
 
@@ -349,6 +354,7 @@ void loop() {
   vTaskDelay(pdMS_TO_TICKS(500));
 }
 ```
+
 Now let's blink two LEDs, the builtin as above, and another at
 twice per second. We can split the 500 millisecond delays into
 two 250 millisecond delays and interleave the code tthat blinks
@@ -383,11 +389,12 @@ void loop() {
 ```
 
 Suppose that instead of turning the second LED on and off for 250 milliseconds,
-we want to turn it off and on for 333 milliseconds instead. This is far more
-challenging. Because 333, 3^2 * 37  and 500, 2^2 * 5^2
-are relatively prime, we cannot use the simple method shown above.
+we want to turn it off and on for 333 milliseconds instead, which is far more
+challenging. Unlike 500 and 250, whose greatest common factor is 250,
+333, 3^2 * 37  and 500, 2^2 * 5^2
+are relatively prime so we cannot use the simple method shown above.
 The resulting sketch is too complex to show here so we've placed it in
-Appendix I.
+[Appendix I](#appendix-i-single-task-500333-milliseconds-blink).
 
 Implementation would be simple if we could run two independent loops
 like this.
@@ -415,49 +422,47 @@ boilerplate.
 ## Details
 
 Task code resides in a function whose logic either runs in an endless loop
-or explicitly shuts down its containing task. If the function returns, 
+or, if it needs to stop, explicitly shuts itself now. If the function returns, 
 FreeRTOS restarts the application. The RTOSAid task shuts itself down if
 the task method returns, but it is extremely poor practice to rely on this.
 
-Even though the task function does not return, tasks can temporarily wait
-for input, notifications, or other events. While watiing tasks remain in
-memory, they do not consume CPU or other system resorces. Instead, FreeRTOS
-runs other tasks, which implies that at least one task always be ready to
-run. To enure this, FreeRTOS provides an idle task that is always ready
-to run, and only runs when every other task is waiting.
+Even though the task function does not return, tasks can wait
+for input, notifications, or other events. Waiting tasks do not consume CPU
+or other system resorces. Instead, FreeRTOS runs other tasks. To ensure
+that it always has a task to run, FreeRTOS provides idle task that it
+runs when no other task is available.
 
-FreeRTOS provides an idle task that maintains a watchdog timer. The idle task
-runs when all other tasks are quiescent. and runs at
-the lowest possible priority. It resets the timer whenever it runs, and if
-the watchdog timer expires, FreeRTOS restarts the application. This means
-that the idle task **must** run periodically.
+The idle task maintains a watchdog timer that it resets whenever
+it runs.If the watchdog timer expires, FreeRTOS assumes that the
+system is locked and reboots. To prevent this,  the idle task
+**must** run periodically.
 
-FreeRTOS is a cooperative multitasking system, which means that the
-operating system cannot interrupt a running task. Instead, FreeRTOS
-switches between tasks when the running task cedes control.This means
-that tasks must periodically volunteer for preemption, wich they can do
-in several ways:
+FreeRTOS is a preemptive multitasking system, which means that it
+preempts a task when a higher priority task is ready to run. Since
+the background task cannot preempt an application task,
+they must volunteer for preemption from time to time so
+that the idle task resets the watchdog timer. A task becomes
+not ready when it
 
-1. Waiting, i.e. invoking 
+1. Pauses by invoking 
    [`vTaskDelay()`](https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-reference/system/freertos.html#_CPPv410vTaskDelayK10TickType_t), 
    [`delay()`](https://www.arduino.cc/reference/en/language/functions/time/delay/),
    or a similar function
-2. Suspending
-3. Waiting for a notification
-4. Waiting on a queue or timer
-5. Waiting on a hardware event such as a GPIO level change, or similar event
+2. Suspends
+3. Waits for a notification from another task
+4. Waits for a message to arrive
+5. Waots to acquire a semaphore
+6. Waits for a timer to expire
+7. Waits on a hardware event such as a GPIO level change to occur
 
-Tasks can be in the following states
+A task can be in the following states
 
-* Stopped: unitialized, non-existant
+* Ready: ready to run
 * Running: actively running
 * Suspended: quiescent, waiting to be resumed
 * Waiting: waiting for a notification or an event
 
-Tasks wait on a semaphore or queue, or wait for a hardware
-event.
-
-Waiting tasks do absolutely nothing and impose no load on the CPU.
+A nonrunning task does absolutely nothing and imposes no load on the CPU.
 
 :warning: **Warning:** when a task is waiting, be sure to wake it properly.
 For example, application code must not attempt to resume a task that is
@@ -476,7 +481,6 @@ To create a task, users must provide
 
 :warning: **Warning**: the system idle task runs at priority 0. User tasks
 should run at priority 1 or higher.
-
 
 The `BlinkAction` class shown below provides the required logic.
 
@@ -507,6 +511,7 @@ public:
   }
 };
 ```
+
 The `BlinkAction` constructor accepts the target GPIO number and
 delay, and sets the specified GPIO to `OUTPUT`. Its `run()` implementation
 provides our desired independently running blink logic.
@@ -598,13 +603,13 @@ stopped and will not run until the appliction invokes `start()` .
 
 Parameters:
 
-| Name   | Contents                                                          |
-| ------ | ------------------------------------------------------------------|
-| `name` | short, descriptive, `NULL`-terminated task name.                  |
-| `priority` | Task priority, 1 and 24, inclusive. The scheduler favors higher numbered priorities. |
-| `action` | The task's runtime logic, the program that the task runs        |
-| `stack`  | Storage for function invocation and automatic variables         |
-| `stack_size` | The `stack` size, e.g. `sizeof(stack)` in bytes.            |
+| Name         | Contents                                                          |
+| ------------ | ------------------------------------------------------------------|
+| `name`       | short, descriptive, `NULL`-terminated task name.                  |
+| `priority`   | Task priority, 1 and 24, inclusive. The scheduler favors higher numbered priorities. |
+| `action`     | The task's runtime logic, the program that the task runs          |
+| `stack`      | Storage for function invocation and automatic variables           |
+| `stack_size` | The `stack` size, e.g. `sizeof(stack)` in bytes.                  |
 
 :arrow_forward: **Note**: `name` should be unique, as it identifies the
 guilty task when an error occurrs.
@@ -628,13 +633,14 @@ Stops a task if it is running.
 
 :arrow_forward: **Note:** tasks instances are seldom deleted, so the destructor
 is implemented for the sake of completeness. Deleting a running task is
-extremely poor practice. Prefer invoking `stop()` first.
+extremely poor practice. Prefer invoking [`stop()`](#stop) first.
 
 ### notify
 
 Resumes a task that is waiting for a notification. Does nothing if the
 task is suspended or not waiting for a notification. This method is **only** for
-use by application code. ISR code **must** invoke `notify_from_ISR()`
+use by application code. ISR code **must** invoke 
+[`notify_from_ISR()`](#notify_from_isr)
 instead.
 
 ### notify_from_ISR
@@ -642,15 +648,11 @@ instead.
 Resumes a task that is waiting for notification. Does nothing if the
 task is suspended or not waiting for a notification. This method is **only** for
 use by interupt service routines (ISRs). Application code **must**
-invoke `notify()` instead.
+invoke [`notify()`](#notify) instead.
 
 ### resume
 
-Resumes a suspended task and does nothing if the task is running. To avoid
-unspecified and undesirable behavior, be sure to invoke `start` before
-invoking this method.
-
-:arrow_forward: **Note:** suspended tasks do not respond to notifications.
+Resumes a suspended task and does nothing if the task is running. 
 
 ### start
 
@@ -660,7 +662,7 @@ before any other methods can be invoked.
 
 ### stop
 
-Stops and destroys a task. The task can be restarted with `start()`.
+Stops and destroys a task. The task can be restarted with [`start()`](#start).
 
 
 :warning: **Warning:** `stop()` will destroy a task in any state. Improper
@@ -673,7 +675,9 @@ The `resume()` method (see above) resumes suspended tasks.
 
 :arrow_forward: **Note**: suspending a suspended task has no effect. No matter
 how many times the user invols `suspend()` on a suspended task, the next call
-to `resume()` will reactivate it.
+to [`resume()`](#resume) will reactivate it.
+
+:arrow_forward: **Note:** suspended tasks do not respond to notifications.
 
 ## `TaskAction` Class
 
@@ -787,7 +791,7 @@ The `PullQueueT` class is templated by the message type, which users must
 provide in a queue declaration. In principal, `PullQueueT` defines a unique
 class for each message type.
 
-:warning: wpecify a message as plain, C-style `struct`, a structure (as opposed
+:warning: specify a message as plain, C-style `struct`, a structure (as opposed
 to a class) without functions, including constructors and destructor, as in
 
 
@@ -1020,7 +1024,7 @@ class does **not** support recursive locks. Attempting to relock a
 The API is designed to assure that locks are released eventually. Users
 are responsible for ensuring prompt release.
 
-## The `Mutex` Class
+## `Mutex` Class
 
 The `Mutex` class maintain a list of tasks that are waiting for its lock,
 and doles out its lock to one task at a time.
@@ -1043,7 +1047,7 @@ Checks if the mutex is valid
 Returns: `true` if the mutex is ready to use, `false` otherwise. `valid()` always returns `false` until `begin()`
 runs successfully.
 
-## The `MutexLock` Class
+## `MutexLock` Class
 
 The `MutexLock` class locks `Mutex` instances. Its constructor takes the `Mutex`
 to be locked, together with an optional time to wait. If the caller provides a
@@ -1135,7 +1139,7 @@ Typically, a function class has a single pure virtual function where
 subclasses place the function's logic. We have already seen an example
 in the `TaskAction` described previously.
 
-## The VoidFunction Class
+## VoidFunction Class
 
 The `VoidFunction` class stands in for a void no-argument function,
 one that takes no parameters and returns nothing. It is not usable
@@ -1166,13 +1170,13 @@ a precise delay.
 
 ## Overview
 
-So far, we have only one way to run a task in the future: wait the
+So far, we have only one way to run a logic in the future: wait the
 desired time, then proceed. Sometimes, though it is handy to have
 a "fire and forget" mechanism, a way to stage a task to be run,
 then get on with the application logic. Timers provide that
 mechanism.
 
-## The MicrosecondTimer Class
+## MicrosecondTimer Class
 
 A `MicrosecondTimer` allows applications to schedule a `VoidFunction`
 invocation after a precise delay. The delay is specified in microseconds.
@@ -1220,8 +1224,8 @@ Parameters:
 
 # GPIO Input Change Detector
 
-The GPIO Change Detectors watch for voltage to change on GPIO input
-pins.
+A GPIO Change Detector monitors a GPIO input pin's voltage
+and invokes a `VoidFunction` when it changes.
 
 ## Overview
 
@@ -1231,7 +1235,7 @@ The detectors can respond to
 * `HIGH` to `LOW` transitions
 * Both `LOW` to `HIGH` and `HIGH` to `LOW` transitions
 
-The detectors implement a `VoidFunction` when they sense a
+The detectors invoke a `VoidFunction` when they detect a
 transition.
 
 The change detector provides two classes, `GpioChangeService` to manage
@@ -1337,6 +1341,210 @@ function invokes the target detector's `handle_pin_change()` function.
 `handle_pin_change` invokes the `VoidFunction` that was bound to this
 `GpioChangeDetector` instance.  Application code cannot invoke it.
 
+# Debounced GPIO Input Change Detection
+
+Like the [`GpioChangeDetector`](#gpiochangedetector-class) class, the
+`GpioDebouncer` responds when the voltage changes on a GPIO input pin.
+Unlike the [`GpioChangeDetector`](#gpiochangedetector-class), which is
+sensitve to noise, the `GpioDebouncer` does filters out switch
+spurrious makes and breaks.
+
+## Background
+
+Mechanical switches, including our beloved push buttons, are subject to
+[contact bounce](https://en.wikipedia.org/wiki/Switch#Contact_bounce)
+(a.k.a. "chatter"). Instead of generating clean makes (openings) and
+breaks (closures), the switch generates sequences of makes and breaks
+whenever it is opened or closed. If the switch is wired "active low" --
+one lead connected to ground and the other connected to a GPIO pin
+having a pullup resistor, a switch closure generates voltage swiggs
+resembling
+
+```
+ High (Open)   --> -------+  +---+      +--------+
+                          |  |   |      |        |
+                          |  |   |      |        |
+ Low (Closed) -->         +--+   +------+        +----------------------- ...
+
+                          |<==== Bounce Time ===>|
+```
+
+where `---` indicates steady voltege, `|` indicates a changing
+voltage, `+` makes the ASCII art look a bit better, and `|<===>|`
+represents a time interval. We will also use periods to show the
+time remaining on a reset timer.
+
+The `GpioDebouncer` uses a timer to avoid responding to chatter,
+the spurious signals resulting from contact bounce. It starts
+the timer whenever the voltage changes with the timer configured
+to invoke the desired `VoidFunction`, resulting in the following
+activity.
+
+
+```
+ High (Open)   --> -------+  +---+      +--------+
+                          |  |   |      |        |
+                          |  |   |      |        |
+ Low (Closed) -->         +--+   +------+        +----------------------- ...
+                          |<=........|
+                             |<==.......|
+                                 |<=====....|
+                                        |<======...|
+                                                 |<========>|
+                                                            |
+                                                            v
+                                                            VoidFunction.apply()
+```
+
+The delay can be much shorter than the bounce time. As long as the delay
+outwaits the longest bounce, the debouncer will work properly.
+
+:warning: ***Warning**: under unusual conditiions such as violent
+shaking or contamination, switches can chatter without changing state,
+causing its `GpioDebouncer` to invoke its `VoidFunction` spurriously.
+If there's any chance that this could happen, be sure that the
+invoked `VoidFunction` checks that the switch has actually opened
+or closed before proceeding.
+
+## Constituents
+
+The `GpioDebouncer` class assembles a
+[`MicrosecondTimer`](#microsecondtimer-class),
+[`TaskAction`](#taskaction-class),
+[`TaskWithAction`](#taskwithaction-class),
+[`VoidFunction`](#voidfunction-class), and
+[`GpioChangeDetector`](#gpiochangedetector-class)
+and a few lines of custom logic to detect switch activity,
+remove the ensuing chatter, and apply a user-provided
+[`VoidFunction`](#voidfunction-class). The few lines of
+custom logic is reside in 
+[`VoidFunction`](#voidfunction-class)
+and 
+[`TaskAction`](#taskaction-class) implementations.
+
+### `GpioDebouncerAction` Internal Class
+
+`GpioDebouncerAction` is a
+[`TaskAction`](#taskaction-class)
+subclass whose `run()` function starts a
+[`MicrosecondTimer`](#microsecondtimer-class)
+when it receives a notification. The
+[`MicrosecondTimer`](#microsecondtimer-class)
+invokes the user-provided
+[`VoidFunction`](#voidfunction-class)
+
+:arrow_forward: **Note**: Access to the `GpioDebouncerAction` class
+is restricted. Application code cannot use it. 
+
+### `GpioDebounceFunction` Internal Class
+
+`GpioDebounceFunction` is a `VoidFunction` subclass whose
+`apply()` function notifies the task running the `GpioDebouncerAction`.
+Since `GpioDebounceFunction` runs as an ISR, it notifies the task by
+invoking its `notify_from_isr()` function.
+
+:arrow_forward: **Note**: Access to the `GpioDebounceFunction` class
+is restricted. Application code cannot use it. 
+
+### GPIO Voltage Change Processing
+
+```
+                Change       Debounce     Debounce    Millisecond    User-Provided
+  GPIO          Dector       Function       Task         Timer        VoidFunction
+    |  Voltage    |            |             |             |              |
+    +-  Change -->+            |             |             |              |
+    |             |            |             |             |              |
+    |             +-- Apply -->+             |             |              |
+    |             |            |             |             |              |
+    |             |            +-- Notify - >+             |              |
+    |             |            |             |             |              |
+    |             |            |             +--- Start -->+              |
+    |             |            |             |             |              |
+    |             |            |             |             +- Expire -+   |
+    |             |            |             |             |          |   |
+    |             |            |             |             |          v   |
+    |             |            |             |             |<---------+   |
+    |             |            |             |             |              |
+    |             |            |             |             |              |
+    |             |            |             |             +--- apply --->+
+    |             |            |             |             |              |
+```
+
+If the GPIO input voltage changes before the timer expires, the timer is
+reset and the wait restarts. When the voltage finally settles down, the
+timer's delay runs to completion, and the timer applies the user-provided
+[`VoidFunction`](#voidfunction-class).
+
+
+## `GpioDebouncer` Class
+
+`GpioDebouncer` packages the foregoing components in an easily
+used class. In additiion to solving a knotty problem, the class
+also shows how to aggregate RTOSAid library components into
+an application-specific solution.
+
+The `GpioDebouncer` is composed of the following RTOSAid classes
+together with a few lines of custom logic
+
+* [`GpioChangeDetector`](#gpiochangedetector-class)
+* [`MicrosecondTimer`](#microsecondtimer-class)
+* [`TaskAction`](#taskaction-class) subclass containing a about half
+  the custom logic
+* [`TaskWithAction`](#taskwithaction-class)
+* [`VoidFunction`](#voidfunction-class) subclass containing the rest
+  of the custom logic.
+
+In addition to providing a vital function, the `GpioDebouncer` shows
+how to implement complex functionality by assembling RTOSAid classes.
+
+:arrow_forward: **Note**: since `GpioDebouncer` uses a
+[`MicrosecondTimer`](#microsecondtimer-class),
+be sure to invoke [`GpioChangeService.begin()`](#begin-2) before
+using it.
+
+:arrow_forward: **Note**: as stated above, violent acceleration can
+cause a `GpioDebouncer` to detect a non-existant change, e.g a change
+from closed to closed. If your project is subject to extreme
+mechanical shock, be sure th check that the switch changed.
+
+### Constructor
+
+Configures a `GpioDebouncer`
+
+Parameters
+
+
+| Name                    | Contents                                  |
+| ----------------------- | ----------------------------------------- |
+| `pin_no`                | GPIO pin to monitor                       |
+| `debounce_delay_micros` | The time to wait after a voltage change   |
+| `task_name`             | Unique debounce task name.                |
+| `priority`              | Timer task priority, which should be high |
+| `timer_name`            | Name of the debounce timer. |
+| `function_to_call`      | The [`VoidFunction`](#voidfunction-class) to apply when switch chatter settles down |
+
+### Destructor
+
+The destructor stops `GpioChangeDetector`. When this method succeeds, the
+`GpioChangeDetector` does not monitor the GPIO input pin and will not respond
+to switch activity.
+
+Best practice is to invole `stop()` before destroying a `GpioDebouncer`.
+
+### `start()`
+
+Starts the detector. after this function succeeds, the `GpioDebouncer` notifies
+its task whenever the pin voltage changes.
+
+:arrow_forward: **Note**: be sure to invoke [
+`GpioChangeService.begin()`](#begin-2)
+before invoking `start()`.
+
+### `stop()`
+
+Tears down the `GpioDebouncer`. When this function returns, the
+`GpioDebouncer` stops all notification. Users can restart it by
+calling `start()`.
 
 # C++ Style
 
