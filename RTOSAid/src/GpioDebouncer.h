@@ -68,11 +68,29 @@
 #include "TaskWithAction.h"
 #include "VoidFunction.h"
 
+/**
+ * The action for the debounce task, the task that receives the voltage
+ * change notification
+ */
 class GpioDebouncerAction final : public TaskAction {
   friend class GpioDebouncer;
   MicrosecondTimer debounce_timer;
   uint32_t debounce_delay_micros;
 
+  /**
+   * Constructor, declared private to prevent application code from creating
+   * instances
+   *
+   * Parameters:
+   *
+   * Name:                       Contents
+   * --------------------------- ----------------------------------------------
+   * timer_name                  Name of the class's MillisecondTimer
+   * debounce_delay_microseconds Microseconds to wait before applying
+   *                             function_to_call
+   * function_to_call            VoidFunction to invoke after the switch
+   *                             chatter settles
+   */
   GpioDebouncerAction(
       char * timer_name,
       uint64_t debounce_delay_micros,
@@ -81,18 +99,43 @@ class GpioDebouncerAction final : public TaskAction {
   virtual ~GpioDebouncerAction();
 public:
 
+  /**
+   * Initializes the debouncer. When this method runs successfully,
+   * debounce_timer is ready for use.
+   *
+   * Returns: true if initialization succeeded, false when it fails
+   */
   bool begin(void);
 
+  /**
+   * Tears down debounce_timer
+   */
   void end(void);
 
+  /**
+   * runs the task logic which starts debounce_timer to fire after
+   * debounce_microseconds has elapsed.
+   */
   virtual void run(void);
 };
 
+/**
+ * VoidFunction that notifies a specified task when applied.
+ */
 class GoioDebounceFunction final : public VoidFunction {
   friend class GpioDebouncer;
 
   TaskWithAction *task;
 
+  /**
+   * Constructor
+   *
+   * Parameters:
+   *
+   * Name  Contents
+   * ----- ----------------------------------------------
+   * task  Task that apply() should notify
+   */
   inline GoioDebounceFunction(TaskWithAction *task) :
       task(task) {
   }
@@ -103,7 +146,9 @@ public:
   virtual void apply(void);
 };
 
-
+/**
+ * GPIO input pin voltage change detector that ignores switch chatter.
+ */
 class GpioDebouncer {
   GpioDebouncerAction action;
   uint8_t debounce_stack[2048];
@@ -112,6 +157,22 @@ class GpioDebouncer {
   GpioChangeDetector change_detector;
 
 public:
+
+  /**
+   * Constructor
+   *
+   * Parameters:
+   *
+   * Name                  Contents
+   * --------------------- ---------------------------------------------------
+   * pin_no                GPIO pin to monitor
+   * debounce_delay_micros Microseconds to wait before notifying the debounce
+   *                       task that the pin voltage has changed
+   * task_name             Debounce task name
+   * priority              Debounce task priority
+   * timer_name            Debounce timer name
+   * function_to_call      Function to invoke on pin change
+   */
   GpioDebouncer(
       uint8_t pin_no,
       uint32_t debounce_delay_micros,
@@ -121,8 +182,14 @@ public:
       VoidFunction *function_to_call);
   virtual ~GpioDebouncer();
 
+  /**
+   * Starts the detector
+   */
   bool start(void);
 
+  /**
+   * Stops the detector
+   */
   void stop(void);
 };
 
