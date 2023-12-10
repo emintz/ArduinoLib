@@ -50,8 +50,6 @@ protected:
       UBaseType_t queue_length,
       uint8_t *queue_storage);
 
-protected:
-
   bool really_peek_message(void *message, TickType_t timeout = portMAX_DELAY);
 
   bool really_pull_message(void *message, TickType_t timeout = portMAX_DELAY);
