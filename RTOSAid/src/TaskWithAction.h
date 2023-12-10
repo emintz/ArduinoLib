@@ -59,7 +59,7 @@
 
 class TaskAction;
 
-class TaskWithAction {
+class TaskWithAction final {
   // Permits code in the TaskAction class access fields and functions in
   // this class.
   friend TaskAction;
