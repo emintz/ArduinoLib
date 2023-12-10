@@ -85,7 +85,7 @@
 
 class MutexLock;
 
-class Mutex {
+class Mutex final {
   friend class MutexLock;
 
   StaticSemaphore_t mutex_buffer;
