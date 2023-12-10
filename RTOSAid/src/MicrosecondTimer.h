@@ -36,7 +36,7 @@
 
 class TimerAction;
 
-class MicrosecondTimer {
+class MicrosecondTimer final {
 public:
   enum TimerState {
     RUNNING,
