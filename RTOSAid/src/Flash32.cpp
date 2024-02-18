@@ -191,6 +191,10 @@ Flash32Status Flash32BaseNamespace::close(void) {
   return result;
 }
 
+bool Flash32BaseNamespace::entries(size_t *entry_count) {
+  return nvs_get_used_entry_count(h_namespace, entry_count) == ESP_OK;
+}
+
 Flash32Status Flash32BaseNamespace::get_int8(const char* key, int8_t *value) {
   return to_flash32_status(nvs_get_i8(h_namespace, key, value));
 }

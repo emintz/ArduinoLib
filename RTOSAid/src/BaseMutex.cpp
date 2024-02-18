@@ -1,10 +1,10 @@
 /*
- * TaskWithAction.cpp
+ * BaseSemaphore.cpp
  *
- *  Created on: May 9, 2023
+ *  Created on: Feb 9, 2024
  *      Author: Eric Mintz
  *
- * Copyright (C) 2023 Eric Mintz
+ * Copyright (C) 2024 Eric Mintz
  * All Rights Reserved
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,40 +19,25 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
 
-#include "TaskWithAction.h"
+#include "BaseMutex.h"
 
-#include <stdlib.h>
-#include "TaskAction.h"
-
-TaskWithAction::TaskWithAction(
-    const char *name,
-    uint16_t priority,
-    TaskAction *action,
-    void *stack,
-    size_t stack_size) :
-    BaseTaskWithAction(
-        action,
-        name,
-        priority,
-        stack_size),
-  stack(static_cast<StackType_t *>(stack)) //,
-{
-  memset(&task_buffer, 0, sizeof(task_buffer));
+BaseMutex::BaseMutex() :
+  semaphore_handle(NULL) {
 }
 
-TaskWithAction::~TaskWithAction() {
+BaseMutex::~BaseMutex() {
+  if (semaphore_handle) {
+    vSemaphoreDelete(semaphore_handle);
+    semaphore_handle = NULL;
+  }
 }
 
-bool TaskWithAction::start(void) {
-  return set_task_handle(xTaskCreateStatic(
-      run_task_loop,
-      task_name(),
-      task_stack_size(),
-      this,
-      task_priority(),
-      stack,
-      &task_buffer));
+bool BaseMutex::lock(TickType_t wait_time_in_ticks) {
+  return xSemaphoreTake(semaphore_handle, wait_time_in_ticks) == pdTRUE;
+}
+
+void BaseMutex::unlock() {
+  xSemaphoreGive(semaphore_handle);
 }

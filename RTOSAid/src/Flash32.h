@@ -163,7 +163,9 @@ protected:
 
   inline Flash32BaseNamespace(
       const char *name) :
-        name(name) {
+        name(name),
+        h_namespace(NULL),
+        namespace_state(Flash32MemoryState::CLOSED) {
   }
 
   virtual ~Flash32BaseNamespace() {}
@@ -188,6 +190,23 @@ public:
    * successfully closed namespace can be reopened.
    */
   Flash32Status close(void);
+
+  /*
+   * Retrieves the number of key, value pairs in the namespace. Note that
+   * the namespace must be open for the function to succeeds.
+   *
+   * Parameters:
+   *
+   * +=============+======================================================+
+   * | Name        | Contents                                             |
+   * +=============+======================================================+
+   * | entry_count | Receives the number of entries in the namespace.     |
+   * |             | Cannot be NULL. Contents unspecified on failure.     |
+   * +-------------+------------------------------------------------------+
+   *
+   * Returns: true if and only if retrieval succeeded.
+   */
+  bool entries(size_t *entry_count);
 
   /**
    * The following methocs retrieve numeric values from flash memory. They
@@ -291,7 +310,6 @@ public:
 class Flash32Namespace final : public Flash32BaseNamespace {
   friend class Flash32Iterator;
 
-  const char *name;
   const bool autocommit;
 
   Flash32Status finish_mutation(esp_err_t status);

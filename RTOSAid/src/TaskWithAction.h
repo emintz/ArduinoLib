@@ -53,72 +53,18 @@
 #define TASKWITHACTION_H_
 
 #include "Arduino.h"
+#include "BaseTaskWithAction.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-class TaskAction;
+class TaskWithAction final : public BaseTaskWithAction {
 
-class TaskWithAction final {
-  // Permits code in the TaskAction class access fields and functions in
-  // this class.
-  friend TaskAction;
-
-  const char *name;
-  TaskAction *action;
-  UBaseType_t priority;
   StackType_t *stack;
-  size_t stack_size;
-  BaseType_t status;
   StaticTask_t task_buffer;
-  TaskHandle_t task_handle;
-
-  /**
-   * The task function. The parameters argument will contain a pointer to this
-   * TaskWithAction.
-   */
-  static void run_task_loop(void *parameters);
-
-  /**
-   * Runs the task loop in the associated Action. Note that this TaskWithAction
-   * will delete itself if the Action's run() method returns.
-   */
-  void start_task(void);
 
 protected:
 
-  /**
-   * Delay (pause) the task for the specified number of milliseconds. The task
-   * loop will stop running for the specified time, and resume automatically
-   * afterward.
-   */
-  void delay_millis(uint32_t millis);
-
-  /**
-   * Suspend the task until some other task sends a notification or until
-   * the specified delay elapses.
-   *
-   * Parameters
-   *
-   * Name            Contents
-   * --------------- ----------------------------------------------------------
-   * millis_to_wait  Delay in milliseconds, which defaults to the maximum
-   *                 possible value if omitted. If millis_to_wait is zero,
-   *                 the method will return immediately.
-   *
-   * Returns the task's notification count before the method was invoked.
-   * Note that the method sets the notification count to 0, forcing the
-   * task to wait.
-   */
-  uint32_t wait_for_notification(uint32_t millis_to_wait=portMAX_DELAY);
-
-  /**
-   * Yield to any higher priority tasks that are ready to run. Note that
-   * FreeRTOS implements cooperative multitasking, which means that it
-   * cannot forcefully preempt a low priority task. Instead, low
-   * priority tasks must volunteer for preemption.
-   */
-  void yield(void);
 
 public:
 
@@ -174,42 +120,11 @@ public:
   virtual ~TaskWithAction();
 
   /**
-   * Notify the task from application code. This will resume the task if it is
-   * waiting for a notification. Does nothing if the task has a pending
-   * notification.
-   */
-  void notify();
-
-  /**
-   * Notify the task from an interrupt service routine (ISR). Application code
-   * must invoke notify() instead.
-   */
-  void IRAM_ATTR notify_from_isr();
-
-  /**
-   * Resumes a suspended task.
-   */
-  void resume(void);
-
-  /**
    * Starts the task
    *
    * Returns the true if the task started and false if it failed to start.
    */
-  bool start(void);
-
-  /**
-   * Stop and delete the task, if it is running. This method is neither task
-   * nor thread-safe.
-   */
-  void stop(void);
-
-  /**
-   * Suspends this task indefinitely. Invoke resume() to resume it. This
-   * code is thread and multi-task safe. It is also idempotent, that is,
-   * multiple invocations have the same effect as a single invocation.
-   */
-  void suspend(void);
+  virtual bool start(void);
 };
 
 #endif /* TASKWITHACTION_H_ */

@@ -30,25 +30,11 @@
 
 Mutex::Mutex() {
   memset(&mutex_buffer, 0, sizeof(mutex_buffer));
-  semaphore_handle = NULL;
 }
 
 Mutex::~Mutex() {
-  if (semaphore_handle) {
-    vSemaphoreDelete(semaphore_handle);
-    semaphore_handle = NULL;
-  }
 }
 
 bool Mutex::begin(void) {
-  semaphore_handle = xSemaphoreCreateMutexStatic(&mutex_buffer);
-  return semaphore_handle;
-}
-
-bool Mutex::lock(TickType_t wait_time_in_ticks) {
-  return xSemaphoreTake(semaphore_handle, wait_time_in_ticks) == pdTRUE;
-}
-
-void Mutex::unlock() {
-  xSemaphoreGive(semaphore_handle);
+  return set_handle(xSemaphoreCreateMutexStatic(&mutex_buffer));
 }

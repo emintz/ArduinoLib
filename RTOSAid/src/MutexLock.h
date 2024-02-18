@@ -41,13 +41,22 @@
 
 #include "Arduino.h"
 
-class Mutex;
+class BaseMutex;
 
 #include <new>
 
 class MutexLock final {
-  Mutex &mutex;
+  BaseMutex &mutex;
   bool lock_successful;
+
+  /**
+   * Copy construction makes no sense in the class, so we
+   * hide same.
+   */
+  MutexLock(MutexLock *do_not_copy_me) = delete;
+  MutexLock(MutexLock& do_not_copy_me) = delete;
+  MutexLock& operator=(MutexLock const&) = delete;
+
 
   /**
    * Hiding the new and delete operators prevents allocation on the heap.
@@ -81,7 +90,7 @@ public:
    * ------ -----------------------------------------------------------------
    * mutex  The Mutex to lock
    */
-  MutexLock(Mutex &mutex);
+  MutexLock(BaseMutex &mutex);
 
   /**
    * Locks the specified Mutex. If the Mutex is already locked, will wait
@@ -99,7 +108,7 @@ public:
    *                      acquired before the specified deadline, the
    *                      lock attempt fails.
    */
-  MutexLock(Mutex &mutex, uint32_t wait_time_in_millis);
+  MutexLock(BaseMutex &mutex, uint32_t wait_time_in_millis);
 
   /**
    * Unlocks a semaphore. Does nothing if the lock fails.

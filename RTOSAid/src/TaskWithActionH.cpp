@@ -1,10 +1,10 @@
 /*
- * TaskWithAction.cpp
+ * TaskWithActionH.cpp
  *
- *  Created on: May 9, 2023
+ *  Created on: Feb 5, 2024
  *      Author: Eric Mintz
  *
- * Copyright (C) 2023 Eric Mintz
+ * Copyright (C) 2024 Eric Mintz
  * All Rights Reserved
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,40 +19,34 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
 
-#include "TaskWithAction.h"
+#include "TaskWithActionH.h"
 
-#include <stdlib.h>
-#include "TaskAction.h"
-
-TaskWithAction::TaskWithAction(
+TaskWithActionH::TaskWithActionH(
     const char *name,
-    uint16_t priority,
+    const UBaseType_t priority,
     TaskAction *action,
-    void *stack,
-    size_t stack_size) :
-    BaseTaskWithAction(
-        action,
-        name,
-        priority,
-        stack_size),
-  stack(static_cast<StackType_t *>(stack)) //,
-{
-  memset(&task_buffer, 0, sizeof(task_buffer));
+    const size_t stack_size) :
+      BaseTaskWithAction(
+          action,
+          name,
+          priority,
+          stack_size) {
 }
 
-TaskWithAction::~TaskWithAction() {
+TaskWithActionH::~TaskWithActionH() {
 }
 
-bool TaskWithAction::start(void) {
-  return set_task_handle(xTaskCreateStatic(
+bool TaskWithActionH::start(void) {
+  TaskHandle_t task_handle = NULL;
+  BaseType_t create_status = xTaskCreate(
       run_task_loop,
       task_name(),
       task_stack_size(),
       this,
       task_priority(),
-      stack,
-      &task_buffer));
+      &task_handle);
+  set_task_handle(task_handle);
+  return create_status == pdPASS;
 }

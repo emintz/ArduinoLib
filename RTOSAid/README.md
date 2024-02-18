@@ -306,8 +306,11 @@ requirements.
 
 To comply with the foregoing requirements, RTOSAid
 
-* Minimizes heap use, allocating storage statically instead of via
- `new` or `malloc`. Users must provide storage to some classes.
+* Supports minimal heap use by providing classes that allocate
+  storage statically instead of via `new` or `malloc`. Users must provide
+  storage to some of these classes.
+* (In progress) Supports efficient heap use by providing classes that
+  automatically manage storage via ```new``` and ```delete```.
 * Short functions: logic is short, simple, and fits on a single
   printed page.
 * Does not recurse to minimize the chance of stack overflow
@@ -318,6 +321,10 @@ To comply with the foregoing requirements, RTOSAid
   classes..
 * Type safety: APIs are designed to minimize the risk of type errors,
   to ensure that functions only receive values of expected types. 
+
+Note that classes that allocate heap storage have names that end in ```H```.
+For example, the static memory-oriented task class is named ```TaskWithAction```
+and its heap-oriented counterpart is named ```TaskWithActionH```.
 
 In the author's experience, the presence of "do everything" classes
 limits a library's usefulness. Designers cannot anticipate their

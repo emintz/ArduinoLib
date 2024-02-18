@@ -1,10 +1,13 @@
 /*
- * MutexLock.cpp
+ * MutexH.h
  *
- *  Created on: Nov 23, 2023
+ *  Created on: Feb 12, 2024
  *      Author: Eric Mintz
  *
- * Copyright (C) 2023 Eric Mintz
+ * A mutual exclusion semaphore (a.k.a. mutex) whose internal storage is
+ * allocated on the heap.
+ *
+ * Copyright (C) 2024 Eric Mintz
  * All Rights Reserved
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,28 +22,20 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
 
-#include "MutexLock.h"
+#ifndef LIBRARIES_RTOSAID_SRC_MUTEXH_H_
+#define LIBRARIES_RTOSAID_SRC_MUTEXH_H_
 
+#include "Arduino.h"
 #include "BaseMutex.h"
 
-MutexLock::MutexLock(
-    BaseMutex &mutex) :
-      mutex(mutex) {
-  while (!(lock_successful = mutex.lock(portMAX_DELAY))) {}
-}
+class MutexH : public BaseMutex {
+public:
+  MutexH();
+  virtual ~MutexH();
 
-MutexLock::MutexLock(
-    BaseMutex &mutex,
-    uint32_t wait_time_in_millis) :
-      mutex(mutex) {
-  lock_successful = mutex.lock(pdMS_TO_TICKS(wait_time_in_millis));
-}
+  virtual bool begin(void);
+};
 
-MutexLock::~MutexLock() {
-  if (lock_successful) {
-    mutex.unlock();
-  }
-}
+#endif /* LIBRARIES_RTOSAID_SRC_MUTEXH_H_ */

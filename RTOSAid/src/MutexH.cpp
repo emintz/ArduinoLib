@@ -1,10 +1,10 @@
 /*
- * TaskWithAction.cpp
+ * MutexH.cpp
  *
- *  Created on: May 9, 2023
+ *  Created on: Feb 12, 2024
  *      Author: Eric Mintz
  *
- * Copyright (C) 2023 Eric Mintz
+ * Copyright (C) 2024 Eric Mintz
  * All Rights Reserved
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,40 +19,20 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
  */
 
-#include "TaskWithAction.h"
+#include "MutexH.h"
 
-#include <stdlib.h>
-#include "TaskAction.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/semphr.h"
 
-TaskWithAction::TaskWithAction(
-    const char *name,
-    uint16_t priority,
-    TaskAction *action,
-    void *stack,
-    size_t stack_size) :
-    BaseTaskWithAction(
-        action,
-        name,
-        priority,
-        stack_size),
-  stack(static_cast<StackType_t *>(stack)) //,
-{
-  memset(&task_buffer, 0, sizeof(task_buffer));
+MutexH::MutexH() {
+
 }
 
-TaskWithAction::~TaskWithAction() {
+MutexH::~MutexH() {
 }
 
-bool TaskWithAction::start(void) {
-  return set_task_handle(xTaskCreateStatic(
-      run_task_loop,
-      task_name(),
-      task_stack_size(),
-      this,
-      task_priority(),
-      stack,
-      &task_buffer));
+bool MutexH::begin(void) {
+  return set_handle(xSemaphoreCreateMutex());
 }

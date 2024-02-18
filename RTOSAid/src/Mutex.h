@@ -76,37 +76,16 @@
 
 #include "Arduino.h"
 
+#include "BaseMutex.h"
 #include "MutexLock.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 
-#include <new>
-
-class MutexLock;
-
-class Mutex final {
+class Mutex final : public BaseMutex {
   friend class MutexLock;
 
   StaticSemaphore_t mutex_buffer;
-  SemaphoreHandle_t semaphore_handle;
-
-  /**
-   * Locks the semaphore, returning true if the semaphore is locked and false
-   * if locking failed. The method is idempotent; locking a locked
-   * semaphore will succeed, but will have no effect. If an invocation should
-   * fail, a subsequent invocation might succeed.
-   *
-   * The lock() method is reserved for the inner Lock class's exclusive use.
-   * Accessed via the Lock constructor.
-   */
-  bool lock(TickType_t wait_time_in_ticks);
-
-  /**
-   * Unlocks the semaphore. No matter how many times the semaphore has been
-   * locked, the semaphore will be unlocked.
-   */
-  void unlock(void);
 
 public:
   /**
@@ -125,16 +104,7 @@ public:
    * Initialize the mutex and prepare it for locking. Returns true if
    * initialization succeeded and false if it failed.
    */
-  bool begin();
-
-  /**
-   * Returns true if and only if this semaphore is valid, i.e. available for
-   * locking. Note that valid will returns false until an invocation of
-   * begin() succeeds.
-   */
-  inline bool valid(void) {
-    return semaphore_handle != NULL;
-  }
+  virtual bool begin();
 };
 
 #endif /* LIBRARIES_ESP32_UTILITIES_MUTEX_H_ */

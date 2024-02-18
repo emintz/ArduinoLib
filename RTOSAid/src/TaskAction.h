@@ -35,15 +35,14 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 
-class TaskWithAction;
+class BaseTaskWithAction;
 
 class TaskAction {
-
-  // Permits code in the TaskWithAction class to access fields and
+  // Permits code in the BaseTaskWithAction class to access fields and
   // functions in this class
-  friend TaskWithAction;
+  friend BaseTaskWithAction;
 
-  TaskWithAction *containing_task;
+  BaseTaskWithAction *containing_task;
 
 protected:
   TaskAction(void);
