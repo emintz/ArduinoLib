@@ -36,11 +36,15 @@
  * The assailant tasks illuminate LEDs when they hold the semaphore, so
  * it's easy to verify that they both run. They will also illuminate the
  * red led if they detect a race condition.
+ *
+ * Note that the task briefly illuminates all LEDS when it starts to
+ * ensure that the LEDs are connected correctly.
  */
+
+#include <StressTestBlinkAction.h>
 
 #include "Arduino.h"
 #include "AssailantAction.h"
-#include "BlinkAction.h"
 #include "TargetClass.h"
 
 #define RED_LED_PIN 13
@@ -49,7 +53,7 @@
 #define BLUE_LED_PIN 16
 
 static uint8_t blink_stack[2048];
-static BlinkAction blink_action;
+static StressTestBlinkAction blink_action;
 static TaskWithAction blink_task(
     "Blink",
     1,

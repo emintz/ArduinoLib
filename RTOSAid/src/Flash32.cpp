@@ -53,6 +53,7 @@ bool HardwareFlash32::begin(void) {
       flash32_state = Flash32MemoryState::OPENED;
     } else {
       flash32_state = Flash32MemoryState::CORRUPTED;
+      result = false;
     }
     break;
   case Flash32MemoryState::OPENED:
@@ -144,15 +145,16 @@ Flash32Status Flash32BaseNamespace::open_namespace(nvs_open_mode_t open_mode) {
 
   if (result == Flash32Status::OK) {
     switch (namespace_state) {
-    case Flash32MemoryState::CLOSED:
-      result = to_flash32_status(
-          nvs_open(
-              name,
-              open_mode,
-              &h_namespace));
+    case Flash32MemoryState::CLOSED: {
+      esp_err_t nvs_open_status =  nvs_open(
+          name,
+          open_mode,
+          &h_namespace);
+      result = to_flash32_status(nvs_open_status);
         namespace_state = Flash32Status::OK == result
             ? Flash32MemoryState::OPENED
             : Flash32MemoryState::CORRUPTED;
+      }
       break;
 
     case Flash32MemoryState::OPENED:
@@ -332,23 +334,25 @@ Flash32Status Flash32Namespace::set_str(const char *key, const char *value) {
 }
 
 bool Flash32Iterator::advance(void) {
-  iterator = nvs_entry_next(iterator);
-  return load();
+  esp_err_t status = nvs_entry_next(&iterator);
+  return status == ESP_OK && load();
 }
 
 bool Flash32Iterator::start(void) {
-  iterator = nvs_entry_find(
+  iterator = NULL;
+  bool status = nvs_entry_find(
       NVS_DEFAULT_PART_NAME,
       flash32_namespace.get_name(),
-      data_type);
+      data_type,
+	  &iterator) == ESP_OK;
   return iterator && load();
 }
 
 bool Flash32Iterator::load(void) {
-  if (iterator) {
-    nvs_entry_info(iterator, &entry_info);
-  }
-  return iterator;
+  bool status =
+    iterator &&
+    nvs_entry_info(iterator, &entry_info) == ESP_OK;
+  return status;
 }
 
 void Flash32Iterator::stop(void) {

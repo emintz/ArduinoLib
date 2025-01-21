@@ -1,5 +1,5 @@
 /**
- * BlinkAction.cpp
+ * BlinkAction.h
  *
  *  Created on: Nov 16, 2023
  *      Author: Eric Mintz
@@ -20,28 +20,25 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
+ *  Action that blinks the ESP32 development board's built in LED
+ *  every second. The blink is 500 milliseconds on, 500 milliseconds
+ *  off.
  */
 
-#include "Arduino.h"
-#include "BlinkAction.h"
+#ifndef BLINKYACTION_H_
+#define BLINKYACTION_H_
 
-#define BUILTIN_LED_PIN 2  // Might be different on your board
+#include "TaskWithAction.h"
 
-BlinkAction::BlinkAction() {
-}
+class BlinkyAction: public TaskAction {
+public:
+  BlinkyAction();
+  virtual ~BlinkyAction();
 
-BlinkAction::~BlinkAction() {
-}
+  /**
+   * The code that blinks the LED.
+   */
+  virtual void run(void);
+};
 
-void BlinkAction::run(void) {
-  // Set up: set the builtin LED pin to OUTPUT.
-  pinMode(BUILTIN_LED_PIN, OUTPUT);
-
-  // Endless task loop that blinks the LED once per second.
-  for (;;) {
-    digitalWrite(BUILTIN_LED_PIN, HIGH);
-    delay_millis(500);  // Can also use vTaskDelay()
-    digitalWrite(BUILTIN_LED_PIN, LOW);
-    delay_millis(500);
-  }
-}
+#endif /* BLINKYACTION_H_ */

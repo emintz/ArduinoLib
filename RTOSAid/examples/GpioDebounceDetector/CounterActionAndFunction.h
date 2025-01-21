@@ -49,7 +49,7 @@ public:
   ~CounterActionAndFunction();
 
   /**
-   * Increment count, which talliess apply() invocations.
+   * Increment count, which tallies apply() invocations.
    */
   virtual void apply(void);
 

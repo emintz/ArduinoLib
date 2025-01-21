@@ -33,6 +33,11 @@
 
 class TaskWithAction;
 
+/**
+ * Task action that notifies a specified task at a specified
+ * interval. The task and interval are set at construction
+ * and remain constant throughout the instance lifetime.
+ */
 class NotifyTaskPeriodically : public TaskAction {
   TaskWithAction *task_to_notify;
   uint32_t notification_interval;

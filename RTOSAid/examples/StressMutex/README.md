@@ -146,7 +146,7 @@ Wire the positive (long) LED leads as follow
 | Green     | 15             |
 | Blue      | 16             |
 
-Connect a resistor from the LED's negative (short) lead to ground.
+Connect a 510 Ohm resistor from the LED's negative (short) lead to ground.
 
 ## Build and Run the Test
 
@@ -184,7 +184,8 @@ play with the cat, do whatever you enjoy that turns your mind away from computin
 Come back when you feel completely restored and check the LEDs. If red is off and
 yellow and green are lit, the test has passed.
 
-If the test passes, take a victory lap. If it fails, please let us know.
+If the test passes, take a victory lap. If it fails, please open an issue to
+let us know.
 
 Enjoy!
 

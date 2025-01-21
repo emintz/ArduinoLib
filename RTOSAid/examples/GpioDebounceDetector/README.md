@@ -18,6 +18,7 @@ following switch closure.
 
                    |<---- Bounce Time --->|
 ```
+Note that the sketch does not debounce the switch signal.
 
 ## Test Platform
 
@@ -46,9 +47,10 @@ every 15 seconds. It also
 
 ## Using the Sketch
 
-1. Compile and upload the sketch.
-2. Wait for the sketch to print the initial count, which should be 0.
-3. Repeat the following as often as desired:
+1. Wire the ESP32 board as described above.
+2. Compile and upload the sketch.
+3. Wait for the sketch to print the initial count, which should be 0.
+4. Repeat the following as often as desired:
    1. Close the switch and wait for the count to print.
    2. Open the switch and wait for the action to print.
 

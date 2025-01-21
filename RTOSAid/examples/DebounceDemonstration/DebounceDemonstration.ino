@@ -37,17 +37,9 @@
 #include "GpioDebouncer.h"
 #include "TaskWithAction.h"
 
-#define BUILTIN_LED_PIN 2
-#define RED_LED_PIN 13
-#define YELLOW_LED_PIN 14
-#define GREEN_LED_PIN 15
-#define BLUE_LED_PIN 16
-#define WHITE_LED_PIN 23
-#define TEST_SIGNAL_OUT_PIN 25
-#define TEST_SIGNAL_IN_PIN 26
 #define TEST_PUSH_BUTTON_PIN 27
 
-static CounterActionAndFunction bounce_counter;
+static CounterActionAndFunction bounce_counter(TEST_PUSH_BUTTON_PIN);
 
 static uint8_t bounce_counter_stack[2048];
 static TaskWithAction bounce_counter_task(
@@ -80,16 +72,7 @@ void setup() {
       __DATE__,
       __TIME__);
 
-  pinMode(BUILTIN_LED_PIN, OUTPUT);
-  pinMode(RED_LED_PIN, OUTPUT);
-  pinMode(YELLOW_LED_PIN, OUTPUT);
-  pinMode(TEST_SIGNAL_OUT_PIN, OUTPUT);
-  pinMode(TEST_SIGNAL_IN_PIN, INPUT);
   pinMode(TEST_PUSH_BUTTON_PIN, INPUT_PULLUP);
-
-  digitalWrite(BUILTIN_LED_PIN, LOW);
-  digitalWrite(RED_LED_PIN, LOW);
-  digitalWrite(YELLOW_LED_PIN, LOW);
 
   if (!GpioChangeService.begin()) {
     halt_and_catch_fire("Could not start the GPIO change service.");

@@ -54,9 +54,12 @@ every 15 seconds. It also
 
 ## Using the Sketch
 
-1. Compile and upload the sketch.
-2. Wait for the sketch to print the initial count, which should be 0.
-3. Repeat the following as often as desired:
+1. Wire one side of a push button to the `TEST_PUSH_BUTTON` pin and the
+   other side to ground. The sketch uses the ESP32's built-in pullup resistor,
+   so there is no need to provide one.
+2. Compile and upload the sketch.
+3. Wait for the sketch to print the initial count, which should be 0.
+4. Repeat the following as often as desired:
    1. Close the switch and wait for the count to print.
    2. Open the switch and wait for the action to print.
 

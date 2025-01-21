@@ -26,16 +26,16 @@
  *
  */
 
-#ifndef BLINKACTION_H_
-#define BLINKACTION_H_
+#ifndef STRESSTESTBLINKACTION_H_
+#define STRESSTESTBLINKACTION_H_
 
 #include "TaskAction.h"
 #include "TaskWithAction.h"
 
-class BlinkAction: public TaskAction {
+class StressTestBlinkAction: public TaskAction {
 public:
-  BlinkAction();
-  virtual ~BlinkAction();
+  StressTestBlinkAction();
+  virtual ~StressTestBlinkAction();
 
   /**
    * The code that blinks the LED.
@@ -43,4 +43,4 @@ public:
   virtual void run(void);
 };
 
-#endif /* BLINKACTION_H_ */
+#endif /* STRESSTESTBLINKACTION_H_ */

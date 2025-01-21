@@ -20,3 +20,7 @@ The sketch's `loop()` function has nothing to do. To avoid
 unnecessary CPU activity it waits for the longest supported
 interval, just over 49 days. When the interval expires, it
 simply waits again, so its CPU requirements are negligible.
+
+When the task runs, the built-in LED pin should blinks once
+per second.
+

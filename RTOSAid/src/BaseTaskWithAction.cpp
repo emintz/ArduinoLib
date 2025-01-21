@@ -69,7 +69,6 @@ void BaseTaskWithAction::resume(void) {
   vTaskResume(task_handle);
 }
 
-
 void BaseTaskWithAction::run_task_loop(void *params) {
   static_cast<BaseTaskWithAction *>(params)->start_task();
 }

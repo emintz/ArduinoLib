@@ -31,6 +31,10 @@
 
 #include "TaskAction.h"
 
+/**
+ * Action that changes the level on a specified pin each time it
+ * is notified.
+ */
 class ChangeGPIOLevelOnNotification : public TaskAction {
 
   const uint8_t gpio_pin;
@@ -50,7 +54,7 @@ public:
   virtual ~ChangeGPIOLevelOnNotification();
 
   /**
-   * The loop that changes the pin level.
+   * The loop that changes the pin level when notified.
    */
   virtual void run(void);
 };

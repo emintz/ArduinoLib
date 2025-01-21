@@ -1,10 +1,10 @@
 /*
- * GpioChangeHandler.h
+ * PinDefinitions.h
  *
- *  Created on: Dec 2, 2023
+ *  Created on: Jan 20, 2025
  *      Author: Eric Mintz
  *
- * Copyright (C) 2023 Eric Mintz
+ * Copyright (C) 2025 Eric Mintz
  * All Rights Reserved
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,23 +19,15 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Defines the pins used by this sketch.
  */
 
-#ifndef GPIOCHANGEHANDLER_H_
-#define GPIOCHANGEHANDLER_H_
+#ifndef PINDEFINITIONS_H_
+#define PINDEFINITIONS_H_
 
-#include "Arduino.h"
-#include "VoidFunction.h"
+#define RED_LED_PIN 13
+#define YELLOW_LED_PIN 14
+#define TEST_PUSH_BUTTON_PIN 27
 
-class TaskWithAction;
-
-class GpioChangeHandler : public VoidFunction {
-  TaskWithAction *task_to_notify;
-public:
-  GpioChangeHandler(TaskWithAction *task_to_notify);
-  virtual ~GpioChangeHandler();
-
-  virtual void apply(void);
-};
-
-#endif /* GPIOCHANGEHANDLER_H_ */
+#endif /* PINDEFINITIONS_H_ */

@@ -60,27 +60,32 @@ protected:
    * TaskWithAction. Implementations should invoke it instead of accessing
    * the containing TaskWithAction directly.
    */
-  void delay_millis(uint32_t millis);
+  virtual void delay_millis(uint32_t millis);
+
+  /**
+   * Resumes this task. Should be called when the task has been suspended.
+   */
+  virtual void resume(void);
 
   /**
    * Runs the task logic. Subclasses **must** override and implement this
    * function. The task logic should either loop indefinitely or call stop()
    * to exit.
    */
-  virtual void run() = 0;
+  virtual void run(void) = 0;
 
   /**
    * Stops the containing task. The current task is torn down and can no longer
    * be used. Prefer invoking calling stop() to returning from the task loop.
    * Note that this method does not return.
    */
-  void stop(void);
+  virtual void blink_off(void);
 
   /**
    * Suspend this task. The task logic is halted until the application calls
-   * the containing task's resume() function.
+   * the containing task's or resume() function or this->resume().
    */
-  void suspend(void);
+  virtual void suspend(void);
 
   /**
    * Suspend the task until some other task sends a notification or until
@@ -100,7 +105,7 @@ protected:
    * TaskWithAction. Implementations should favor it over accessing the
    * containing TaskWithAction directly.
    */
-  uint32_t wait_for_notification(uint32_t millis_to_wait=portMAX_DELAY);
+  virtual uint32_t wait_for_notification(uint32_t millis_to_wait=portMAX_DELAY);
 
   /**
    * Yield to any higher priority tasks that are ready to run. Note that

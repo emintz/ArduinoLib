@@ -40,12 +40,14 @@ class CounterActionAndFunction :
     public TaskAction,
     public VoidFunction {
 
+  uint8_t gpio_pin;
+
   Mutex mutex;
 
   volatile uint32_t count;
 
 public:
-  CounterActionAndFunction();
+  CounterActionAndFunction(uint8_t gpio_pin);
   ~CounterActionAndFunction();
 
   /**

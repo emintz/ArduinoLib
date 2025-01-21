@@ -1,7 +1,7 @@
-/*
- * GpioChangeHandler.h
+/**
+ * BlinkAction.cpp
  *
- *  Created on: Dec 2, 2023
+ *  Created on: Nov 16, 2023
  *      Author: Eric Mintz
  *
  * Copyright (C) 2023 Eric Mintz
@@ -21,21 +21,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef GPIOCHANGEHANDLER_H_
-#define GPIOCHANGEHANDLER_H_
+#include <BlinkyAction.h>
 
 #include "Arduino.h"
-#include "VoidFunction.h"
 
-class TaskWithAction;
+#define BUILTIN_LED_PIN 2  // Might be different on your board
 
-class GpioChangeHandler : public VoidFunction {
-  TaskWithAction *task_to_notify;
-public:
-  GpioChangeHandler(TaskWithAction *task_to_notify);
-  virtual ~GpioChangeHandler();
+BlinkyAction::BlinkyAction() {
+}
 
-  virtual void apply(void);
-};
+BlinkyAction::~BlinkyAction() {
+}
 
-#endif /* GPIOCHANGEHANDLER_H_ */
+void BlinkyAction::run(void) {
+  // Set up: set the builtin LED pin to OUTPUT.
+  pinMode(BUILTIN_LED_PIN, OUTPUT);
+
+  // Endless task loop
+  for (;;) {
+    digitalWrite(BUILTIN_LED_PIN, HIGH);
+    delay_millis(500);  // Can also use delay()
+    digitalWrite(BUILTIN_LED_PIN, LOW);
+    delay_millis(500);
+  }
+}

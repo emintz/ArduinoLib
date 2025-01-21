@@ -15,14 +15,17 @@ Wire the ESP32 as follows:
 | 25       | GPIO pin 26 |
 | 26       | GPIO pin 25 |
 
+Note that the sketch also uses the ESP32 board's built-in LED,
+which is presumed to be connected to pin 2. If your board's
+built-in LED is connected to a different pin, change the
+value of `BUILTIN_LED_PIN` to match. If your board lacks a
+built-in LED, you will need to provide a substitute.
+
 To wire the LEDs
 
-1. Connect the ESP32 pin to one lead of a 510 Ohm resistor.
-2. Connect the other resistor lead to the long (positive) LED lead.
-2. Connect the short (negative) LED pin to ground.
-
-Use an ordinary 1/4 Watt 5% resistor, whose color code is green brown
-black gold.
+1. Connect the ESP32 pin the positive LED lead.
+2. Connect one lead of a 510 Ohm resister to ground.
+3. Connect the other resister lead to the negative LED pin.
 
 ## Components
 

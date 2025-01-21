@@ -22,7 +22,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  *
- * This library maintains data in the default flash partition. In addition
+ * This library maintains data in the specified flash partitions. In addition
  * to supporting the usual primitive data types, it natively supports struct
  * storage. It does not support untyped blobs. Use a struct instead.
  *
@@ -209,7 +209,7 @@ public:
   bool entries(size_t *entry_count);
 
   /**
-   * The following methocs retrieve numeric values from flash memory. They
+   * The following methods retrieve numeric values from flash memory. They
    * behave identically except that they retrieve different value types.
    * Note that all types are integral.
    *
@@ -296,6 +296,9 @@ public:
   }
 };
 
+/**
+ * A read-only namespace in flash memory
+ */
 class Flash32ReadOnlyNamespace final : public Flash32BaseNamespace {
 public:
   inline Flash32ReadOnlyNamespace(const char *name) :
@@ -307,6 +310,9 @@ public:
   Flash32Status open(void);
 };
 
+/**
+ * A named read-write namespace in flash memory
+ */
 class Flash32Namespace final : public Flash32BaseNamespace {
   friend class Flash32Iterator;
 
@@ -337,8 +343,8 @@ class Flash32Namespace final : public Flash32BaseNamespace {
 public:
   /**
    * Configures a new Flash32Namespace instance, which will be in the CLOSED
-   * state. Be sure to invoke Flash32.begin() before attempting to use the
-   * namespace.
+   * state. Be sure to invoke Flash32.begin() before attempting to
+   * use the namespace.
    */
   inline Flash32Namespace(
       const char *name,
@@ -489,7 +495,8 @@ class Flash32Iterator final {
   bool advance(void);
 
   /**
-   * Loads the current entry's key and value into entry_info.
+   * Loads the current entry's key and value into entry_info. The
+   * iterator must be valid when this method is invoked.
    *
    * Returns: true if the load succeeds, false otherwise.
    */

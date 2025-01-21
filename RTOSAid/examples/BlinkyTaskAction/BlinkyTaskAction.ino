@@ -1,10 +1,12 @@
+#include "Arduino.h"
+
 /*
- * GpioChangeHandler.h
+ * BlinkyTaskAction.ino
  *
- *  Created on: Dec 2, 2023
+ *  Created on: Jan 19, 2025
  *      Author: Eric Mintz
  *
- * Copyright (C) 2023 Eric Mintz
+ * Copyright (C) 2025 Eric Mintz
  * All Rights Reserved
  *
  * This program is free software: you can redistribute it and/or modify
@@ -19,23 +21,32 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Exercises the RTOSAid library's BlinkAction class
  */
 
-#ifndef GPIOCHANGEHANDLER_H_
-#define GPIOCHANGEHANDLER_H_
+#include "BlinkAction.h"
+#include "TaskWithActionH.h"
 
-#include "Arduino.h"
-#include "VoidFunction.h"
+#define BUILTIN_LED_PIN 2  // Might be different on your board
 
-class TaskWithAction;
+static BlinkAction action(
+    BUILTIN_LED_PIN,
+    5,
+    50,
+    100,
+    500);
 
-class GpioChangeHandler : public VoidFunction {
-  TaskWithAction *task_to_notify;
-public:
-  GpioChangeHandler(TaskWithAction *task_to_notify);
-  virtual ~GpioChangeHandler();
+TaskWithActionH task(
+    "Blinky",
+    2,
+    &action,
+    4096);
 
-  virtual void apply(void);
-};
+void setup() {
+  task.start();
+}
 
-#endif /* GPIOCHANGEHANDLER_H_ */
+void loop() {
+  vTaskDelay(portMAX_DELAY);
+}

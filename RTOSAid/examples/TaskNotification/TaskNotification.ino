@@ -67,6 +67,7 @@ void setup() {
       "Task notify example built on %s at %s.\n",
       __DATE__,
       __TIME__);
+
   /**
    * Start the receiving task. Since it has a higher priority than its caller,
    * it will preempt the caller, that is, this task. This task will resume

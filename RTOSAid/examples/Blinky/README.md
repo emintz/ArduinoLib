@@ -36,9 +36,9 @@ has three sections:
 The sketch declares the following variables.
 
 * `blink_action_stack`, 1024 bytes of raw, untyped memory for the blink tasks's
-  stack.
-* `blink_action`, an instance of the `BlinkAction` task that provides the code that
-  blinks the LED
+   stack.
+* `blink_action`, an instance of the `BlinkykAction`, a sketch-specific 
+  `TaskAction` that blinks the LED
 * `blink_task`, a `TaskWithAction` instance that runs the logic implmeented in `blink_action`
 
 ### Initialization
@@ -52,3 +52,15 @@ Once the `blink_action` task starts, the sketch has nothing left to do.
 Instead of loading the CPU by running unnecessary `loop()` iterations,
 the loop waits for the longest allowable time, `0xFFFFFFFF` or 4,294,967,295
 milliseconds, just shy of 50 days.
+
+## Using the Sketch
+
+If your ESP32 board does not provide a built-in LED, wire an LED to `BUILTIN_LED_PIN`.
+Attach the positive LED lead to the pin, and the negative lead to a 510 Ohm resister that
+is wired to ground.
+
+The sketch is configured to toggle pin 2. If you need to toggle another pin, change
+the `#define` of `BUILTIN_LED_PIN` to match.
+
+Compile and upload the sketch.
+

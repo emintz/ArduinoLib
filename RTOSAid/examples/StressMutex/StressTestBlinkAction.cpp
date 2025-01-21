@@ -1,7 +1,7 @@
-/*
- * GpioChangeHandler.h
+/**
+ * BlinkAction.cpp
  *
- *  Created on: Dec 2, 2023
+ *  Created on: Nov 16, 2023
  *      Author: Eric Mintz
  *
  * Copyright (C) 2023 Eric Mintz
@@ -19,23 +19,30 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
-#ifndef GPIOCHANGEHANDLER_H_
-#define GPIOCHANGEHANDLER_H_
+#include <StressTestBlinkAction.h>
 
 #include "Arduino.h"
-#include "VoidFunction.h"
 
-class TaskWithAction;
+#define BUILTIN_LED_PIN 2  // Might be different on your board
 
-class GpioChangeHandler : public VoidFunction {
-  TaskWithAction *task_to_notify;
-public:
-  GpioChangeHandler(TaskWithAction *task_to_notify);
-  virtual ~GpioChangeHandler();
+StressTestBlinkAction::StressTestBlinkAction() {
+}
 
-  virtual void apply(void);
-};
+StressTestBlinkAction::~StressTestBlinkAction() {
+}
 
-#endif /* GPIOCHANGEHANDLER_H_ */
+void StressTestBlinkAction::run(void) {
+  // Set up: set the builtin LED pin to OUTPUT.
+  pinMode(BUILTIN_LED_PIN, OUTPUT);
+
+  // Endless task loop that blinks the LED once per second.
+  for (;;) {
+    digitalWrite(BUILTIN_LED_PIN, HIGH);
+    vTaskDelay(pdMS_TO_TICKS(500));  // Can also use vTaskDelay()
+    digitalWrite(BUILTIN_LED_PIN, LOW);
+    vTaskDelay(pdMS_TO_TICKS(500));
+  }
+}

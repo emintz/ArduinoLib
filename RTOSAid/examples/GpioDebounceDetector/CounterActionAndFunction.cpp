@@ -4,13 +4,26 @@
  *  Created on: Dec 3, 2023
  *      Author: Eric Mintz
  *
+ * Copyright (C) 2023 Eric Mintz
+ * All Rights Reserved
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
  */
 
 #include "CounterActionAndFunction.h"
-
-#define RED_LED_PIN 13
-#define YELLOW_LED_PIN 14
-#define TEST_PUSH_BUTTON_PIN 27
+#include "PinDefinitions.h"
 
 static uint8_t yellow_led_level = LOW;
 
@@ -47,7 +60,7 @@ void CounterActionAndFunction::run(void) {
       MutexLock lock(mutex);
       current_count = count;
     }
-    Serial.printf("Count is %lu.\n", count);
+    Serial.printf("Count is %lu.\n", current_count);
     yellow_led_level = (LOW == yellow_led_level) ? HIGH : LOW;
     digitalWrite(YELLOW_LED_PIN, yellow_led_level);
   }
