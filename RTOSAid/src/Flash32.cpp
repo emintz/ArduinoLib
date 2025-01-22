@@ -22,9 +22,7 @@
  */
 
 #include "Flash32.h"
-
 #import <cstring>
-
 #include "nvs_flash.h"
 
 HardwareFlash32 Flash32;
