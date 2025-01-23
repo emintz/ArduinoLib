@@ -15,11 +15,11 @@ whose text resides
 # To the Reader
 
 Welcome to the RTOSAid library, the classes that I wish I had
-when I started to develop ESP32 software. I hope that the
-library aids your development and gives good service.
+when I started to develop ESP32 software. I hope that it
+simplifies your development and gives good service.
 
 At the time of this writing, late 2023, the software is new,
-possibly incomplete, and probably contains defects. I would
+incomplete, and probably contains defects. I would
 be grateful if you would draw my attention to either.
 
 In the meantime, enjoy!
@@ -50,7 +50,7 @@ small, simple, easy to learn, and ideal for small projects. Unfortunately,
 it scales poorly as projects grow.
 If your project contains more than a half dozen files, you might want to
 consider upgrading to [Sloeber](https://eclipse.baeyens.it/)
-or aanother more powerful IDE.
+or another more powerful IDE.
 
 ### Logic Design-Related Prerequisites
 
@@ -95,7 +95,7 @@ about
 * Queues
 
 These are core features that support multi-tasking, the ability to
-perform, or at least appearing to perform, many operations concurrently.
+perform, or at least appear to perform, many operations concurrently.
 
 ### Low Level ESP32 Features
 
@@ -134,7 +134,7 @@ offloading event detection to hardware, which
 
 * Frees the CPU to do other work
 * Substantially reduces the time needed to respond to an event
-* All but eliminates the possibility of missing events
+* Minimizes the possibility of missing events
 
 To use them,
 
@@ -143,7 +143,7 @@ To use them,
    so they usually notify the application that the event
    occurred. See below for details.
 2. Implement application code to process the event.
-3. Enable the ISR during application startup.
+3. Enable the appropriate interrupt during application startup.
 
 The library provides examples.
 
@@ -157,15 +157,15 @@ ISR implementations must
 * Invoke **only** ISR-compatible APIs. Note that most widely used
   library capabilities are **not** usable from ISRs.
 
-Unless otherwise noted, RTOSAid functions **cannot** be used in ISRs. The
-names of compatible functions usually end with `from_isr`, as in the
+Unless otherwise noted, RTOSAid functions **cannot** be invoked from ISRs.
+Interrupt-compatible function names usually end with `from_isr`, as in the
 [`TaskWithAction`'s](#taskwithaction-class)
 [`notify_from_isr()`](#notify_from_isr) function.
 
 Pro tips:
 
 * Respond to interrupts in application code wherever possible. The
-  ideal ISR nudges the containing application and returns.
+  ideal ISR notifies the task which responds to the interrupt and returns.
 * Do no I/O in ISRs. Using `Serial`, for example, is right out.
   [SPI](https://www.arduino.cc/reference/en/language/functions/communication/spi/),
   [Wire](https://www.arduino.cc/reference/en/language/functions/communication/wire/),
@@ -232,7 +232,8 @@ wire simple circuits from their descriptions.
 
 Users should have the following parts on hand.
 
-* 1 ESP32 development (a.k.a. breakout) board. Mine has a generic ESP32 S2.
+* 1 ESP32 development (a.k.a. breakout) board. Mine is an inexpensive
+  generic ESP32 S2.
 * 1 solderless breadboard
 * Hookup wire or Dupont cables. 24 guage solid wire works well in solderless
   breadboards.
@@ -309,25 +310,28 @@ To comply with the foregoing requirements, RTOSAid
 * Supports minimal heap use by providing classes that allocate
   storage statically instead of via `new` or `malloc`. Users must provide
   storage to some of these classes.
-* (In progress) Supports efficient heap use by providing classes that
+* Supports efficient heap use by providing classes that
   automatically manage storage via ```new``` and ```delete```.
-* Short functions: logic is short, simple, and fits on a single
-  printed page.
+* Short functions: logic is short and simple. Most functions occupy
+  a single printed page.
 * Does not recurse to minimize the chance of stack overflow
 * Each class does one thing well: RTOSAid classes have few,
   if any options. For example, the RTOSAid messasge queue is FIFO
   even though the FreeRTOS also supports
   LIFO. If LIFO or deques are needed, we will implement them in separate
-  classes..
+  classes.
 * Type safety: APIs are designed to minimize the risk of type errors,
-  to ensure that functions only receive values of expected types. 
+  to ensure that functions only receive values of expected types. The
+  library provides templates where appropriate.
 
-Note that classes that allocate heap storage have names that end in ```H```.
-For example, the static memory-oriented task class is named ```TaskWithAction```
-and its heap-oriented counterpart is named ```TaskWithActionH```.
+Note that classes that allocate heap storage have names that end in `H`.
+For example, the static memory-oriented task class is named `TaskWithAction`
+and its heap-oriented counterpart is named `TaskWithActionH`. See
+the `TaskWithAction` and `TaskWithActionH` documentation for more
+detail.
 
-In the author's experience, the presence of "do everything" classes
-limits a library's usefulness. Designers cannot anticipate their
+In the author's experience, "do everything" classes
+limit a library's usefulness. Designers cannot anticipate their
 users' future needs, so over time, large, multifunction classes lose
 their usefulness. Hence, each class in the RTOSAid library performs
 one and only one a basic function. The classes are designed for
@@ -361,7 +365,7 @@ To make up for this, the code is extensively commented.
 # Tasks
 
 The task is the basic execution unit on the ESP32 and the central RTOSAid
-class. FreeRTOS is _multitasking_ meaning that many tasks can appear to run
+class. FreeRTOS is _multitasking_, meaning that many tasks can appear to run
 simultaneously. In reality, tasks have priorities, and RTOS runs the highest
 priority available task. Since lower priority tasks run when higher priority
 tasks are blocked, tasks in a well designed ensemble appear to run
@@ -395,10 +399,14 @@ void loop() {
 }
 ```
 
+This is the embedded counterpart to "Hello, World", a
+short, simple, easily understood program that produces
+simple output.
+
 Now let's blink two LEDs, the builtin as above, and another at
-twice per second. We can split the 500 millisecond delays into
-two 250 millisecond delays and interleave the code tthat blinks
-the second LED.
+twice per second. One straightforward design splits the 500
+millisecond delays into two 250 millisecond delays and interleaves
+code that blinks the LEDs.
 
 ```c++
 #include "Arduino.h"
@@ -418,21 +426,24 @@ void loop() {
   digitalWrite(BUILTIN_LED, HIGH);
   digitalWrite(RED_LED, HIGH);
   vTaskDelay(pdMS_TO_TICKS(250));
+  
   digitalWrite(RED_LED, LOW);
   vTaskDelay(pdMS_TO_TICKS(250));
+  
   digitalWrite(BUILTIN_LED, LOW);
   digitalWrite(RED_LED, HIGH);
   vTaskDelay(pdMS_TO_TICKS(250));
+  
   digitalWrite(RED_LED, LOW);
   vTaskDelay(pdMS_TO_TICKS(250));
 }
 ```
 
-Suppose that instead of turning the second LED on and off for 250 milliseconds,
-we want to turn it off and on for 333 milliseconds instead, which is far more
-challenging. Unlike 500 and 250, whose greatest common factor is 250,
-333, 3^2 * 37  and 500, 2^2 * 5^2
-are relatively prime so we cannot use the simple design shown above.
+Now let's kick it up a notch. Instead of toggling the second LED
+every 250 milliseconds, toggling it every 333 milliseconds.
+This is far more challenging because, unlike 500 and 250,
+333 (3^2 * 37)  and 500, (2^2 * 5^2) are relatively prime
+This means that simple design shown above cannot work.
 The resulting sketch is too complex to show here so we've placed it in
 [Appendix I](#appendix-i-single-task-500333-milliseconds-blink).
 
@@ -452,7 +463,6 @@ void loop_333_ms() {
   digitalWrite(BUILTIN_LED, LOW);
   vTaskDelay(pdMS_TO_TICKS(333));
 }
-
 ```
 
 Tasks let us do just that. All that's needed is a bit of simple
@@ -467,17 +477,20 @@ shuts itself down if the task method returns, but it is extremely poor
 practice to rely on this.
 
 Even though the task function runs an endless loop, it must not run
-continuously. It can, for example, wait for input or another type of event,
-or it could just wait for a set time. Waiting tasks do not consume CPU
-or other system resorces. Instead, FreeRTOS runs other tasks. To ensure
-that it always has a task to run, FreeRTOS provides idle task that it
+continuously. It must, for example, wait for input or another type of event,
+or it can just wait periodically. Waiting tasks do not block. Instead,
+FreeRTOS runs other tasks. 
+
+In fact, FreeRTOS is always running _some_ task. To ensure
+that it always one, it provides a built-in idle task that
 runs only when no other task is available.
 
-FreeRTOS also maintains a wtachdog timer that the idle task resets whenever
-it runs. Resetting the watchdog timer is **vital**. If it expires, FreeRTOS
-assumes that the system is locked and reboots. I cannot emphasize this
-enough: task logic **must** pause periodically or the ESP32 will
-reboot. Tasks can pause by
+FreeRTOS also maintains a wtachdog timer that reboots the system when it
+expires. The idle task resets the watchdog whenever
+it runs. Resetting the watchdog timer is **vital**. Should it espire,
+FreeRTOS assumes that the system has hung and reboots, as stated above.
+I cannot emphasize this enough: all task logic **must** pause periodically
+to avoid a panic restart. Tasks can pause by
 
 1. Invoking 
    [`vTaskDelay()`](https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-reference/system/freertos.html#_CPPv410vTaskDelayK10TickType_t), 
@@ -486,7 +499,7 @@ reboot. Tasks can pause by
 2. Suspending
 3. Waiting for a notification from another task
 4. Waiting for a message to arrive
-5. Waotint to acquire a semaphore
+5. Waiting to acquire a semaphore
 6. Waiting for a timer to expire
 7. Waiting on a hardware event such as a voltage change on an input GPIO
 
@@ -500,7 +513,7 @@ A task can be in the following states
 
 A nonrunning task does absolutely nothing and imposes no load on the CPU.
 
-:warning: **Warning:** when a task is waiting, be sure to wake it properly.
+:warning: **Warning:** be sure to wake a quiescent appripriatly.
 For example, application code must not attempt to resume a task that is
 waiting for a timer to expire.
 
@@ -508,20 +521,21 @@ waiting for a timer to expire.
 
 To create a task, users must provide
 
-1. A stack, storage that the task uses to manage function invocations and to
-   hold automatic variables.
-2. Task logic, code that the tasks runs. As shown below, the task logic
+1. `TaskWithAction` requires stack storage. The task uses to manage function
+   invocations and to hold automatic variables. `TaskWithActionH` allocates
+   its own stack.
+2. Task logic, code that the tasks runs.
    resides in a 
    [`TaskAction`](#taskaction-class)
    subclass.
 3. A 
-   [`TaskWithAction`](#taskwithaction-class) instance, which starts and
-   manages the task.
-4. A priority, an unsigned integer between 1 and 24. Priority 0
-   is reserved for the idle task.
+   [`TaskWithAction`](#taskwithaction-class) instance, which implements
+   task logic.
+4. A priority, an unsigned integer between 1 and 24. Larger numbers indicate
+   higher priority, and priority 0 is reserved for the idle task.
 
 :warning: **Warning**: the system idle task runs at priority 0. User tasks
-should run at priority 1 or higher.
+must run at priority 1 or higher.
 
 The following `BlinkAction` shows how to implement task logic.
 
@@ -560,6 +574,7 @@ provides our desired independently running blink logic.
 Given the `BlinkAction`, we can blink as many LEDs as we please. Here's how
 we would use it to blink the built-in LED.
 
+Note that the library provides `BlinkAction`.
 
 ```c++
 #define BUILTIN_LED_PIN 2
@@ -576,9 +591,10 @@ static TaskWithAction builtin_task(
 
 The `builtin_led_stack` array provides the temporary storage
 needed to run the task. Since this is a small, simple task, 2048 bytes
-is more than enough.
+is more than enough. If we used `TaskActionH`, we would not need to
+provide it.
 
-When started, `builtin_task` runs `builtin_action.run()` and blinks the LED.
+When started, `builtin_task` runs `builtin_action.run()`, which blinks the LED.
 
 We can also create a similar task that blinks the red LED. 
 
@@ -670,8 +686,6 @@ tasks that consume lots of automatic storage or perform deeply nested
 function calls require more. 4096
 bytes is a good starting size, though the very simplest tasks can get by with
 2048 or even less.
-
-
 ### Destructor
 
 Stops a task if it is running.
@@ -709,7 +723,6 @@ before any other methods can be invoked.
 
 Stops and destroys a task. The task can be restarted with [`start()`](#start).
 
-
 :warning: **Warning:** `stop()` will destroy a task in any state. Improper
 use can leave the system in an invalud state or cause undesirable behavior.
 
@@ -725,6 +738,42 @@ how many times the user invols `suspend()` on a suspended task, the next call
 to [`resume()`](#resume) will reactivate it.
 
 :arrow_forward: **Note:** suspended tasks do not respond to notifications.
+
+## `TaskWithActionH` Class
+
+`TaskWithActionH` allocates stack on the heap. Other than that, it behaves identically
+to `TaskWithAction`.
+
+
+### Constructor
+
+```c++
+TaskWithActionH(
+  const char *name,
+  uint16_t priority,
+  TaskAction *action,
+  size_t stack_size)
+```
+
+Creates a `TaskWithActionT` that runs the logic provided in the specified
+`TaskAction`. All required storage is provided by the caller
+or within the newly created instance. The newly created task will be
+stopped and will not run until the appliction invokes `start()` .
+
+Parameters:
+
+| Name         | Contents                                                          |
+| ------------ | ------------------------------------------------------------------|
+| `name`       | short, descriptive, `NULL`-terminated task name.                  |
+| `priority`   | Task priority, 1 and 24, inclusive. The scheduler favors higher numbered priorities. |
+| `action`     | The task's runtime logic, the program that the task runs          |
+| `stack_size` | The `stack` size, e.g. `sizeof(stack)` in bytes.                  |
+
+### Other Methods
+
+`TaskWithActionH` implements the same methods as `TaskWithAction`. (In fact, the
+methods are implemented in `BaseTaskWithAction`, a common base class.) See
+`TaskWithAction` above for details.
 
 ## `TaskAction` Class
 
@@ -756,12 +805,15 @@ Parameters:
 
 Returns: nothing
 
+:arrow_forward: **Note**: `delay_millis` is provided for `TaskAction` implementations.
+If invoked from another task, it will _not_ delay the invoked task. It will delay the
+_invoking_ task.
+
 ### run
 
 A place holder for the task logic. `TaskAction` does **not** implement
-this function. Classes that inherit `TaskAction` provide its logic.
-This is a hard requirement if, as is usually the case, an application needs
-to create instances of the inheriting class.
+this function. Classes that inherit `TaskAction` **must** implement it.
+This is a hard requirement.
 
 Parameters: none
 
@@ -788,8 +840,9 @@ Returns: 0 if the task was notified, non-zero if the wait timed out.
 Relinquish control to higher priority tasks. Returns when all higher
 priority tasks are waiting. 
 
-:warning:**Warning**: the idle task will **not** run when `yield()` is call.
-If you want the idle task to run, invoke `delay_millis()`.
+:warning:**Warning**: the idle task will **not** run when `yield()` is called.
+If you want the idle task to run, invoke `delay_millis()` with a strictly
+positive delay.
 
 # Pull Queues
 
@@ -905,7 +958,7 @@ Parameters:
 | --------------- | ----------------------------------------------------------|
 | `T`             | Message as a `struct`, the template avalue                |
 | `queue_storage` | An array of `T` to hold enqueued messages                 |
-| `queue_lendgh`  | Number of elements in the `queue_storage` array           |
+| `queue_length`  | Number of elements in the `queue_storage` array           |
 
 The constructor configures a newly created queue. The resulting queue is not
 running. Applications must start it to make it usable.
@@ -1032,6 +1085,8 @@ Returns: `true` if the queue accepts the message, `false` otherwise.
 :arrow_forward: **Note**: the newly added message will arrive at the receiver
 **after** preexisting messages arrive.
 
+<!-- TODO: provide a PullQueueHT class. -->
+
 # Mutual Exclusion Semaphore (Mutex)
 
 Mutual Exclusion Semaphores, a.k.a. Mutexes, prevent multiple
@@ -1041,8 +1096,7 @@ task finishes.
 
 :arrow_forward: **Note**: mutexes are best avoided, and should be used only
 when necessary. Prefer
-[queues](#pullqueuet-and-basepullqueue-classes)
-instead.
+[queues](#pullqueuet-and-basepullqueue-classes).
 
 ## Overview
 
@@ -1253,7 +1307,7 @@ mechanism.
 A `MicrosecondTimer` allows applications to schedule a `VoidFunction`
 invocation after a precise delay. The delay is specified in microseconds.
 Contrast this with `vTaskDelay()` and `delay()` whose times are specified
-in microseconds.
+in milliseconds.
 
 ### Constructor
 
@@ -1321,7 +1375,7 @@ the low level FreeRTOS GPIO change detection service, and
 ## `GpioChangeService`
 
 `GpioChangeService` is a global singleton akin to the Arduino
-library's `Serial` component. It installs the FreeRTOS low
+library's `attachInterrupt` function. It installs the FreeRTOS low
 level GPIO level change sensor, and must be started for change
 detectors to work. It supports the two cannonical service
 management functions: `begin()` and `end()`.
@@ -1422,8 +1476,8 @@ function invokes the target detector's `handle_pin_change()` function.
 Like the [`GpioChangeDetector`](#gpiochangedetector-class) class, the
 `GpioDebouncer` responds when the voltage changes on a GPIO input pin.
 Unlike the [`GpioChangeDetector`](#gpiochangedetector-class), which is
-sensitve to noise, the `GpioDebouncer` does filters out switch
-spurrious makes and breaks.
+sensitve to noise, the `GpioDebouncer` removes bounce, spurrious
+switch closures and opens.
 
 :arrow_forward: **Note**: since the debouncer uses a
 [`GpioChangeDetector`](#gpiochangedetector-class),
@@ -1493,12 +1547,12 @@ The `GpioDebouncer` class assembles a
 [`MicrosecondTimer`](#microsecondtimer-class),
 [`TaskAction`](#taskaction-class),
 [`TaskWithAction`](#taskwithaction-class),
-[`VoidFunction`](#voidfunction-class), and
+[`VoidFunction`](#voidfunction-class),
 [`GpioChangeDetector`](#gpiochangedetector-class)
-and a few lines of custom logic to detect switch activity,
+together with a few lines of custom logic to detect switch activity,
 remove the ensuing chatter, and apply a user-provided
-[`VoidFunction`](#voidfunction-class). The few lines of
-custom logic is reside in 
+[`VoidFunction`](#voidfunction-class). The 
+custom logic resides in 
 [`VoidFunction`](#voidfunction-class)
 and 
 [`TaskAction`](#taskaction-class) implementations.
@@ -1521,8 +1575,8 @@ is restricted. Application code cannot use it.
 
 `GpioDebounceFunction` is a `VoidFunction` subclass whose
 `apply()` function notifies the task running the `GpioDebouncerAction`.
-Since `GpioDebounceFunction` runs as an ISR, it notifies the task by
-invoking its `notify_from_isr()` function.
+Since `GpioDebounceFunction` runs as an ISR, it notifies the task via
+its `notify_from_isr()` function.
 
 :arrow_forward: **Note**: Access to the `GpioDebounceFunction` class
 is restricted. Application code cannot use it. 
@@ -1553,15 +1607,15 @@ is restricted. Application code cannot use it.
 
 If the GPIO input voltage changes before the timer expires, the timer is
 reset and the wait restarts. When the voltage finally settles down, the
-timer's delay runs to completion, and the timer applies the user-provided
-[`VoidFunction`](#voidfunction-class).
+timer expires and invokes the user-provided
+[`VoidFunction`](#voidfunction-class) implementation.
 
 
 ## `GpioDebouncer` Class
 
-`GpioDebouncer` packages the foregoing components in an easily
-used class. In additiion to solving a knotty problem, the class
-also shows how to aggregate RTOSAid library components into
+`GpioDebouncer` packages its components into an easily
+used class. In additiion to solving a knotty problem, it
+demonstrates RTOSAid library component aggregation into
 an application-specific solution.
 
 The `GpioDebouncer` is composed of the following RTOSAid classes
@@ -1591,6 +1645,8 @@ statically.
 cause a `GpioDebouncer` to detect a non-existant change, e.g a change
 from closed to closed. If your project is subject to extreme
 mechanical shock, be sure th check that the switch changed.
+
+<!-- TODO: switch to TaskWithActionH -->
 
 ### Constructor
 
@@ -1767,11 +1823,11 @@ Parameters:
 | Name     | Contents                                                                    |
 | -------- | --------------------------------------------------------------------------- |
 | `key`    | The value's key                                                             |
-| `value ` | Points to a `int8_t` variable that receives the retrieved value, if found.  |
+| `value`  | Points to a `int8_t` variable that receives the retrieved value, if found.  |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
 
 
 ### `get_uint8()`
@@ -1783,11 +1839,11 @@ Parameters:
 | Name     | Contents                                                                    |
 | -------- | --------------------------------------------------------------------------- |
 | `key`    | The value's key                                                             |
-| `value ` | Points to a `uint8_t` variable that receives the retrieved value, if found. |
+| `value`  | Points to a `uint8_t` variable that receives the retrieved value, if found. |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
 
 ### `get_int16()`
 
@@ -1798,11 +1854,11 @@ Parameters:
 | Name     | Contents                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
 | `key`    | The value's key                                                              |
-| `value ` | Points to a `int16_t` variable that receives the retrieved value, if found.  |
+| `value`  | Points to a `int16_t` variable that receives the retrieved value, if found.  |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
 
 
 ### `get_uint16()`
@@ -1814,11 +1870,11 @@ Parameters:
 | Name     | Contents                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
 | `key`    | The value's key                                                              |
-| `value ` | Points to a `uint16_t` variable that receives the retrieved value, if found. |
+| `value`  | Points to a `uint16_t` variable that receives the retrieved value, if found. |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
 
 ### `get_int32()`
 
@@ -1829,12 +1885,11 @@ Parameters:
 | Name     | Contents                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
 | `key`    | The value's key                                                              |
-| `value ` | Points to a `int32_t` variable that receives the retrieved value, if found.  |
+| `value`  | Points to a `int32_t` variable that receives the retrieved value, if found.  |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
-
+If the call fails, `value`'s content is unspecified.
 
 ### `get_uint32()`
 
@@ -1845,11 +1900,12 @@ Parameters:
 | Name     | Contents                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
 | `key`    | The value's key                                                              |
-| `value ` | Points to a `uint32_t` variable that receives the retrieved value, if found. |
+| `value`  | Points to a `uint32_t` variable that receives the retrieved value, if found. |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
+
 ### `get_int64()`
 
 `get_int64()` retrieves a signed 64 bit integer value from flash.
@@ -1859,12 +1915,11 @@ Parameters:
 | Name     | Contents                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
 | `key`    | The value's key                                                              |
-| `value ` | Points to a `int64_t` variable that receives the retrieved value, if found.  |
+| `value`  | Points to a `int64_t` variable that receives the retrieved value, if found.  |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
-
+If the call fails, `value`'s content is unspecified.
 
 ### `get_uint64()`
 
@@ -1875,11 +1930,11 @@ Parameters:
 | Name     | Contents                                                                     |
 | -------- | ---------------------------------------------------------------------------- |
 | `key`    | The value's key                                                              |
-| `value ` | Points to a `uint64_t` variable that receives the retrieved value, if found. |
+| `value`  | Points to a `uint64_t` variable that receives the retrieved value, if found. |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
 
 ### `get_str()`
 
@@ -1890,13 +1945,13 @@ Parameters:
 | Name      | Contents                                                                     |
 | --------- | ---------------------------------------------------------------------------- |
 | `key`     | The value's key                                                              |
-| `value `  | Points to a `char` array that receives the retrieved value, if found.        |
+| `value`   | Points to a `char` array that receives the retrieved value, if found.        |
 | `buf_len` | The number of `char`s in `value`                                             |
 | `out_len` | Points to a `size_t` that receives the actual number of characters retrieved |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
 
 ### `get_struct()`
 
@@ -1907,12 +1962,12 @@ template parameter `S` is the `struct` data type.
 | Name              | Contents                                                                     |
 | ----------------- | ---------------------------------------------------------------------------- |
 | `key`             | The value's key                                                              |
-| `value `          | Points to a `struct` that receives the retrieved value, if found.            |
+| `value`           | Points to a `struct` that receives the retrieved value, if found.            |
 | `bytes_retrieved` | Points to a `size_t` that receives the actual number of characters retrieved |
 
 Returns: the call status, with `Flash32Status::OK` indicating success and
 `Flash32Status::NOT_FOUND` indicating that the key does not exist in the namespace.
-If the call does not succeed, the content of `*value` is not specified.
+If the call fails, `value`'s content is unspecified.
 
 The `struct`'s field types are restricted to
 
@@ -1922,7 +1977,7 @@ The `struct`'s field types are restricted to
 4. Arrays of `struct` types whose fields comply with these restrictions
 
 In particular, the `struct` **MUST NOT** contain any pointer-valued
-fields.
+fields. Prefer arrays instead.
 
 If, for example, you are tempted to include a `char *` field in `S`, do
 something like the following instead.
@@ -1954,9 +2009,9 @@ Parameters:
 | Name          | Contents                                                 |
 | ------------- | -------------------------------------------------------- |
 | `name`        | Pointer to a `NULL`-terminated namespace name            |
-| `autocommit ` | Automatic or delayed commit flag. See below for details. |
+| `autocommit ` | Automatic or delayed commit flag as described below. Defaults to `true`. |
 
-Changes to flash memory must be committed. If `autocommit` is `true`, the default,
+Changes to flash memory must be committed. If `autocommit` is `true`,
 the configured `Flash32Namespace` will commit each change immediately. If it is
 `false`, users must invoke `commit()` to ensure that all requirested changes are
 written to flash memory.
@@ -1967,9 +2022,9 @@ before you call any functions in this class.
 
 ### `commit()`
 
-`commit()` writes all pending changes to flash memory. If autocommit is
-`true`, invocation does nothing. Otherwise, be sure to invoke `commit()`
-before invoking
+`commit()` writes all pending changes to flash memory. If autocommit was
+set to `true` in the constructor, invocation does nothing. Otherwise,
+be sure to invoke `commit()` before invoking
 [`Flash32.end()`](#end-1).
 
 Returns: a `Flash32Status` indicating success or failure
@@ -2163,8 +2218,11 @@ A 'Flash32Iterator` can be configured to find all
 key-value pairs, or just the key-value pairs having
 a specified data type.
 
-A `Flash32Iterator` can only move forward, and must be discarded
-after it finishes its traversal.
+A `Flash32Iterator` can only move forward, and becomes unusable
+when its traversal completes. Be sure to discard it.
+
+:arrow_forward: **Note**: best practice is to create instances on the stack.
+Allocating instances via `new` is strongly discouraged.
 
 ### Constructor
 
