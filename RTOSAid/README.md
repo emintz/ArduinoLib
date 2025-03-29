@@ -170,7 +170,7 @@ Pro tips:
   [SPI](https://www.arduino.cc/reference/en/language/functions/communication/spi/),
   [Wire](https://www.arduino.cc/reference/en/language/functions/communication/wire/),
   WiFi, and other external communication are also out of bounds, as are
-  the Advanced I/O Arduino functions.
+  Arduino I/O APIs.
 * **Do not block, ever.** `vTaskDelay()`, `delay()`, and `delayMicroseconds()`
   and the like are incompatible with interrupt handling. Don't even think about
   invoking them.
@@ -227,7 +227,6 @@ void IRAM_ATTR ShortLongRedGreenEventHandler::take_interrupt(void) {
 }
 ```
 
-
 ### Hardware-Related Prerequisites
 
 Users should also have a set of basic electronic tools and be able to
@@ -251,13 +250,14 @@ Users should have the following parts on hand.
 
 Users should have some basic electrical tools.
 
-* A basic, light duty 
-  [wire cutter] (https://www.amazon.com/DOWELL-Cutter-Professional-Cutting-Aluminum/dp/B077RTNXVP/ref=sr_1_75?c=undefined&th=1).
-* A wire cutter, for example, this 
-  [basic model](https://www.amazon.com/Jameco-Benchpro-JE-2022C-R-Cutter-Stripper/dp/B00B889B62/ref=sr_1_11?).
+* A basic, light duty
+  [wire cutter](https://www.amazon.com/DOWELL-Cutter-Professional-Cutting-Aluminum/dp/B077RTNXVP/ref=sr_1_75).
+* A wire cutter, for example, this
+  [basic model](https://www.amazon.com/Jameco-Benchpro-JE-2022C-R-Cutter-Stripper/dp/B00B889B62/ref=sr_1_11).
 * A needle nose (_not_ long nose) pliers such as
-  [this](https://www.amazon.com/Dykes-Needle-Pliers-Extra-6-Inch/dp/B0733NWRCS/ref=sr_1_9?)
-  basic model -- not absolutely required, but extremely handy in a pinch.
+  this
+  [basic model](https://www.amazon.com/Dykes-Needle-Pliers-Extra-6-Inch/dp/B0733NWRCS/ref=sr_1_9)
+  -- not absolutely required, but extremely handy in a pinch.
 
 :arrow_forward: **Note**: the examples are for illustration only, and do not
 constitute endorsements. Tool philosophies and preferences are extremely
@@ -268,7 +268,7 @@ personal. Please use what suits you.
 The test system is wired as follows. LEDs and their current limiting resistors
 are wired  by connecting
 
-1. A GPIO pin to a lead of a 510 Ohm resistor
+1. A GPIO pin to a 510 Ohm resistor lead
 2. The other resistor lead to the long (positive) LED lead
 3. The negative  (short) LED lead to ground
 
@@ -318,24 +318,24 @@ In addition, real time embedded software is subject to stringent
 requirements.
 
 * Operation: production ESP32 software must run indefinitely without
-  uogrades or user intervention.
+  upgrades or user intervention.
 * Criticality: failing embedded is far more likely to
   threaten life and property than failing application software.
 * Resonsiveness: embedded systems must respond within strict
   deadlines. Prompt response can be vital to prevent damage, ensure user safety,
-  and the foundation of a good UX.
+  and is the essential to providing an enjoyable UX.
 * Expected service life: embedded software can remain in service for
   decades without support or upgrade.
 
 To comply with the foregoing requirements, RTOSAid
 
-* Supports minimal heap use by providing classes that allocate
+* Supports minimal heap use where needed by providing classes that allocate
   storage statically instead of via `new` or `malloc`. Users must provide
   storage to some of these classes.
-* Supports efficient heap use by providing classes that
+* Supports ease of use and efficient heap use by providing classes that
   automatically manage storage via ```new``` and ```delete```.
-* Short functions: logic is short and simple. Most functions occupy
-  a single printed page.
+* Supports simplicity: logic is short and simple. Most methods occupy
+  a single printed page or less.
 * Does not recurse to minimize the chance of stack overflow
 * Each class does one thing well: RTOSAid classes have few,
   if any options. For example, the RTOSAid messasge queue is FIFO
@@ -363,8 +363,8 @@ In addition, library classes are either abstract or final. Abstract
 classes cannot be used directly, and can only serve as the parent class
 of a subtype. Final classes, in contrast, cannot be subtyped and
 can only be used directly. Concrete supertypes, classes that can be
-used directly and that also can be subtyped, can complicate
-maintenance and embrittle the library over time. 
+used directly and that also can be subtyped, complicate
+maintenance and embrittle applications that use the library.
 
 ## Documentation Conventions
 
@@ -390,11 +390,11 @@ The task is the basic execution unit on the ESP32 and the central RTOSAid
 class. FreeRTOS is _multitasking_, meaning that many tasks can appear to run
 simultaneously. In reality, tasks have priorities, and RTOS runs the highest
 priority available task. Since lower priority tasks run when higher priority
-tasks are blocked, tasks in a well designed ensemble appear to run
+tasks are blocked, Tasks in a well designed ensemble appear to run
 simultaneously.
 
-Since Arduino style, `setup()`/`loop()`-based sketches, run in
-a task, your existing sketches already use them. 
+Since Arduino style `setup()`/`loop()`-based sketches run in
+a task, your sketches already use them.
 
 ## Overview
 
@@ -533,7 +533,7 @@ A task can be in the following states
 * Suspended: quiescent, waiting to be resumed
 * Waiting: waiting for a notification or an event
 
-:warning: **Warning:** be sure to wake a quiescent task appropriately.
+:warning: **Warning:** be sure to wake a  task appropriately.
 For example, application code must not attempt to resume a task that is
 waiting for a timer to expire.
 
@@ -707,13 +707,14 @@ tasks that consume lots of automatic storage or perform deeply nested
 function calls require more. 4096
 bytes is a good starting size, though the very simplest tasks can get by with
 2048 or even less.
+
 ### Destructor
 
 Stops a task if it is running.
 
 :arrow_forward: **Note:** tasks instances are seldom deleted, so the destructor
 is implemented for the sake of completeness. Deleting a running task is
-extremely poor practice. Prefer invoking [`stop()`](#stop) first.
+extremely poor practice. Invoke [`stop()`](#stop) first.
 
 ### notify
 
@@ -732,7 +733,7 @@ invoke [`notify()`](#notify) instead.
 
 ### resume
 
-Resumes a suspended task and does nothing if the task is running. 
+Resumes a suspended task. Does nothing if the task is running.
 
 ### start
 
@@ -777,8 +778,7 @@ TaskWithActionH(
 ```
 
 Creates a `TaskWithActionT` that runs the logic provided in the specified
-`TaskAction`. All required storage is provided by the caller
-or within the newly created instance. The newly created task will be
+`TaskAction`. Stack storage is automatically allocated. The newly created task will be
 stopped and will not run until the appliction invokes `start()` .
 
 Parameters:
@@ -867,10 +867,12 @@ positive delay.
 
 # Pull Queues
 
-Applications use pull queues, which transmit messages in first in, first out
-(FIFO) order, to send data between tasks. Typically, a receiving task removes
-messages from the queue and responds to them, while any number of sending
+Applications use pull queues to send messages between tasks. Typically, one
+receiving task responds to arriving messages, while one or more
 tasks add messages to the queue.
+
+Messages are enqueued and removed in first in, first out
+(FIFO) order.
 
 ## Overview
 
@@ -883,9 +885,11 @@ Queues provide reliable transport between tasks. Their advantages include:
    least) without requiring special application logic.
 3. Scalability: developers can add queue capacity by enlarging the queue's
    buffer, which is extremely simple to do.
-4. Load leveling: queues absorb load spikes by holding messages for later
-   processing. This simplifies background processing, where the queue
-   delivers messages to a low priority background task.
+4. Load leveling: queues absorb load spikes by holding messages until
+   the receiver(s) are ready to process them. This simplifies
+   background processing, where high priority publishers send
+   messages to one or more low priority background task(s) to be processed
+   when the system becomes idle.
 5. Fan in: any number of tasks can add messages to a queue, simplifying
    the implementation of client/server architectures
 6. Multi-task and multi-thread safety: multiple tasks can send and receive
