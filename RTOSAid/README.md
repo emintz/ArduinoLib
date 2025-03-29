@@ -87,8 +87,8 @@ you find informative.
 
 ### Multitasking on the ESP32
 
-Even though RTOSAid minimizes the need, it could be helpful to know a bit
-about
+Even though RTOSAid hides low-level complexities, it would be helpful to
+have a basic understanding of:
 
 * Tasks
 * Semaphores
@@ -101,8 +101,8 @@ perform, or at least appear to perform, many operations concurrently.
 
 #### Background
 
-Even though RTOSAid to eliminate the need, it might be helpful to know a bit
-about the following low level ESP32 capabilities.
+Even though RTOSAid abstracts technical details away, it would be helpful to
+be familiar with:
 
 * Interrupts
 * Timers
@@ -122,7 +122,7 @@ can notify their microcontroller when they have data
 available.
 
 While a program can check if a BNO055 has data, doing this in
-softwaare has significant disadvantages.
+software has significant disadvantages.
 
 * The checks occupy the CPU. If the application has to check
   for input continuously, the resulting CPU load can make the
