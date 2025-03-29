@@ -119,30 +119,30 @@ for example, can notify a microcontroller every second with extremely high
 accuracy. Other sensors, such as the
 [BNO055 Gyroscope](https://www.bosch-sensortec.com/media/boschsensortec/downloads/datasheets/bst-bno055-ds000.pdf),
 can notify their microcontroller when they have data
-available. 
+available.
 
 While a program can check if a BNO055 has data, doing this in
 softwaare has significant disadvantages.
 
 * The checks occupy the CPU. If the application has to check
-  for input continuously, the resulting CPU load can slou the
-  application unacceptably.
+  for input continuously, the resulting CPU load can make the
+  application run unacceptably slowly.
 * It is possible for the application to miss available data.
 
 Interrupts provide a way to minimizing CPU involvement by
 offloading event detection to hardware, which
 
 * Frees the CPU to do other work
-* Substantially reduces the time needed to respond to an event
+* Minimizes response time
 * Minimizes the possibility of missing events
 
-To use them,
+To use interrupts,
 
 1. Write an interrupt service routing (ISR) that responds
    to the expected event. ISRs need to complete quickly,
-   so they usually notify the application that the event
-   occurred. See below for details.
-2. Implement application code to process the event.
+   so they usually notify an event handler and return.
+   See below for details.
+2. Implement an event handler.
 3. Enable the appropriate interrupt during application startup.
 
 The library provides examples.
@@ -154,7 +154,7 @@ ISR implementations must
 * Complete quickly, the quicker the better. ISRs block their
   containing applications.
 * **Never ever block**
-* Invoke **only** ISR-compatible APIs. Note that most widely used
+* Invoke **only** ISR-compatible API methods. Note that most widely used
   library capabilities are **not** usable from ISRs.
 
 Unless otherwise noted, RTOSAid functions **cannot** be invoked from ISRs.
@@ -174,8 +174,13 @@ Pro tips:
 * **Do not block, ever.** `vTaskDelay()`, `delay()`, and `delayMicroseconds()`
   and the like are incompatible with interrupt handling. Don't even think about
   invoking them.
+* Consider encapsulating each interrupt handler in its own process.
+  That way, the handler can wait for notifications, and all the ISR
+  needs to do is invoke the task's
+  [notify_from_isr()](https://github.com/emintz/ArduinoLib/tree/main/RTOSAid#notify_from_isr)
+  method.
 
-Interrupt service routines **must** reside in the correct place.
+Interrupt service routines **must** reside in interrupt-accessible memory.
 The ESP32 chip contains several memory types, including static RAM (SRAM),
 the fastest available. Unfortunately, SRAM consumes a lot of chip
 area, so the ESP32 contains only a modest amount. Sunce ISRs **must**
@@ -242,12 +247,28 @@ Users should have the following parts on hand.
   LED current limiting
 * 1 push button switch or equivalent
 
+#### Tools
+
+Users should have some basic electrical tools.
+
+* A basic, light duty 
+  [wire cutter] (https://www.amazon.com/DOWELL-Cutter-Professional-Cutting-Aluminum/dp/B077RTNXVP/ref=sr_1_75?c=undefined&th=1).
+* A wire cutter, for example, this 
+  [basic model](https://www.amazon.com/Jameco-Benchpro-JE-2022C-R-Cutter-Stripper/dp/B00B889B62/ref=sr_1_11?).
+* A needle nose (_not_ long nose) pliers such as
+  [this](https://www.amazon.com/Dykes-Needle-Pliers-Extra-6-Inch/dp/B0733NWRCS/ref=sr_1_9?)
+  basic model -- not absolutely required, but extremely handy in a pinch.
+
+:arrow_forward: **Note**: the examples are for illustration only, and do not
+constitute endorsements. Tool philosophies and preferences are extremely
+personal. Please use what suits you.
+
 #### Wiring
 
 The test system is wired as follows. LEDs and their current limiting resistors
 are wired  by connecting
 
-1. A GPIO pin to the positive (long) lead of a 510 Ohm resistor
+1. A GPIO pin to a lead of a 510 Ohm resistor
 2. The other resistor lead to the long (positive) LED lead
 3. The negative  (short) LED lead to ground
 
@@ -268,8 +289,8 @@ In addition to the foregoing, the example sketches use the development
 board's built in LED, which is connected to GPIO pin 2 on my preferred
 cheap and cheerful
 [breakout board](https://www.amazon.com/AITRIP-ESP-WROOM-32-Development-Microcontroller-Integrated/dp/B09DPH1KXF/ref=sr_1_1_sspa?th=1).
-If your board's built in LED is wired differently, change the
-sketch accordingly. If your board does not have a builtin LED, you will
+If your board's built in LED is wired differently, change the sketch
+accordingly. If your board does not have a builtin LED, you will
 need to add an extra LED to serve in its place and change the example sketches as needed.
 
 ## RTOSAid Features
@@ -300,8 +321,9 @@ requirements.
   uogrades or user intervention.
 * Criticality: failing embedded is far more likely to
   threaten life and property than failing application software.
-* Resonsiveness: most embedded systems must respond within strict
-  deadlines. Prompt response can be vital to prevent damage or ensure user safety.
+* Resonsiveness: embedded systems must respond within strict
+  deadlines. Prompt response can be vital to prevent damage, ensure user safety,
+  and the foundation of a good UX.
 * Expected service life: embedded software can remain in service for
   decades without support or upgrade.
 
@@ -318,8 +340,8 @@ To comply with the foregoing requirements, RTOSAid
 * Each class does one thing well: RTOSAid classes have few,
   if any options. For example, the RTOSAid messasge queue is FIFO
   even though the FreeRTOS also supports
-  LIFO. If LIFO or deques are needed, we will implement them in separate
-  classes.
+  LIFO. If LIFO or deques are needed, we will add classes that support
+  them.
 * Type safety: APIs are designed to minimize the risk of type errors,
   to ensure that functions only receive values of expected types. The
   library provides templates where appropriate.
@@ -471,37 +493,37 @@ boilerplate.
 ## Details
 
 Task code resides in a function whose logic either runs in an endless loop
-or, if it needs to stop, explicitly shuts itself now. If the function returns, 
-FreeRTOS restarts the application. To prevent his, the RTOSAid task
+or, if it needs to stop, shuts itself down. If the function returns,
+FreeRTOS restarts the application. To prevent his, the RTOSAid tas
 shuts itself down if the task method returns, but it is extremely poor
 practice to rely on this.
 
-Even though the task function runs an endless loop, it must not run
-continuously. It must, for example, wait for input or another type of event,
-or it can just wait periodically. Waiting tasks do not block. Instead,
-FreeRTOS runs other tasks. 
+FreeRTOS never stops. It always runs _some_ task. If it has no real
+work to do, FreeRTOS runs its built-in, do-little idle task.
 
-In fact, FreeRTOS is always running _some_ task. To ensure
-that it always one, it provides a built-in idle task that
-runs only when no other task is available.
-
-FreeRTOS also maintains a wtachdog timer that reboots the system when it
-expires. The idle task resets the watchdog whenever
-it runs. Resetting the watchdog timer is **vital**. Should it espire,
-FreeRTOS assumes that the system has hung and reboots, as stated above.
-I cannot emphasize this enough: all task logic **must** pause periodically
+The idle task has one important function, resetting the timer that
+detects runaway tasks. Should this timer, the "watchdog timer", expire,
+FreeRTOS assumes that a user process has entered an endless loop and
+reboots the system. Resetting the watchdog timer is **vital**.
+I cannot emphasize this enough: all tasks (except the idle task,
+as explained above) **must** pause periodically
 to avoid a panic restart. Tasks can pause by
 
-1. Invoking 
+1. Invoking
    [`vTaskDelay()`](https://docs.espressif.com/projects/esp-idf/en/v5.0/esp32/api-reference/system/freertos.html#_CPPv410vTaskDelayK10TickType_t), 
    [`delay()`](https://www.arduino.cc/reference/en/language/functions/time/delay/),
-   or a similar function
+   or any other function that explicitly pauses the task
 2. Suspending
 3. Waiting for a notification from another task
 4. Waiting for a message to arrive
 5. Waiting to acquire a semaphore
 6. Waiting for a timer to expire
 7. Waiting on a hardware event such as a voltage change on an input GPIO
+
+Paused tasks consume no CPU, though they continue to occupy storage.
+If a task starts asychronous I/O before pausing,
+the I/O operation can continue while the task waits and, if so directed,
+wake the task upon completion.
 
 A task can be in the following states
 
@@ -511,9 +533,7 @@ A task can be in the following states
 * Suspended: quiescent, waiting to be resumed
 * Waiting: waiting for a notification or an event
 
-A nonrunning task does absolutely nothing and imposes no load on the CPU.
-
-:warning: **Warning:** be sure to wake a quiescent appripriatly.
+:warning: **Warning:** be sure to wake a quiescent task appropriately.
 For example, application code must not attempt to resume a task that is
 waiting for a timer to expire.
 
@@ -529,8 +549,9 @@ To create a task, users must provide
    [`TaskAction`](#taskaction-class)
    subclass.
 3. A 
-   [`TaskWithAction`](#taskwithaction-class) instance, which implements
-   task logic.
+   [`TaskWithAction`](#taskwithaction-class)  or
+   [`TaskWithActionH`](#taskwithactionn-class)
+   instance, which runs the task logic.
 4. A priority, an unsigned integer between 1 and 24. Larger numbers indicate
    higher priority, and priority 0 is reserved for the idle task.
 
@@ -862,13 +883,13 @@ Queues provide reliable transport between tasks. Their advantages include:
    least) without requiring special application logic.
 3. Scalability: developers can add queue capacity by enlarging the queue's
    buffer, which is extremely simple to do.
-4. Load leveling: queues absorb load spikesd by holding messages for later
+4. Load leveling: queues absorb load spikes by holding messages for later
    processing. This simplifies background processing, where the queue
    delivers messages to a low priority background task.
 5. Fan in: any number of tasks can add messages to a queue, simplifying
    the implementation of client/server architectures
 6. Multi-task and multi-thread safety: multiple tasks can send and receive
-   queue entries simultaneously without colliding, which makes queues the
+   queue entries simultaneously without colliding. This makes queues the
    preferred inter-task communication mechanism.
 
 The only cost is storage, the memory required to store messages for later
@@ -887,17 +908,17 @@ making its services available only to child classes (i.e. classes,
 like `PullQueueT` that inherit the base class). Since the two classes work
 in concert, we document their public messages as a single API.
 
-Users access queues via the `PullQueueT` class, though the `BasePullQueue`
-class contributes some of its public API. 
+Users access queues via the `PullQueueT` class.
 
-The `PullQueueT` class is templated by the message type, which users must
-provide in a queue declaration. In principal, `PullQueueT` defines a unique
-class for each message type.
+:arrow_forward: **Note**: to ensure type safety, the `PullQueueT` class is
+templated by the message type, which is set at instance declaration.In principal,
+each `PullQueueT` defines a unique class for each message type. The
+class design minimizes the resulting overhead.
 
 <!-- TODO: reorganize this!  -->
 
 :warning: specify a message as plain, C-style `struct`, a structure (as opposed
-to a class) without functions, including constructors and destructor, as in
+to a class) without methods, not even a constructor or destructor, as in
 
 
 ```c++
@@ -1100,12 +1121,15 @@ when necessary. Prefer
 
 ## Overview
 
-A mutex can be in one of two states: unlocked and locked. Any task can
-attempt to lock the mutex, with two possible results:
+A mutex can be in one of two states: unlocked and locked. When the
+mutex is locked, a single task owns the lock, and is the only task
+that should unlock it. Any task can
+attempt to lock the mutex no matter its state, with two possible results:
 
 If the mutex is currently unlocked, the attempt succeeds. The requesting
 task acquires the lock and keeps running. When the task no longer needs to
-hold the lock, it must surrender it by unlocking the mutex.
+hold the lock, the task that holds it must unlock the mutex to allow
+other tasks that have requested the lock (if any) to run.
 
 If, on the other hand, a task attempts to lock a mutex that is already
 locked, it blocks until the holding task releases the lock.
@@ -1114,8 +1138,8 @@ as always, when it no longer needs the lock.
 
 :arrow_forward: **Note**: tasks should unlock semaphores as quickly as possible,
 holding the mutex lock for the shortest possible time. Holding locks too long
-can degrade performance and could trip the watchdog timer and reboot the
-system.
+will degrade performance and could trip the watchdog timer causing the system to
+crash and reboot.
 
 Mutexes are used as follows.
 
@@ -1146,7 +1170,8 @@ and causing a reboot.
 class does **not** support recursive locks. Attempting to relock a
 `Mutex` will cause unspecified and undesirable behavior.
 
-The API is designed to assure that locks are released eventually. Users
+The API is designed to assure that locks are released eventually,
+and to be released automatically if if an exception is thrown. Users
 are responsible for ensuring prompt release.
 
 ## `Mutex` Class
@@ -1154,8 +1179,11 @@ are responsible for ensuring prompt release.
 The `Mutex` class maintain a list of tasks that are waiting for its lock,
 and doles out its lock to one task at a time.
 
-:arrow_forward: **Note**: applications **MUST** lock a `Mutex` with a `MutexLock`. 
-`Mutex` does not provide an application-visible locking API.
+:arrow_forward: **Note**: to ensure eventual `Mutex` release, especially 
+when an unhandled exception is thrown, the `Mutex` class does not provide
+user-accessible lock and unlock methods. Please see
+[`MutexLock`(#mutexlock-class) below for details.
+
 
 ### `begin()`
 
@@ -1194,29 +1222,6 @@ To enforce the foregoing,
 * All forms of the `new` operator have been declared `private`.
 * `MutexLock` is declared `final`.
 
-### Example of Use
-
-Here's how to use a `MutexLock` in a class function. Assume that
-the class contains a `Mutex` member named `mutex`.
-
-```c++
-void SomeClass::do_something(void) {
-  MutexLock lock(mutex);  // Try to lock the mutex
-  if (lock.succeeded()) {
-    // Lock succeeded; carry on processing. Note that the
-    // current task is the only task that is running this
-    // code ...
-  } else {
-    // Lock request failed. Handle the error ...
-  }
-  
-  // All automatic variables, including the MutexLock lock, are
-  // destroyed here. When the lock variable is destroyed, its
-  // destructor releases the lock acquired during construction.
-  // There is no other way to release the lock.
-}
-```
-
 ### Constructor (One Argument)
 
 Lock a mutex, waiting indefinitely for the lock to be granted
@@ -1252,7 +1257,30 @@ Release the `Mutex` lock if acquired, does nothing otherwise
 Check the lock status
 
 Returns: `true` if the underlying `Mutex` is locked, `false` otherwise. Applications
-should always invoke this after constructing a `MutexLock`.
+should always invoke this after constructing a `MutexLock` with a timeout.
+
+### Example of Use
+
+Here's how to use a `MutexLock` in a method. Assume that
+the containing class contains a `Mutex` field named `mutex`.
+
+```c++
+void SomeClass::do_something(void) {
+  MutexLock lock(mutex);  // Try to lock the mutex
+  if (lock.succeeded()) {
+    // Lock succeeded; carry on processing. Note that the
+    // current task is the only task that is running this
+    // code ...
+  } else {
+    // Lock request failed. Handle the error ...
+  }
+
+  // All automatic variables, including the MutexLock lock, are
+  // destroyed here. When the lock variable is destroyed, its
+  // destructor releases the lock acquired during construction.
+  // There is no other way to release the lock.
+}
+```
 
 # Function Classes
 
@@ -1447,7 +1475,7 @@ Invokes `stop()` to stop this `GpioChangeHandler`
 
 `stop()` stops its `GpioChangeHandler`, making it unresponsive
 to voltage changes on its GPIO input pin. Be sure to invoke
-`stop()` on every `GpioChangeHandler` before invoking 
+`stop()` on every `GpioChangeHandler` before invoking
 `GpioChangeService.end()`.
 
 ### `change_interrupt_handler()`
@@ -1548,11 +1576,11 @@ The `GpioDebouncer` class assembles a
 [`TaskAction`](#taskaction-class),
 [`TaskWithAction`](#taskwithaction-class),
 [`VoidFunction`](#voidfunction-class),
-[`GpioChangeDetector`](#gpiochangedetector-class)
-together with a few lines of custom logic to detect switch activity,
+[`GpioChangeDetector`](#gpiochangedetector-class),
+and a few lines of custom logic to detect switch activity,
 remove the ensuing chatter, and apply a user-provided
-[`VoidFunction`](#voidfunction-class). The 
-custom logic resides in 
+[`VoidFunction`](#voidfunction-class). The
+custom logic resides in
 [`VoidFunction`](#voidfunction-class)
 and 
 [`TaskAction`](#taskaction-class) implementations.
@@ -1569,7 +1597,7 @@ invokes the user-provided
 [`VoidFunction`](#voidfunction-class)
 
 :arrow_forward: **Note**: Access to the `GpioDebouncerAction` class
-is restricted. Application code cannot use it. 
+is restricted. Application code cannot use it.
 
 ### `GpioDebounceFunction` Internal Class
 
@@ -1704,8 +1732,8 @@ with claimed lifetimes of 10,000,000,000,000 read/write cycles.
 
 The ESP32 supports a non-volatile storage (NVS) library that maintains key-value
 pairs in flash memory. Key-value pairs reside in namespaces which, in turn,
-reside in partitions. The ESP32 flash library supports advance features
-that most applications don't need, like encryption, multiple memory
+reside in partitions. The ESP32 flash library supports advanced features
+that simple applications don't need, like encryption, multiple memory
 partitions, and loading flash memory from a CSV files. The Flash32
 library supports basic functionaly needed by most applications:
 maintaining namespaces and their contained key-value pairs in the
@@ -1994,11 +2022,10 @@ typedef struct {
 
 The `Flash32Namespace` class adds a flash memory mutation API to the
 [`Flash32ReadOnlyNamespace`](#flash32readonlynamespace-class)
-API. The read APIs of both classes are identical because they both inherit it from a common
-base class. Since the read API is fully documented above, it is not documented here. Please
+API. The read APIs of both classes are identical. Please
 see the
  [`Flash32ReadOnlyNamespace`](#flash32readonlynamespace-class)
-documentation for details.
+abive for details.
 
 ### Constructor
 
@@ -2027,6 +2054,9 @@ set to `true` in the constructor, invocation does nothing. Otherwise,
 be sure to invoke `commit()` before invoking
 [`Flash32.end()`](#end-1).
 
+:arrow_forward: **Note**: invoking `commit()` does nothing if there
+are no outstanding changes. Redundant `commit()` are harmless. Enjoy!
+
 Returns: a `Flash32Status` indicating success or failure
 
 ### `erase()`
@@ -2043,8 +2073,6 @@ Returns: a `Flash32Status` indicating success or failure, with
 `Flash32Status::OK` indicating that the key-value pair was
 removed and `Flash32Status::NOT_FOUND` indicating that the
 key-value pair did not exist.
-
-Returns: a `Flash32Status` indicating success or failure
 
 ### `erase_all()`
 
@@ -2198,7 +2226,7 @@ Parameters:
 | Name     | Contents                                               |
 | -------- | ------------------------------------------------------ |
 | `key`    | The key as a `NULL`-terminated string                  |
-| `value`  | The value to persist as a struct                       | 
+| `value`  | The value to persist as a struct                       |
 
 Returns: a `Flash32Status` indicating success or failure
 
@@ -2209,7 +2237,7 @@ above.
 ## `Flash32Iterator` Class
 
 A `Flash32Iterator` traverses a flash namespace, retrieving
-key-value pairs one at a time. It offers a read-only API, so
+(key, value type) pairs one at a time. It offers a read-only API, so
 it can traverse a
 [`Flash32ReadOnlyNamespace`](#flash32readonlynamespace-class)
 or a 
@@ -2217,6 +2245,9 @@ or a
 A 'Flash32Iterator` can be configured to find all
 key-value pairs, or just the key-value pairs having
 a specified data type.
+
+:arrow_forward: **Note**: the `Flash32Iterator` cannot read or write the value at
+its current position. Use the access APIs described above.
 
 A `Flash32Iterator` can only move forward, and becomes unusable
 when its traversal completes. Be sure to discard it.
@@ -2226,7 +2257,7 @@ Allocating instances via `new` is strongly discouraged.
 
 ### Constructor
 
-The constructor configures a newly created `Flash32Iterator` 
+The constructor configures a newly created `Flash32Iterator`
 
 Parameters:
 

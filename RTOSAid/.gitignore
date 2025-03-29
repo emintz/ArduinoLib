@@ -1,0 +1,11 @@
+/Release/
+/sloeber.ino.cpp
+/RTOSAid.ino
+/install.sh
+**/*.ino.cpp
+.cproject
+.project
+.settings
+spec.d
+.sproject
+
