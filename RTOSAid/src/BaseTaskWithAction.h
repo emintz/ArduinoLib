@@ -46,7 +46,6 @@ protected:
       const char *name,
       const UBaseType_t priority,
       const size_t stack_size);
-  virtual ~BaseTaskWithAction();
 
   inline const char *task_name(void) { return name; }
   inline const UBaseType_t task_priority(void) { return priority; }
@@ -99,6 +98,7 @@ protected:
   void yield(void);
 
 public:
+  virtual ~BaseTaskWithAction();
 
   /**
    * Notify the task from application code. This will resume the task if it is

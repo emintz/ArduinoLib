@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <BlinkAction.h>
+#include "BlinkAction.h"
 
 BlinkAction::BlinkAction(
     const uint16_t led_pin,
