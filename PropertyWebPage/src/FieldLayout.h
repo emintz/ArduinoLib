@@ -47,7 +47,7 @@
 class FieldLayout {
   std::map<const std::string, DataFieldConfig> ordered_by_id;
   std::set<std::string> duplicate_ids;
-  std::vector<const DataFieldConfig *> ordered_by_insertion;
+  std::vector<DataFieldConfig *> ordered_by_insertion;
 
 public:
   /*

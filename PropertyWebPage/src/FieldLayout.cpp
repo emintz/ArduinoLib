@@ -50,7 +50,7 @@ FieldLayout& FieldLayout::add_field(
       initial_value,
       type);
   if (emplacement.second) {
-    const auto & node = *emplacement.first;
+    auto & node = *emplacement.first;
     ordered_by_insertion.push_back(&(node.second));
   } else {
     duplicate_ids.insert(id);
@@ -59,8 +59,11 @@ FieldLayout& FieldLayout::add_field(
 }
 
 FieldLayout& FieldLayout::apply(DataFieldFunction& action) {
-  for (auto iter = ordered_by_id.begin(); iter != ordered_by_id.end(); ++iter) {
-    action(iter->second);
+  for (
+      auto iter = ordered_by_insertion.begin();
+      iter != ordered_by_insertion.end();
+      ++iter) {
+    action(**iter);
   }
   return *this;
 }
