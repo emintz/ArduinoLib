@@ -33,7 +33,7 @@ FieldValueSetter::FieldValueSetter(const WebServer& web_server) :
 FieldValueSetter::~FieldValueSetter() {
 }
 
-void FieldValueSetter::operator() (DataFieldConfig& field_config) {
+bool FieldValueSetter::operator() (DataFieldConfig& field_config) {
   String field_id(field_config.get_id().c_str());
   if (web_server.hasArg(field_id)) {
     const char *value_from_server = web_server.arg(field_id.c_str()).c_str();
@@ -42,5 +42,6 @@ void FieldValueSetter::operator() (DataFieldConfig& field_config) {
   } else {
     field_config.set_value("");
   }
+  return true;
 }
 

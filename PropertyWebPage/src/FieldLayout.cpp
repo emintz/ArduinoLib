@@ -23,7 +23,10 @@
 
 #include "Arduino.h"
 
-#include <src/FieldLayout.h>
+#include "FieldLayout.h"
+#include "VacuousValidator.h"
+
+static VacuousValidator default_validator;
 
 FieldLayout::FieldLayout() :
     ordered_by_id(),
@@ -34,26 +37,13 @@ FieldLayout::FieldLayout() :
 FieldLayout::~FieldLayout() {
 }
 
-FieldLayout& FieldLayout::add_field(
-    const PropertyValidator *validator,
-    const char *id,
-    const char *label,
-    const char *name,
-    const char *initial_value,
-    const char *type) {
-  auto emplacement = ordered_by_id.try_emplace(
-      id,   // Key
-      validator,
-      id,
-      label,
-      name,
-      initial_value,
-      type);
+FieldLayout& FieldLayout::add_field(const DataFieldConfig::Configuration configuration) {
+  auto emplacement = ordered_by_id.try_emplace(configuration.id, configuration);
   if (emplacement.second) {
     auto & node = *emplacement.first;
     ordered_by_insertion.push_back(&(node.second));
   } else {
-    duplicate_ids.insert(id);
+    duplicate_ids.insert(configuration.id);
   }
   return *this;
 }

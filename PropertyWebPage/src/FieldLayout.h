@@ -59,33 +59,16 @@ public:
   virtual ~FieldLayout();
 
   /*
-   * Creates a DataFieldConfig from the specified values and adds it to the
-   * map and vector. If id is a duplicate, it is added to the duplicate
-   * identifier set. Having duplicate identifiers is a severe error.
+   * Constructs a FieldLayout from the specified configuration.
    *
    * Parameter            Contents
    * -------------------- -----------------------------------------
-   * validator            Validates the user-entered field value
-   * id                   Input field identifier and target (i.e. for
-   *                      attribute value) for the associated label
-   *                      field. Must be unique in the layout, as duplicates
-   *                      are silently rejected.
-   * label                Field label -- displayed to the right of the
-   *                      input field
-   * name                 Input field name
-   * initial_value        Field value on page startup. Defaults to ""
-   * type                 Input value type, defaults to "text"
+   * configuration        Contains the values used to configure the
+   *                      data field.
    *
    * Returns: *this to support invocation chaining.
    */
-  FieldLayout& add_field(
-      const PropertyValidator *validator,
-      const char *id,
-      const char *label,
-      const char *name,
-      const char *initial_value = "",
-      const char *type = "text");
-
+  FieldLayout& add_field(const DataFieldConfig::Configuration configuration);
 
   /*
    * Applies the specified action to every field configuration in the field

@@ -42,7 +42,7 @@ public:
       int indent);
   virtual ~ConfirmationTableRowGenerator();
 
-  virtual void operator() (DataFieldConfig& field_config) override;
+  virtual bool operator() (DataFieldConfig& field_config) override;
 };
 
 #endif /* CONFIRMATIONFIELDSGENERATOR_H_ */

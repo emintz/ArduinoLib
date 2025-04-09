@@ -1,7 +1,7 @@
 /*
- * DataEntryFieldGenerator.cpp
+ * VacuousDataFieldFunction.cpp
  *
- *  Created on: Mar 28, 2025
+ *  Created on: Apr 9, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,23 +21,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "Arduino.h"
+#include <src/VacuousDataFieldFunction.h>
 
-#include "DataEntryRowGenerator.h"
+VacuousDataFieldFunction::VacuousDataFieldFunction() {
 
-DataEntryRowGenerator::DataEntryRowGenerator(
-    std::string& html,
-    int indent) :
-    html(html),
-    indent(indent) {
 }
 
-DataEntryRowGenerator::~DataEntryRowGenerator() {
+VacuousDataFieldFunction::~VacuousDataFieldFunction() {
 }
 
-bool DataEntryRowGenerator::operator() (DataFieldConfig& field_config) {
-  Serial.flush();
-  std::string row_html = field_config.as_input_form_row(indent);
-  html.append(row_html);
+bool VacuousDataFieldFunction::operator()(DataFieldConfig& field_config) {
   return true;
 }

@@ -22,6 +22,9 @@
 #include "Arduino.h"
 
 #include "DataFieldConfig.h"
+#include "SetBlankValue.h"
+#include "VacuousDataFieldFunction.h"
+#include "VacuousValidator.h"
 
 static const std::string start_property_value("\"");
 static const std::string end_property_value("\" ");
@@ -31,6 +34,9 @@ static const std::string name_property_name("name");
 static const std::string type_property_name("type");
 static const std::string value_property_name("value");
 
+static SetBlankValue default_initializer;
+static VacuousDataFieldFunction default_persister;
+static VacuousValidator default_validator;
 
 static std::string make_property(
     const std::string name, const std::string value) {
@@ -43,40 +49,26 @@ static std::string make_property(
   return property;
 }
 
-DataFieldConfig::DataFieldConfig(
-    const PropertyValidator *validator,
-    const char *id,
-    const char *label,
-    const char *name,
-    const char *initial_value,
-    const char *type) :
-      validator(validator),
-      id(id),
-      label(label),
-      name(name),
-      value(initial_value),
-      label_attributes(),
-      value_attributes() {
-  label_attributes[for_property_name] =
-      make_property(for_property_name, id);
-  label_attributes[id_property_name] =
-      make_property(id_property_name, id);
-
-  value_attributes[id_property_name] =
-      make_property(id_property_name, id);
-  value_attributes[name_property_name] =
-      make_property(name_property_name, name);
-  value_attributes[type_property_name] =
-      make_property(type_property_name, type);
-}
-
 DataFieldConfig::DataFieldConfig() :
   id(),
   label(),
   name(),
   value(),
   label_attributes(),
-  value_attributes() {
+  value_attributes(),
+  persister(default_persister) {
+}
+
+DataFieldConfig::DataFieldConfig(
+    const DataFieldConfig::Configuration& configuration) :
+      id(configuration.id),
+      label(configuration.label),
+      name(configuration.name),
+      value(),
+      validator(configuration.validator),
+      persister(configuration.persister) {
+  init_attributes(configuration.type);
+  configuration.initializer(*this);
 }
 
 DataFieldConfig::DataFieldConfig(const DataFieldConfig& copy_me) :
@@ -85,7 +77,8 @@ DataFieldConfig::DataFieldConfig(const DataFieldConfig& copy_me) :
   name(copy_me.name),
   value(copy_me.value),
   label_attributes(copy_me.label_attributes),
-  value_attributes(copy_me.value_attributes) {
+  value_attributes(copy_me.value_attributes),
+  persister(copy_me.persister) {
 
 }
 
@@ -96,6 +89,7 @@ DataFieldConfig& DataFieldConfig::operator=(const DataFieldConfig& assign_me) {
   value = assign_me.value;
   label_attributes = assign_me.label_attributes;
   value_attributes = assign_me.value_attributes;
+  persister = assign_me.persister;
   return *this;
 }
 
@@ -139,6 +133,21 @@ void DataFieldConfig::add_value_attribute(std::string name, std::string value) {
 
 bool DataFieldConfig::validate_value(void) const {
   return validator->validate(value);
+}
+
+void DataFieldConfig::init_attributes(const char *type) {
+  label_attributes[for_property_name] =
+      make_property(for_property_name, id);
+  label_attributes[id_property_name] =
+      make_property(id_property_name, id);
+
+  value_attributes[id_property_name] =
+      make_property(id_property_name, id);
+  value_attributes[name_property_name] =
+      make_property(name_property_name, name);
+  value_attributes[type_property_name] =
+      make_property(type_property_name, type);
+
 }
 
 std::string DataFieldConfig::as_label_html(int indent) const {
@@ -209,3 +218,26 @@ std::string DataFieldConfig::as_table_label_html(int indent) const {
   return html;
 }
 
+DataFieldConfig::Configuration::Configuration() :
+  id(""),
+  label(""),
+  name(""),
+  initial_value(""),
+  type("text"),
+  validator(&default_validator),
+  initializer(default_initializer),
+  persister(default_persister) {
+}
+
+DataFieldConfig::Configuration::Configuration(
+    const char *id_and_name,
+    const char *label) :
+      id(id_and_name),
+      label(label),
+      name(id_and_name),
+      initial_value(""),
+      type("text"),
+      validator(&default_validator),
+      initializer(default_initializer),
+      persister(default_persister) {
+}

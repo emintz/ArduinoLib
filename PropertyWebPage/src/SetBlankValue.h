@@ -1,8 +1,10 @@
 /*
- * DataEntryFieldGenerator.cpp
+ * SetBlankValue.h
  *
- *  Created on: Mar 28, 2025
+ *  Created on: Apr 9, 2025
  *      Author: Eric Mintz
+ *
+ * Sets the field value to an empty string.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,23 +23,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "Arduino.h"
+#ifndef SETBLANKVALUE_H_
+#define SETBLANKVALUE_H_
 
-#include "DataEntryRowGenerator.h"
+#include "DataFieldFunction.h"
 
-DataEntryRowGenerator::DataEntryRowGenerator(
-    std::string& html,
-    int indent) :
-    html(html),
-    indent(indent) {
-}
+class SetBlankValue : public DataFieldFunction {
+public:
+  SetBlankValue();
+  virtual ~SetBlankValue();
 
-DataEntryRowGenerator::~DataEntryRowGenerator() {
-}
+  virtual bool operator()(DataFieldConfig& field_config);
+};
 
-bool DataEntryRowGenerator::operator() (DataFieldConfig& field_config) {
-  Serial.flush();
-  std::string row_html = field_config.as_input_form_row(indent);
-  html.append(row_html);
-  return true;
-}
+#endif /* SETBLANKVALUE_H_ */

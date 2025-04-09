@@ -29,6 +29,7 @@
 #ifndef DATAFIELDCONFIG_H_
 #define DATAFIELDCONFIG_H_
 
+#include "DataFieldFunction.h"
 #include "PropertyValidator.h"
 
 #include <memory>
@@ -42,9 +43,14 @@ class DataFieldConfig {
   std::string name;   // Field name
   std::string value;  // Property value, defaults to "" on construction.
                       // Set to display a default value on the screen.
+  DataFieldFunction& persister;
   std::map<const std::string, std::string> label_attributes;
   std::map<const std::string, std::string> value_attributes;
 
+  /**
+   * Sets the initial tag property values.
+   */
+  void init_attributes(const char *type);
 
   /*
    * Formats the label as HTML.
@@ -106,34 +112,15 @@ class DataFieldConfig {
 
 public:
 
+  struct Configuration;
+
   DataFieldConfig();
 
   /*
-   * Constructor
-   *
-   * Creates a data field configuration with the specified input field
-   * identifier, input field name, input type, and an empty attribute map.
-   *
-   * Parameter            Contents
-   * -------------------- -----------------------------------------
-   * validator            Validates the user-entered field value
-   * id                   Input field identifier and target (i.e. for
-   *                      attribute value) for the associated label
-   *                      field. Must be unique in the containing web
-   *                      page.
-   * label                Field label -- displayed to the right of the
-   *                      input field
-   * name                 Input field name
-   * initial_value        Field value on page startup. Defaults to ""
-   * type                 Input value type, defaults to "text"
+   * Creates a data field configuration from the specified configuration.
+   * The configuration contains all required information.
    */
-  DataFieldConfig(
-      const PropertyValidator *validator,
-      const char *id,
-      const char *label,
-      const char *name,
-      const char *initial_value = "",
-      const char *type = "text");
+  DataFieldConfig(const Configuration& configuration);
 
   DataFieldConfig(const DataFieldConfig& copy_me);
 
@@ -241,10 +228,44 @@ public:
 
   /**
    * Validate the current value
-   *
    * Returns: true if the value is valid, false otherwise.
    */
   bool validate_value(void) const;
+
+  struct Configuration {
+    const char *id;
+    const char *label;
+    const char *name;
+    const char *initial_value;
+    const char *type;
+    const PropertyValidator *validator;
+    DataFieldFunction& initializer;
+    DataFieldFunction& persister;
+
+    Configuration();
+
+    Configuration(const char* id_and_name, const char *label);
+
+    Configuration& set_type(const char *type_value) {
+      type = type_value;
+      return *this;
+    }
+
+    Configuration& set_validator(const PropertyValidator *property_validator) {
+      validator = property_validator;
+      return *this;
+    }
+
+    Configuration& set_initializer(DataFieldFunction& initializator) {
+      this->initializer = initializer;
+      return *this;
+    }
+
+    Configuration& set_persister(DataFieldFunction& persister) {
+      this->persister = persister;
+      return *this;
+    }
+  };
 };
 
 #endif /* DATAFIELDCONFIG_H_ */

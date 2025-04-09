@@ -42,7 +42,7 @@ public:
       int indent);
   virtual ~DataEntryRowGenerator();
 
-  virtual void operator() (DataFieldConfig& field_config);
+  virtual bool operator() (DataFieldConfig& field_config);
 };
 
 #endif /* DATAENTRYFIELDGENERATOR_H_ */

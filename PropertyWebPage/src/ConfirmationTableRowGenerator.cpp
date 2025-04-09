@@ -33,7 +33,8 @@ ConfirmationTableRowGenerator::ConfirmationTableRowGenerator(
 ConfirmationTableRowGenerator::~ConfirmationTableRowGenerator() {
 }
 
-void ConfirmationTableRowGenerator::operator() (
+bool ConfirmationTableRowGenerator::operator() (
     DataFieldConfig& field_config) {
   html.append(field_config.as_label_and_value_fields(indent));
+  return true;
 }

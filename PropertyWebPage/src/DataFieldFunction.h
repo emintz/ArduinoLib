@@ -28,7 +28,7 @@
 #ifndef DATAFIELDFUNCTION_H_
 #define DATAFIELDFUNCTION_H_
 
-#include "DataFieldConfig.h"
+class DataFieldConfig;
 
 class DataFieldFunction {
 public:
@@ -43,7 +43,7 @@ public:
    * field_config         Contains the data used to generate the
    *                      HTML.
    */
-  virtual void operator()(DataFieldConfig& field_config) = 0;
+  virtual bool operator() (DataFieldConfig& field_config) = 0;
 };
 
 #endif /* DATAFIELDFUNCTION_H_ */

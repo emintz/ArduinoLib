@@ -1,7 +1,7 @@
 /*
- * DataEntryFieldGenerator.cpp
+ * SetBlankValue.cpp
  *
- *  Created on: Mar 28, 2025
+ *  Created on: Apr 9, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,23 +21,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "Arduino.h"
+#include "SetBlankValue.h"
 
-#include "DataEntryRowGenerator.h"
+#include "DataFieldConfig.h"
 
-DataEntryRowGenerator::DataEntryRowGenerator(
-    std::string& html,
-    int indent) :
-    html(html),
-    indent(indent) {
+SetBlankValue::SetBlankValue() {
 }
 
-DataEntryRowGenerator::~DataEntryRowGenerator() {
+SetBlankValue::~SetBlankValue() {
 }
 
-bool DataEntryRowGenerator::operator() (DataFieldConfig& field_config) {
-  Serial.flush();
-  std::string row_html = field_config.as_input_form_row(indent);
-  html.append(row_html);
+bool SetBlankValue::operator () (DataFieldConfig& field_config) {
+  field_config.set_value("");
   return true;
 }
