@@ -188,8 +188,8 @@ std::string DataFieldConfig::as_label_and_value_fields(int indent) const {
   html
       .append(indent, ' ')
       .append("<tr>\n")
-      .append(as_table_label_html(indent))
-      .append(as_value_html(indent))
+      .append(as_table_label_html(indent + 2))
+      .append(as_value_html(indent + 2))
       .append(indent, ' ')
       .append("</tr>\n")
   ;

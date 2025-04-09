@@ -24,15 +24,21 @@
 #include "SaveOrReject.h"
 
 static const char *redirect_to_home =
+    "<!DOCTYPE html>\n"
+    "<html>\n"
     "<h1>Redirecting to Home Page</h1>"
     "<meta http-equiv=\"refresh\" content=\"3;URL=/\" />"
     "<p>Will redirect to the home page in 3 seconds. "
     "If redirection fails, please click <a href=\"/\">here</a>.</p>"
+    "</html>\n"
     ;
 
 static const char *update_cancelled =
-    "<h1>Cancelled</h1>"
-    "Cancelled by popular demand.";
+    "<!DOCTYPE html>\n"
+    "<html>\n"
+    "  <h1>Cancelled</h1>\n"
+    "  Cancelled by popular demand.\n"
+    "</html>\n";
 
 SaveOrReject::SaveOrReject(
     FieldLayout& field_layout,

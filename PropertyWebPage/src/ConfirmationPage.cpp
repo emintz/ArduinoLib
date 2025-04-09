@@ -26,51 +26,52 @@
 #include "FieldValueSetter.h"
 
 static const char *confirmation_page_style =
-    "<style>"
-      "table, th, td {"
-        "border: 1px solid black;"
-        "border-collapse: collapse;"
-      "}"
-    "</style>";
+    "<!DOCTYPE html>\n"
+    "<html>\n"
+    "<style>\n"
+    "  table, th, td {\n"
+    "    border: 1px solid black;\n"
+    "    border-collapse: collapse;\n"
+    "  }\n"
+    "</style>\n";
 
 static const char *confirmation_page_start =
     "<p>\n"
     "<table>\n"
-      "<thead>\n"
-        "<tr>"
-          "<th>Setting</th>\n"
-          "<th>Value</th>\n"
-        "</tr>\n"
-      "</thead>\n"
-      "<body>\n"
+    "  <thead>\n"
+    "    <tr>\n"
+    "      <th>Setting</th>\n"
+    "      <th>Value</th>\n"
+    "    </tr>\n"
+    "  </thead>\n"
+    "  <tbody>\n"
     ;
 
 // TODO: Better visuals, two buttons, Submit and Cancel instead of radio
 //       buttons.
 static const char *confirmation_page_end =
-      "</body>\n"
+    "  </tbody>\n"
     "</table>\n"
-    "</p>\n"
     "<p>Would you like to accept or reject the foregoing configuration?</p>\n"
     "<p>"
     "<form action=\"/confirmation\">\n"
-      "<p>"
-        "<input type=\"radio\" id=\"accept\" name=\"confirm_config\" value=\"accept\" />\n"
-        "<label for=\"accept\">Accept</label>\n"
-      "</p>\n"
-      "<p>\n"
-        "<input type=\"radio\" id=\"reject\" name=\"confirm_config\" value=\"reject\" />\n"
-        "<label for=\"reject\">Edit Values (default)</label>\n"
-      "</p>\n"
-      "<p>\n"
-        "<input type=\"radio\" id=\"cancel\" name=\"confirm_config\" value=\"cancel\" />\n"
-        "<label for=\"cancel\">Cancel</label>\n"
-      "</p>\n"
-      "<p>\n"
-        "<input type=\"submit\" value=\"Accept, Edit, or Cancel\" />\n"
-      "</p>\n"
+    " <p>\n"
+    "    <input type=\"radio\" id=\"accept\" name=\"confirm_config\" value=\"accept\" />\n"
+    "    <label for=\"accept\">Save Values</label>\n"
+    "  </p>\n"
+    "  <p>\n"
+    "    <input type=\"radio\" id=\"reject\" name=\"confirm_config\" value=\"reject\" />\n"
+    "    <label for=\"reject\">Edit Values (default)</label>\n"
+    "  </p>\n"
+    "  <p>\n"
+    "    <input type=\"radio\" id=\"cancel\" name=\"confirm_config\" value=\"cancel\" />\n"
+    "    <label for=\"cancel\">Cancel</label>\n"
+    "  </p>\n"
+    "  <p>\n"
+    "    <input type=\"submit\" value=\"Accept, Edit, or Cancel\" />\n"
+    "  </p>\n"
     "</form>\n"
-    "</p>\n"
+    "</html>\n"
     ;
 
 ConfirmationPage::ConfirmationPage(
@@ -83,14 +84,11 @@ ConfirmationPage::~ConfirmationPage() {
 }
 
 bool ConfirmationPage::handle(
-        WebServer &server,
-        HTTPMethod request_method,
-        const String &request_uri) {
-
-
+    WebServer &server,
+    HTTPMethod request_method,
+    const String &request_uri) {
   pre_process(server, request_method, request_uri);
   server.send(200, "text/html", html().c_str());
-
   return true;
 }
 
@@ -104,7 +102,6 @@ std::string ConfirmationPage::html() {
     apply(generator);
   }
   page_html.append(confirmation_page_end);
-  Serial.println(page_html.c_str());
   return page_html;
 }
 

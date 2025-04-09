@@ -24,6 +24,10 @@
 #include "DataEntryPage.h"
 #include "DataEntryRowGenerator.h"
 
+static std::string page_start(
+    "<!DOCTYPE html>\n"
+    "<html>\n");
+
 static std::string data_entry_page_style(
     "    <style>\n"
     "        form  { display: table;      }\n"
@@ -31,6 +35,8 @@ static std::string data_entry_page_style(
     "        label { display: table-cell; }\n"
     "        input { display: table-cell; }\n"
     "    </style>\n");
+
+static std::string page_end("</html>\n");
 
 DataEntryPage::DataEntryPage(
     FieldLayout& layout,
@@ -51,6 +57,7 @@ bool DataEntryPage::handle(WebServer &server,
 
 std::string DataEntryPage::html() {
   std::string page_html;
+  page_html.append(page_start);
   append_header(page_html);
   append_style(page_html);
   page_html.append("  <form action=\"/submit\">\n");
@@ -60,6 +67,7 @@ std::string DataEntryPage::html() {
   }
   page_html
       .append("    <input type=\"submit\" value=\"Submit\" />\n")
-      .append("  </form>\n");
+      .append("  </form>\n")
+      .append(page_end);
   return page_html;
 }
