@@ -112,8 +112,26 @@ static Flash32Status to_flash32_status(esp_err_t error_code) {
 }
 
 //----------------------------------------------------------------------------
+// Flash32KeyStatus
+//----------------------------------------------------------------------------
+
+Flash32KeyStatus::Flash32KeyStatus(
+    esp_err_t esp_status,
+    nvs_type_t value_type) :
+      key_exists(esp_status == ESP_OK),
+      value_type(value_type),
+      find_status(to_flash32_status(esp_status)) {
+}
+
+//----------------------------------------------------------------------------
 // Flash32BaseNamespace
 //----------------------------------------------------------------------------
+
+Flash32KeyStatus Flash32BaseNamespace::find_key(const char *key) {
+  nvs_type_t out_type = NVS_TYPE_ANY;
+  auto find_status = nvs_find_key(h_namespace, key, &out_type);
+  return Flash32KeyStatus(find_status, out_type);
+}
 
 Flash32Status Flash32BaseNamespace::get_blob(
     const char *key,
