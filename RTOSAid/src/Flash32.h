@@ -60,38 +60,6 @@ enum class Flash32Status {
 
 class Flash32BaseNamespace;
 
-/*
- * Reports the status of a key in a flash32 namespace.
- */
-class Flash32KeyStatus {
-  friend Flash32BaseNamespace;
-
-  bool key_exists;  // true if and only if the key exists, false otherwise.
-  nvs_type_t value_type;  // Data type of the value associated with the key.
-  Flash32Status find_status;  // Key retrieval status code.
-
-  Flash32KeyStatus(esp_err_t esp_status, nvs_type_t data_type);
-
-public:
-  Flash32KeyStatus(const Flash32KeyStatus& copy_me) :
-    key_exists(copy_me.key_exists),
-    value_type(copy_me.value_type),
-    find_status(copy_me.find_status) {
-  }
-
-  Flash32KeyStatus& operator=(const Flash32KeyStatus& assign_from) {
-    key_exists = assign_from.key_exists;
-    value_type = assign_from.value_type;
-    find_status = assign_from.find_status;
-    return *this;
-  }
-
-  bool succeeded(void) const {
-    return find_status == Flash32Status::OK
-        || find_status == Flash32Status::NOT_FOUND;
-  }
-};
-
 /**
  * Manages the global flash memory state. Use Flash32, the library's singleton
  * instance instead of creating an instance of this class.
@@ -241,23 +209,6 @@ public:
    * Returns: true if and only if retrieval succeeded.
    */
   bool entries(size_t *entry_count);
-
-  /*
-   * Queries the specified key to determine if it exists in the current
-   * namespace.
-   *
-   * Parameters:
-   *
-   * +=============+======================================================+
-   * | Name        | Contents                                             |
-   * +=============+======================================================+
-   * | key         | NULL-terminated key to find. Cannot be NULL.         |
-   * +-------------+------------------------------------------------------+
-   *
-   * Return the key status. The value type is unspecified if the key does
-   * not exist.
-   */
-  Flash32KeyStatus find_key(const char *key);
 
   /**
    * The following methods retrieve numeric values from flash memory. They
