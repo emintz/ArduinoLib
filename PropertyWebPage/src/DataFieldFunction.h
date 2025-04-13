@@ -43,7 +43,7 @@ public:
    * field_config         Contains the data used to generate the
    *                      HTML.
    */
-  virtual bool operator() (DataFieldConfig& field_config) = 0;
+  virtual bool operator() (DataFieldConfig& field_config) const = 0;
 };
 
 #endif /* DATAFIELDFUNCTION_H_ */

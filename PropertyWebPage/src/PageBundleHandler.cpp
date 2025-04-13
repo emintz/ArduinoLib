@@ -28,7 +28,6 @@ PageBundleHandler::PageBundleHandler(
     std::map<std::string, std::unique_ptr<WebPage>>& web_pages) :
     not_found(layout),
     web_pages(web_pages) {
-
 }
 
 PageBundleHandler::~PageBundleHandler() {
@@ -36,7 +35,7 @@ PageBundleHandler::~PageBundleHandler() {
 
 WebPage& PageBundleHandler::page(const String& uri) {
   std::string key(uri.c_str());
-  return web_pages.contains(key)
+  return web_pages.count(key)
       ? *(web_pages[key])
       : not_found;
 }

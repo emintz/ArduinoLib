@@ -1,10 +1,12 @@
 /*
- * SetBlankValue.h
+ * Int32Persister.h
  *
- *  Created on: Apr 9, 2025
+ *  Created on: Apr 12, 2025
  *      Author: Eric Mintz
  *
- * Sets the field value to an empty string.
+ * Retrieves a signed 32-bit integer from EEPROM, converts it to its signed
+ * base ten string equivalent, and sets the resulting value in a field
+ * configuration.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -23,17 +25,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SETBLANKVALUE_H_
-#define SETBLANKVALUE_H_
+#ifndef INT32PERSISTER_H_
+#define INT32PERSISTER_H_
 
+#include "DataFieldConfig.h"
 #include "DataFieldFunction.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
-class SetBlankValue : public DataFieldFunction {
+class Int32Persister : public DataFieldFunction {
+  Flash32Namespace& flash_namespace;
+  PersistStatus& errors;
 public:
-  SetBlankValue();
-  virtual ~SetBlankValue();
+  Int32Persister(
+      Flash32Namespace& flash_namespace,
+      PersistStatus& errors);
+  virtual ~Int32Persister();
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
+  virtual bool operator() (DataFieldConfig& field_config) const override;
 };
 
-#endif /* SETBLANKVALUE_H_ */
+#endif /* INT32PERSISTER_H_ */

@@ -7,6 +7,8 @@
  * Property configuration. Contains the property value
  * (when entered) and the property configuration.
  *
+ * TODO(emintz): support radio buttons and check boxes.
+ *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
  *
@@ -30,6 +32,7 @@
 #define DATAFIELDCONFIG_H_
 
 #include "DataFieldFunction.h"
+#include "DataTypeCharacteristics.h"
 #include "PropertyValidator.h"
 
 #include <memory>
@@ -43,7 +46,7 @@ class DataFieldConfig {
   std::string name;   // Field name
   std::string value;  // Property value, defaults to "" on construction.
                       // Set to display a default value on the screen.
-  DataFieldFunction& persister;
+  const DataFieldFunction& persister;
   std::map<const std::string, std::string> label_attributes;
   std::map<const std::string, std::string> value_attributes;
 
@@ -124,8 +127,6 @@ public:
 
   DataFieldConfig(const DataFieldConfig& copy_me);
 
-  DataFieldConfig& operator=(const DataFieldConfig& assign_me);
-
   virtual ~DataFieldConfig();
 
   /*
@@ -201,16 +202,23 @@ public:
   std::string as_validated_input_form_row(int indent) const;
 
   /*
+   * Return: the field name.
+   */
+  const std::string& get_field_name(void) const {
+    return name;
+  }
+
+  /*
    * Return: the property identifier.
    */
-  const std::string& get_id() const {
+  const std::string& get_id(void) const {
     return id;
   }
 
   /*
    * Return: the current value
    */
-  const std::string& get_value() const {
+  const std::string& get_value(void) const {
     return value;
   }
 
@@ -239,30 +247,21 @@ public:
     const char *initial_value;
     const char *type;
     const PropertyValidator *validator;
-    DataFieldFunction& initializer;
-    DataFieldFunction& persister;
+    const DataFieldFunction& initializer;
+    const DataFieldFunction& persister;
+    const std::map<const std::string, std::string> attributes;
 
     Configuration();
 
     Configuration(const char* id_and_name, const char *label);
 
+    Configuration(
+        const char* id_and_name,
+        const char *label,
+        const DataTypeCharacteristics& characteristics);
+
     Configuration& set_type(const char *type_value) {
       type = type_value;
-      return *this;
-    }
-
-    Configuration& set_validator(const PropertyValidator *property_validator) {
-      validator = property_validator;
-      return *this;
-    }
-
-    Configuration& set_initializer(DataFieldFunction& initializator) {
-      this->initializer = initializer;
-      return *this;
-    }
-
-    Configuration& set_persister(DataFieldFunction& persister) {
-      this->persister = persister;
       return *this;
     }
   };

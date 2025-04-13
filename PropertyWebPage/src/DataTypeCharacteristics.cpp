@@ -1,10 +1,8 @@
 /*
- * SetBlankValue.h
+ * DataTypeCharacteristics.cpp
  *
- *  Created on: Apr 9, 2025
+ *  Created on: Apr 11, 2025
  *      Author: Eric Mintz
- *
- * Sets the field value to an empty string.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -23,17 +21,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SETBLANKVALUE_H_
-#define SETBLANKVALUE_H_
+#include "DataTypeCharacteristics.h"
 
-#include "DataFieldFunction.h"
+DataTypeCharacteristics::DataTypeCharacteristics(
+    const char *name,
+    std::unique_ptr<const DataFieldFunction> persister,
+    std::unique_ptr<const DataFieldFunction> retriever,
+    std::unique_ptr<const PropertyValidator> validator,
+    const std::map<const std::string, std::string>& attributes) :
+        data_type_name(name),
+        field_persister(std::move(persister)),
+        field_retriever(std::move(retriever)),
+        field_validator(std::move(validator)),
+        field_attributes(attributes) {
+}
 
-class SetBlankValue : public DataFieldFunction {
-public:
-  SetBlankValue();
-  virtual ~SetBlankValue();
+DataTypeCharacteristics::~DataTypeCharacteristics() {
+}
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
-};
-
-#endif /* SETBLANKVALUE_H_ */

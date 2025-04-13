@@ -1,10 +1,8 @@
 /*
- * SetBlankValue.h
+ * Int64Persister.h
  *
- *  Created on: Apr 9, 2025
+ *  Created on: Apr 12, 2025
  *      Author: Eric Mintz
- *
- * Sets the field value to an empty string.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,19 +19,30 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ *
+ * Persists a valid string representation of an int64_t value as an
+ * int64_t.
+ *
  */
 
-#ifndef SETBLANKVALUE_H_
-#define SETBLANKVALUE_H_
+#ifndef INT64PERSISTER_H_
+#define INT64PERSISTER_H_
 
+#include "DataFieldConfig.h"
 #include "DataFieldFunction.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
-class SetBlankValue : public DataFieldFunction {
+class Int64Persister : public DataFieldFunction {
+  Flash32Namespace& flash_namespace;
+  PersistStatus& errors;
 public:
-  SetBlankValue();
-  virtual ~SetBlankValue();
+  Int64Persister(
+      Flash32Namespace& flash_namespace,
+      PersistStatus& errors);
+  virtual ~Int64Persister();
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
+  virtual bool operator() (DataFieldConfig& field_config) const override;
 };
 
-#endif /* SETBLANKVALUE_H_ */
+#endif /* INT64PERSISTER_H_ */

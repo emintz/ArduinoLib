@@ -1,10 +1,8 @@
 /*
- * SetBlankValue.h
+ * Int64Persister.cpp
  *
- *  Created on: Apr 9, 2025
+ *  Created on: Apr 12, 2025
  *      Author: Eric Mintz
- *
- * Sets the field value to an empty string.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -23,17 +21,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SETBLANKVALUE_H_
-#define SETBLANKVALUE_H_
+#include "Int64Persister.h"
 
-#include "DataFieldFunction.h"
+#include <string>
 
-class SetBlankValue : public DataFieldFunction {
-public:
-  SetBlankValue();
-  virtual ~SetBlankValue();
+Int64Persister::Int64Persister(
+    Flash32Namespace& flash_namespace,
+    PersistStatus& errors) :
+        flash_namespace(flash_namespace),
+        errors(errors) {
+}
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
-};
+Int64Persister::~Int64Persister() {
+}
 
-#endif /* SETBLANKVALUE_H_ */
+bool Int64Persister::operator() (DataFieldConfig& field_config) const {
+  int64_t value_to_persist = std::stoll(field_config.get_value());
+  return errors.verify(
+      flash_namespace.set_int64(
+              field_config.get_id().c_str(),
+              value_to_persist),
+          field_config);
+}

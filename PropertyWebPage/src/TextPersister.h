@@ -1,10 +1,11 @@
 /*
- * SetBlankValue.h
+ * TextPersister.h
  *
- *  Created on: Apr 9, 2025
+ *  Created on: Apr 11, 2025
  *      Author: Eric Mintz
  *
- * Sets the field value to an empty string.
+ * Persists a text (i.e. std::string)-typed value. Note that any string,
+ * including the empty string is valid.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -23,17 +24,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SETBLANKVALUE_H_
-#define SETBLANKVALUE_H_
+#ifndef TEXTPERSISTER_H_
+#define TEXTPERSISTER_H_
 
+#include "DataFieldConfig.h"
 #include "DataFieldFunction.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
-class SetBlankValue : public DataFieldFunction {
+class TextPersister : public DataFieldFunction {
+  Flash32Namespace& flash_namespace;
+  PersistStatus& errors;
 public:
-  SetBlankValue();
-  virtual ~SetBlankValue();
+  TextPersister(
+      Flash32Namespace& flash_namespace,
+      PersistStatus& errors);
+  virtual ~TextPersister();
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
+  virtual bool operator() (DataFieldConfig& field_config) const override;
 };
 
-#endif /* SETBLANKVALUE_H_ */
+#endif /* TEXTPERSISTER_H_ */

@@ -84,15 +84,6 @@ public:
    */
   FieldLayout& apply(DataFieldFunction& action);
 
-  /*
-   * Returns: true if and only if the map contains an entry a DataField
-   *          indexed by the specified key. Included for the sake of
-   *          completeness.
-   */
-  bool contains(const std::string key) {
-    return ordered_by_id.contains(key);
-  }
-
   /**
    * Returns true if and only if the configuration is valid. A
    * configuration is valid if and only if it does not contain

@@ -55,7 +55,7 @@ public:
    * in the web_server that is bound to this. Sets the value
    * to the empty string if no such argument exists.
    */
-  virtual bool operator() (DataFieldConfig& field_config) override;
+  virtual bool operator() (DataFieldConfig& field_config) const override;
 };
 
 #endif /* FIELDVALUESETTER_H_ */

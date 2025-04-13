@@ -1,10 +1,11 @@
 /*
- * SetBlankValue.h
+ * TextRetriever.h
  *
  *  Created on: Apr 9, 2025
  *      Author: Eric Mintz
  *
- * Sets the field value to an empty string.
+ * Initializes text-valued field configurations from flash memory. Length
+ * is limited to 63 characters.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -23,17 +24,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SETBLANKVALUE_H_
-#define SETBLANKVALUE_H_
+#ifndef TEXTRETRIEVER_H_
+#define TEXTRETRIEVER_H_
 
+#include "DataFieldConfig.h"
 #include "DataFieldFunction.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
-class SetBlankValue : public DataFieldFunction {
+class TextRetriever : public DataFieldFunction {
+  Flash32BaseNamespace& flash_namespace;
+  PersistStatus& errors;
 public:
-  SetBlankValue();
-  virtual ~SetBlankValue();
+  TextRetriever(
+      Flash32BaseNamespace& flash_namespace,
+      PersistStatus& errors);
+  virtual ~TextRetriever();
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
+  virtual bool operator() (DataFieldConfig& configuration) const override;
 };
 
-#endif /* SETBLANKVALUE_H_ */
+#endif /* TEXTRETRIEVER_H_ */

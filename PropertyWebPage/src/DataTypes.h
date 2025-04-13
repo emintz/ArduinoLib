@@ -1,10 +1,10 @@
 /*
- * SetBlankValue.h
+ * DataTypes.h
  *
- *  Created on: Apr 9, 2025
+ *  Created on: Apr 11, 2025
  *      Author: Eric Mintz
  *
- * Sets the field value to an empty string.
+ * Provides the characteristics of every supported data type.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -23,17 +23,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef SETBLANKVALUE_H_
-#define SETBLANKVALUE_H_
+#ifndef DATATYPES_H_
+#define DATATYPES_H_
 
-#include "DataFieldFunction.h"
+#include "DataTypeCharacteristics.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
-class SetBlankValue : public DataFieldFunction {
+#include <memory>
+
+class DataTypes {
 public:
-  SetBlankValue();
-  virtual ~SetBlankValue();
+  DataTypes(
+      Flash32Namespace& flash_namespace,
+      PersistStatus& errors);
+  virtual ~DataTypes();
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
+  const DataTypeCharacteristics int32;
+  const DataTypeCharacteristics int64;
+  const DataTypeCharacteristics text;
 };
 
-#endif /* SETBLANKVALUE_H_ */
+#endif /* DATATYPES_H_ */

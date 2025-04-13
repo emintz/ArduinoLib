@@ -66,7 +66,8 @@ DataFieldConfig::DataFieldConfig(
       name(configuration.name),
       value(),
       validator(configuration.validator),
-      persister(configuration.persister) {
+      persister(configuration.persister),
+      value_attributes(configuration.attributes) {
   init_attributes(configuration.type);
   configuration.initializer(*this);
 }
@@ -80,17 +81,6 @@ DataFieldConfig::DataFieldConfig(const DataFieldConfig& copy_me) :
   value_attributes(copy_me.value_attributes),
   persister(copy_me.persister) {
 
-}
-
-DataFieldConfig& DataFieldConfig::operator=(const DataFieldConfig& assign_me) {
-  validator = assign_me.validator;
-  label = assign_me.label;
-  name = assign_me.name;
-  value = assign_me.value;
-  label_attributes = assign_me.label_attributes;
-  value_attributes = assign_me.value_attributes;
-  persister = assign_me.persister;
-  return *this;
 }
 
 DataFieldConfig::~DataFieldConfig() {
@@ -240,4 +230,19 @@ DataFieldConfig::Configuration::Configuration(
       validator(&default_validator),
       initializer(default_initializer),
       persister(default_persister) {
+}
+
+DataFieldConfig::Configuration::Configuration(
+    const char *id_and_name,
+    const char *label,
+    const DataTypeCharacteristics& characteristics) :
+          id(id_and_name),
+          label(label),
+          name(id_and_name),
+          initial_value(""),
+          type(characteristics.type_name().c_str()),
+          initializer(characteristics.retriever()),
+          persister(characteristics.persister()),
+          validator(&characteristics.validator()),
+          attributes(characteristics.attributes()) {
 }
