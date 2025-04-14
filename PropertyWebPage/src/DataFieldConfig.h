@@ -33,14 +33,12 @@
 
 #include "DataFieldFunction.h"
 #include "DataTypeCharacteristics.h"
-#include "PropertyValidator.h"
 
 #include <memory>
 #include <map>
 #include <string>
 
 class DataFieldConfig {
-  const PropertyValidator *validator;
   std::string id;     // Input field identifier, used to link the field label
   std::string label;  // Field label
   std::string name;   // Field name
@@ -100,18 +98,6 @@ class DataFieldConfig {
    * Returns: the generated HTML, including a terminating new-line.
    */
   std::string as_value_html(int indent) const;
-
-  /*
-   * Produces a blank table field if the value is valid, or an
-   * error message if it is invalid
-   *
-   * Parameter            Contents
-   * -------------------- -----------------------------------------
-   * indent               Indent level, number of spaces to indent
-   *
-   * Returns: the generated HTML, including a terminating new-line.
-   */
-  std::string maybe_error_message(int indent) const;
 
 public:
 
@@ -188,20 +174,6 @@ public:
   std::string as_label_and_value_fields(int indent) const;
 
   /*
-   * Format the property as HTML for an input field with the current value
-   * filled in. Display an error message if the value is invalid. The
-   * returned value will display as a table row.
-   *
-   * Note: the style described above must be in effect.
-   *
-   * Parameter            Contents
-   * -------------------- -----------------------------------------
-   * indent               The number of spaces to indent the generated
-   *                      HTML.
-   */
-  std::string as_validated_input_form_row(int indent) const;
-
-  /*
    * Return: the field name.
    */
   const std::string& get_field_name(void) const {
@@ -234,19 +206,12 @@ public:
     this->value = value;
   }
 
-  /**
-   * Validate the current value
-   * Returns: true if the value is valid, false otherwise.
-   */
-  bool validate_value(void) const;
-
   struct Configuration {
     const char *id;
     const char *label;
     const char *name;
     const char *initial_value;
     const char *type;
-    const PropertyValidator *validator;
     const DataFieldFunction& initializer;
     const DataFieldFunction& persister;
     const std::map<const std::string, std::string> attributes;

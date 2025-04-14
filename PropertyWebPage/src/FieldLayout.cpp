@@ -24,9 +24,6 @@
 #include "Arduino.h"
 
 #include "FieldLayout.h"
-#include "VacuousValidator.h"
-
-static VacuousValidator default_validator;
 
 FieldLayout::FieldLayout() :
     ordered_by_id(),

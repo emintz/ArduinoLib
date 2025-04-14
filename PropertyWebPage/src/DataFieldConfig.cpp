@@ -24,7 +24,6 @@
 #include "DataFieldConfig.h"
 #include "SetBlankValue.h"
 #include "VacuousDataFieldFunction.h"
-#include "VacuousValidator.h"
 
 static const std::string start_property_value("\"");
 static const std::string end_property_value("\" ");
@@ -36,7 +35,6 @@ static const std::string value_property_name("value");
 
 static SetBlankValue default_initializer;
 static VacuousDataFieldFunction default_persister;
-static VacuousValidator default_validator;
 
 static std::string make_property(
     const std::string name, const std::string value) {
@@ -65,7 +63,6 @@ DataFieldConfig::DataFieldConfig(
       label(configuration.label),
       name(configuration.name),
       value(),
-      validator(configuration.validator),
       persister(configuration.persister),
       value_attributes(configuration.attributes) {
   init_attributes(configuration.type);
@@ -99,30 +96,12 @@ std::string DataFieldConfig::as_input_form_row(int indent) const {
   return html;
 }
 
-std::string DataFieldConfig::as_validated_input_form_row(int indent) const {
-  std::string html;
-  html
-      .append(indent, ' ')
-      .append("<tr>\n")
-      .append(as_label_html(indent + 2))
-      .append(as_input_html(indent + 2))
-      .append("\n")
-      .append(maybe_error_message(indent + 2))
-      .append(indent, ' ')
-      .append("</tr>\n");
-  return html;
-}
-
 void DataFieldConfig::add_label_attribute(std::string name, std::string value) {
   label_attributes[name] = make_property(name, value);
 }
 
 void DataFieldConfig::add_value_attribute(std::string name, std::string value) {
   value_attributes[name] = make_property(name, value);
-}
-
-bool DataFieldConfig::validate_value(void) const {
-  return validator->validate(value);
 }
 
 void DataFieldConfig::init_attributes(const char *type) {
@@ -186,18 +165,6 @@ std::string DataFieldConfig::as_label_and_value_fields(int indent) const {
   return html;
 }
 
-std::string DataFieldConfig::maybe_error_message(int indent) const {
-  std::string html(indent, ' ');
-  html.append("<td>");
-  html.append(
-      validate_value()
-      ? ""
-      : validator->get_error_message())
-      .append("</td>\n");
-  return html;
-}
-
-
 std::string DataFieldConfig::as_table_label_html(int indent) const {
   std::string html(indent, ' ');
   html.append("<td ");
@@ -214,7 +181,6 @@ DataFieldConfig::Configuration::Configuration() :
   name(""),
   initial_value(""),
   type("text"),
-  validator(&default_validator),
   initializer(default_initializer),
   persister(default_persister) {
 }
@@ -227,7 +193,6 @@ DataFieldConfig::Configuration::Configuration(
       name(id_and_name),
       initial_value(""),
       type("text"),
-      validator(&default_validator),
       initializer(default_initializer),
       persister(default_persister) {
 }
@@ -243,6 +208,5 @@ DataFieldConfig::Configuration::Configuration(
           type(characteristics.type_name().c_str()),
           initializer(characteristics.retriever()),
           persister(characteristics.persister()),
-          validator(&characteristics.validator()),
           attributes(characteristics.attributes()) {
 }

@@ -27,7 +27,6 @@
 #define DATATYPECHARACTERISTICS_H_
 
 #include "DataFieldFunction.h"
-#include "PropertyValidator.h"
 
 #include <map>
 #include <memory>
@@ -37,7 +36,6 @@ class DataTypeCharacteristics {
   const std::string data_type_name;
   std::unique_ptr<const DataFieldFunction> field_persister;
   std::unique_ptr<const DataFieldFunction> field_retriever;
-  std::unique_ptr<const PropertyValidator> field_validator;
   const std::map<const std::string, std::string> field_attributes;
 
 public:
@@ -45,7 +43,6 @@ public:
        const char *name,
        std::unique_ptr<const DataFieldFunction> persister,
        std::unique_ptr<const DataFieldFunction> retriever,
-       std::unique_ptr<const PropertyValidator> validator,
        const std::map<const std::string, std::string>& attributes =
            std::map<const std::string, std::string>());
 
@@ -65,10 +62,6 @@ public:
 
   const std::string& type_name() const {
     return data_type_name;
-  }
-
-  const PropertyValidator& validator() const {
-    return *field_validator;
   }
 };
 

@@ -27,12 +27,10 @@ DataTypeCharacteristics::DataTypeCharacteristics(
     const char *name,
     std::unique_ptr<const DataFieldFunction> persister,
     std::unique_ptr<const DataFieldFunction> retriever,
-    std::unique_ptr<const PropertyValidator> validator,
     const std::map<const std::string, std::string>& attributes) :
         data_type_name(name),
         field_persister(std::move(persister)),
         field_retriever(std::move(retriever)),
-        field_validator(std::move(validator)),
         field_attributes(attributes) {
 }
 

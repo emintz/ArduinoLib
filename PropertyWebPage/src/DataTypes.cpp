@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/SignedDecimalValidator.h>
+//#include <src/SignedDecimalValidator.h>
 #include "DataTypes.h"
 
 #include "DataFieldFunction.h"
@@ -35,11 +35,8 @@
 #include "Int64Persister.h"
 #include "Int64Retriever.h"
 
-#include "SignedDecimalValidator.h"
-
 #include "TextPersister.h"
 #include "TextRetriever.h"
-#include "TextValidator.h"
 
 #include "VacuousDataFieldFunction.h"
 
@@ -53,19 +50,16 @@ DataTypes::DataTypes(
         "number",
         std::make_unique<const Int32Persister>(flash_namespace, errors),
         std::make_unique<const Int32Retriever>(flash_namespace, errors),
-        std::make_unique<const SignedDecimalValidator>(),
         number_attributes),
     int64(
         "number",
         std::make_unique<const Int64Persister>(flash_namespace, errors),
         std::make_unique<const Int64Retriever>(flash_namespace, errors),
-        std::make_unique<const SignedDecimalValidator>(),
         number_attributes),
     text(
         "text",
         std::make_unique<const TextPersister>(flash_namespace, errors),
-        std::make_unique<const TextRetriever>(flash_namespace, errors),
-        std::make_unique<const TextValidator>("")) {
+        std::make_unique<const TextRetriever>(flash_namespace, errors)) {
 }
 
 DataTypes::~DataTypes() {
