@@ -1,7 +1,7 @@
 /*
- * Int64Persister.h
+ * DataFieldPersister.cpp
  *
- *  Created on: Apr 12, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -19,30 +19,13 @@
  *
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
- *
- * Persists a valid string representation of an int64_t value as an
- * int64_t.
- *
  */
 
-#ifndef INT64PERSISTER_H_
-#define INT64PERSISTER_H_
+#include <src/DataFieldPersister.h>
 
-#include "DataFieldConfig.h"
-#include "DataFieldFunction.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
+DataFieldPersister::DataFieldPersister() {
+}
 
-class Int64Persister : public DataFieldFunction {
-  Flash32Namespace& flash_namespace;
-  PersistStatus& errors;
-public:
-  Int64Persister(
-      Flash32Namespace& flash_namespace,
-      PersistStatus& errors);
-  virtual ~Int64Persister();
+DataFieldPersister::~DataFieldPersister() {
+}
 
-  virtual bool operator() (DataFieldConfig& field_config) const override;
-};
-
-#endif /* INT64PERSISTER_H_ */

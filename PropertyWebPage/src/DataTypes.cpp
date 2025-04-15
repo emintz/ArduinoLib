@@ -2,7 +2,7 @@
  * DataTypes.cpp
  *
  *  Created on: Apr 11, 2025
- *      Author: eric
+ *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,7 +21,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-//#include <src/SignedDecimalValidator.h>
 #include "DataTypes.h"
 
 #include "DataFieldFunction.h"
@@ -29,16 +28,14 @@
 #include "Flash32.h"
 #include "PersistStatus.h"
 
-#include "Int32Persister.h"
 #include "Int32Retriever.h"
+#include "Int32ToFlash.h"
 
-#include "Int64Persister.h"
 #include "Int64Retriever.h"
+#include "Int64ToFlash.h"
 
-#include "TextPersister.h"
 #include "TextRetriever.h"
-
-#include "VacuousDataFieldFunction.h"
+#include "TextToFlash.h"
 
 static std::map<const std::string, std::string> number_attributes =
     {{"title", "Please enter a valid decimal number."}};
@@ -48,17 +45,17 @@ DataTypes::DataTypes(
     PersistStatus& errors) :
     int32(
         "number",
-        std::make_unique<const Int32Persister>(flash_namespace, errors),
+        std::make_unique<const Int32ToFlash>(),
         std::make_unique<const Int32Retriever>(flash_namespace, errors),
         number_attributes),
     int64(
         "number",
-        std::make_unique<const Int64Persister>(flash_namespace, errors),
+        std::make_unique<const Int64ToFlash>(),
         std::make_unique<const Int64Retriever>(flash_namespace, errors),
         number_attributes),
     text(
         "text",
-        std::make_unique<const TextPersister>(flash_namespace, errors),
+        std::make_unique<const TextToFlash>(),
         std::make_unique<const TextRetriever>(flash_namespace, errors)) {
 }
 

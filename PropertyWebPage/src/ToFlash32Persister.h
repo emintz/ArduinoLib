@@ -1,12 +1,10 @@
 /*
- * AcceptOrReject.h
+ * ToFlash32Persister.h
  *
- *  Created on: Mar 29, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
  *
- * Saves the configuration or rejects it as directed by the user.
- * The user has the option of saving, correcting, or completely
- * rejecting changes.
+ * API for persisting values to EEPROM.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -25,32 +23,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ACCEPTORREJECT_H_
-#define ACCEPTORREJECT_H_
+#ifndef TOFLASH32PERSISTER_H_
+#define TOFLASH32PERSISTER_H_
 
-#include "BaseTaskWithAction.h"
-#include "FieldLayout.h"
+#include "DataFieldConfig.h"
 #include "Flash32.h"
-#include "WebPage.h"
+#include "PersistStatus.h"
 
-class SaveOrReject : public WebPage {
+#include <string>
 
-  BaseTaskWithAction& waiting_task;
-  Flash32Namespace& eeprom;
-
-  bool persist_values(WebServer& server);
-
+class ToFlash32Persister {
+protected:
+  virtual Flash32Status save(
+      const char *field_name,
+      const char *field_value,
+      Flash32Namespace& flash_memory) const = 0;
 public:
-  SaveOrReject(
-      FieldLayout& layout,
-      Flash32Namespace& eeprom,
-      BaseTaskWithAction& waiting_task);
-  virtual ~SaveOrReject();
+  ToFlash32Persister();
+  virtual ~ToFlash32Persister();
 
-  virtual bool handle(
-      WebServer &server,
-      HTTPMethod requestMethod,
-      const String &requestUri) override;
+  bool operator() (
+      const DataFieldConfig& field,
+      Flash32Namespace& flash_memory,
+      PersistStatus& errors) const;
 };
 
-#endif /* ACCEPTORREJECT_H_ */
+#endif /* TOFLASH32PERSISTER_H_ */

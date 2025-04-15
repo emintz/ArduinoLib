@@ -1,11 +1,8 @@
 /*
- * TextPersister.h
+ * Int32ToFlash.cpp
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
- *
- * Persists a text (i.e. std::string)-typed value. Note that any string,
- * including the empty string is valid.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -24,24 +21,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TEXTPERSISTER_H_
-#define TEXTPERSISTER_H_
+#include "Int32ToFlash.h"
 
-#include "DataFieldConfig.h"
-#include "DataFieldFunction.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
+#include <string>
 
-class TextPersister : public DataFieldFunction {
-  Flash32Namespace& flash_namespace;
-  PersistStatus& errors;
-public:
-  TextPersister(
-      Flash32Namespace& flash_namespace,
-      PersistStatus& errors);
-  virtual ~TextPersister();
+Int32ToFlash::Int32ToFlash() {
+}
 
-  virtual bool operator() (DataFieldConfig& field_config) const override;
-};
+Int32ToFlash::~Int32ToFlash() {
+}
 
-#endif /* TEXTPERSISTER_H_ */
+Flash32Status Int32ToFlash::save(
+    const char *field_name,
+    const char *field_value,
+    Flash32Namespace& flash_memory) const {
+  int32_t value_to_persist = std::stoi(field_value);
+  return flash_memory.set_int32(field_name, value_to_persist);
+}

@@ -42,8 +42,10 @@ static const char *update_cancelled =
 
 SaveOrReject::SaveOrReject(
     FieldLayout& field_layout,
+    Flash32Namespace& eeprom,
     BaseTaskWithAction& waiting_task) :
         WebPage(field_layout, "", ""),
+        eeprom(eeprom),
         waiting_task(waiting_task) {
 }
 
@@ -68,7 +70,6 @@ bool SaveOrReject::handle(
       std::string message("Invalid request: \"");
       message.append(user_command.c_str());
       server.send(500, "text/plain", message.c_str());
-      waiting_task.notify();
     }
 
   } else {

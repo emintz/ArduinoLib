@@ -1,8 +1,12 @@
 /*
- * DataTypeCharacteristics.cpp
+ * DataFieldPersister.h
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
+ *
+ * DataFieldFunction that persists the field's value.
+ *
+ * TODO(emintz): implementation.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,19 +25,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "DataTypeCharacteristics.h"
+#ifndef DATAFIELDPERSISTER_H_
+#define DATAFIELDPERSISTER_H_
 
-DataTypeCharacteristics::DataTypeCharacteristics(
-    const char *name,
-    std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-    std::unique_ptr<const DataFieldFunction> retriever,
-    const std::map<const std::string, std::string>& attributes) :
-        data_type_name(name),
-        to_flash_persister(std::move(to_flash_persister)),
-        field_retriever(std::move(retriever)),
-        field_attributes(attributes) {
-}
+class DataFieldPersister {
+public:
+  DataFieldPersister();
+  virtual ~DataFieldPersister();
+};
 
-DataTypeCharacteristics::~DataTypeCharacteristics() {
-}
-
+#endif /* DATAFIELDPERSISTER_H_ */

@@ -1,8 +1,10 @@
 /*
- * Int32Persister.cpp
+ * Int32ToFlash.h
  *
- *  Created on: Apr 12, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
+ *
+ * Persist an int33_t value to flash memory
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,30 +23,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/Int32Persister.h>
+#ifndef INT32TOFLASH_H_
+#define INT32TOFLASH_H_
 
-#include "DataFieldConfig.h"
-#include "DataFieldFunction.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
+#include "ToFlash32Persister.h"
 
-#include <string>
+class Int32ToFlash : public ToFlash32Persister {
+protected:
+  virtual Flash32Status save(
+      const char *field_name,
+      const char *field_value,
+      Flash32Namespace& flash_memory) const override;
+public:
+  Int32ToFlash();
+  virtual ~Int32ToFlash();
+};
 
-Int32Persister::Int32Persister(
-    Flash32Namespace& flash_namespace,
-    PersistStatus& errors) :
-        flash_namespace(flash_namespace),
-        errors(errors) {
-}
-
-Int32Persister::~Int32Persister() {
-}
-
-bool Int32Persister::operator() (DataFieldConfig& field_config) const {
-  int32_t value_to_persist = std::stoi(field_config.get_value());
-  return errors.verify(
-      flash_namespace.set_int32(
-          field_config.get_id().c_str(),
-          value_to_persist),
-      field_config);
-}
+#endif /* INT32TOFLASH_H_ */

@@ -21,9 +21,12 @@
  */
 #include "Arduino.h"
 
+#include "DataTypeCharacteristics.h"
 #include "DataFieldConfig.h"
 #include "SetBlankValue.h"
+#include "ToFlash32Persister.h"
 #include "VacuousDataFieldFunction.h"
+#include "VacuousFlash32Persister.h"
 
 static const std::string start_property_value("\"");
 static const std::string end_property_value("\" ");
@@ -35,6 +38,7 @@ static const std::string value_property_name("value");
 
 static SetBlankValue default_initializer;
 static VacuousDataFieldFunction default_persister;
+static const VacuousFlash32Persister default_flash32_persister;
 
 static std::string make_property(
     const std::string name, const std::string value) {
@@ -54,7 +58,7 @@ DataFieldConfig::DataFieldConfig() :
   value(),
   label_attributes(),
   value_attributes(),
-  persister(default_persister) {
+  persister(default_flash32_persister) {
 }
 
 DataFieldConfig::DataFieldConfig(
@@ -182,7 +186,7 @@ DataFieldConfig::Configuration::Configuration() :
   initial_value(""),
   type("text"),
   initializer(default_initializer),
-  persister(default_persister) {
+  persister(default_flash32_persister) {
 }
 
 DataFieldConfig::Configuration::Configuration(
@@ -194,7 +198,7 @@ DataFieldConfig::Configuration::Configuration(
       initial_value(""),
       type("text"),
       initializer(default_initializer),
-      persister(default_persister) {
+      persister(default_flash32_persister) {
 }
 
 DataFieldConfig::Configuration::Configuration(

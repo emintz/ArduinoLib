@@ -1,8 +1,10 @@
 /*
- * Int64Persister.cpp
+ * VacuousFlash32Persister.cpp
  *
- *  Created on: Apr 12, 2025
+ *  Created on: Apr 15, 2025
  *      Author: Eric Mintz
+ *
+ * A vacuous (do nothing) persister.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,25 +23,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "Int64Persister.h"
+#include "VacuousFlash32Persister.h"
 
-#include <string>
-
-Int64Persister::Int64Persister(
-    Flash32Namespace& flash_namespace,
-    PersistStatus& errors) :
-        flash_namespace(flash_namespace),
-        errors(errors) {
+VacuousFlash32Persister::VacuousFlash32Persister() {
 }
 
-Int64Persister::~Int64Persister() {
+VacuousFlash32Persister::~VacuousFlash32Persister() {
 }
 
-bool Int64Persister::operator() (DataFieldConfig& field_config) const {
-  int64_t value_to_persist = std::stoll(field_config.get_value());
-  return errors.verify(
-      flash_namespace.set_int64(
-              field_config.get_id().c_str(),
-              value_to_persist),
-          field_config);
+Flash32Status VacuousFlash32Persister::save(
+        const char *field_name,
+        const char *field_value,
+        Flash32Namespace& flash_memory) const {
+  return Flash32Status::OK;
 }

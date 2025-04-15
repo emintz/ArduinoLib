@@ -1,7 +1,7 @@
 /*
- * DataTypeCharacteristics.cpp
+ * VacuousFlash32Persister.h
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 15, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,19 +21,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "DataTypeCharacteristics.h"
+#ifndef VACUOUSFLASH32PERSISTER_H_
+#define VACUOUSFLASH32PERSISTER_H_
 
-DataTypeCharacteristics::DataTypeCharacteristics(
-    const char *name,
-    std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-    std::unique_ptr<const DataFieldFunction> retriever,
-    const std::map<const std::string, std::string>& attributes) :
-        data_type_name(name),
-        to_flash_persister(std::move(to_flash_persister)),
-        field_retriever(std::move(retriever)),
-        field_attributes(attributes) {
-}
+#include "ToFlash32Persister.h"
 
-DataTypeCharacteristics::~DataTypeCharacteristics() {
-}
+class VacuousFlash32Persister : public ToFlash32Persister {
+protected:
+  virtual Flash32Status save(
+        const char *field_name,
+        const char *field_value,
+        Flash32Namespace& flash_memory) const override;
+public:
+  VacuousFlash32Persister();
+  virtual ~VacuousFlash32Persister();
+};
 
+#endif /* VACUOUSFLASH32PERSISTER_H_ */

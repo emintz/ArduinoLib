@@ -31,8 +31,12 @@
 #ifndef DATAFIELDCONFIG_H_
 #define DATAFIELDCONFIG_H_
 
+class DataTypeCharacteristics;
+class Flash32Namespace;
+class ToFlash32Persister;
+class PersistStatus;
+
 #include "DataFieldFunction.h"
-#include "DataTypeCharacteristics.h"
 
 #include <memory>
 #include <map>
@@ -44,7 +48,7 @@ class DataFieldConfig {
   std::string name;   // Field name
   std::string value;  // Property value, defaults to "" on construction.
                       // Set to display a default value on the screen.
-  const DataFieldFunction& persister;
+  const ToFlash32Persister& persister;
   std::map<const std::string, std::string> label_attributes;
   std::map<const std::string, std::string> value_attributes;
 
@@ -98,6 +102,10 @@ class DataFieldConfig {
    * Returns: the generated HTML, including a terminating new-line.
    */
   std::string as_value_html(int indent) const;
+
+  const ToFlash32Persister& get_persister(void) const {
+    return persister;
+  }
 
 public:
 
@@ -197,7 +205,6 @@ public:
   /**
    * Set the field value to the specified value
    *
-   *
    * Parameter            Contents
    * -------------------- -----------------------------------------
    * value                Value to set
@@ -213,7 +220,7 @@ public:
     const char *initial_value;
     const char *type;
     const DataFieldFunction& initializer;
-    const DataFieldFunction& persister;
+    const ToFlash32Persister& persister;
     const std::map<const std::string, std::string> attributes;
 
     Configuration();

@@ -1,12 +1,12 @@
 /*
- * Int32Persister.h
+ * TextToFlash32.h
  *
- *  Created on: Apr 12, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
  *
- * Retrieves a signed 32-bit integer from EEPROM, converts it to its signed
- * base ten string equivalent, and sets the resulting value in a field
- * configuration.
+ * Persists text-valued properties to EEPROM.
+ *
+ * API for persisting values to EEPROM.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -25,24 +25,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef INT32PERSISTER_H_
-#define INT32PERSISTER_H_
+#ifndef TEXTTOFLASH_H_
+#define TEXTTOFLASH_H_
 
-#include "DataFieldConfig.h"
-#include "DataFieldFunction.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
+#include "ToFlash32Persister.h"
 
-class Int32Persister : public DataFieldFunction {
-  Flash32Namespace& flash_namespace;
-  PersistStatus& errors;
+class TextToFlash : public ToFlash32Persister {
+protected:
+  virtual Flash32Status save(
+      const char *field_name,
+      const char *field_value,
+      Flash32Namespace& flash_memory) const override;
 public:
-  Int32Persister(
-      Flash32Namespace& flash_namespace,
-      PersistStatus& errors);
-  virtual ~Int32Persister();
-
-  virtual bool operator() (DataFieldConfig& field_config) const override;
+  TextToFlash();
+  virtual ~TextToFlash();
 };
 
-#endif /* INT32PERSISTER_H_ */
+#endif /* TEXTTOFLASH_H_ */

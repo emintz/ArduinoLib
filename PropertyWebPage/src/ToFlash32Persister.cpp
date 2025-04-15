@@ -1,7 +1,7 @@
 /*
- * DataTypeCharacteristics.cpp
+ * ToFlash32Persister.cpp
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,19 +21,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "DataTypeCharacteristics.h"
+#include <src/ToFlash32Persister.h>
 
-DataTypeCharacteristics::DataTypeCharacteristics(
-    const char *name,
-    std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-    std::unique_ptr<const DataFieldFunction> retriever,
-    const std::map<const std::string, std::string>& attributes) :
-        data_type_name(name),
-        to_flash_persister(std::move(to_flash_persister)),
-        field_retriever(std::move(retriever)),
-        field_attributes(attributes) {
+ToFlash32Persister::ToFlash32Persister() {
 }
 
-DataTypeCharacteristics::~DataTypeCharacteristics() {
+ToFlash32Persister::~ToFlash32Persister() {
 }
 
+bool ToFlash32Persister::operator() (
+        const DataFieldConfig& field,
+        Flash32Namespace& flash_memory,
+        PersistStatus& errors) const {
+  return errors.verify(
+      save(
+          field.get_id().c_str(),
+          field.get_value().c_str(),
+          flash_memory),
+      field);
+}

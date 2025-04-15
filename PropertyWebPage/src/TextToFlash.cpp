@@ -1,8 +1,10 @@
 /*
- * DataTypeCharacteristics.cpp
+ * TextToFlash32.cpp
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
+ *
+ * API for persisting values to EEPROM.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,19 +23,19 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "DataTypeCharacteristics.h"
+#include <src/TextToFlash.h>
 
-DataTypeCharacteristics::DataTypeCharacteristics(
-    const char *name,
-    std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-    std::unique_ptr<const DataFieldFunction> retriever,
-    const std::map<const std::string, std::string>& attributes) :
-        data_type_name(name),
-        to_flash_persister(std::move(to_flash_persister)),
-        field_retriever(std::move(retriever)),
-        field_attributes(attributes) {
+TextToFlash::TextToFlash() {
 }
 
-DataTypeCharacteristics::~DataTypeCharacteristics() {
+TextToFlash::~TextToFlash() {
 }
 
+Flash32Status TextToFlash::save(
+      const char *field_name,
+      const char *field_value,
+      Flash32Namespace& flash_memory) const {
+  return flash_memory.set_str(
+      field_name,
+      field_value);
+}

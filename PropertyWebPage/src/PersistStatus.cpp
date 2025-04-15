@@ -33,7 +33,7 @@ PersistStatus::~PersistStatus() {
 
 bool PersistStatus::verify(
     Flash32Status status,
-    DataFieldConfig& field_configuration) {
+    const DataFieldConfig& field_configuration) {
   bool operation_succeeded = false;
   std::string error_message;
 

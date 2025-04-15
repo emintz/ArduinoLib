@@ -27,6 +27,7 @@
 #define DATATYPECHARACTERISTICS_H_
 
 #include "DataFieldFunction.h"
+#include "ToFlash32Persister.h"
 
 #include <map>
 #include <memory>
@@ -34,14 +35,14 @@
 
 class DataTypeCharacteristics {
   const std::string data_type_name;
-  std::unique_ptr<const DataFieldFunction> field_persister;
+  std::unique_ptr<const ToFlash32Persister> to_flash_persister;
   std::unique_ptr<const DataFieldFunction> field_retriever;
   const std::map<const std::string, std::string> field_attributes;
 
 public:
   DataTypeCharacteristics(
        const char *name,
-       std::unique_ptr<const DataFieldFunction> persister,
+       std::unique_ptr<const ToFlash32Persister> to_flash_persister,
        std::unique_ptr<const DataFieldFunction> retriever,
        const std::map<const std::string, std::string>& attributes =
            std::map<const std::string, std::string>());
@@ -52,15 +53,15 @@ public:
     return field_attributes;
   }
 
-  const DataFieldFunction& persister() const {
-    return *field_persister;
+  const ToFlash32Persister& persister(void) const {
+    return *to_flash_persister;
   }
 
-  const DataFieldFunction& retriever() const {
+  const DataFieldFunction& retriever(void) const {
     return *field_retriever;
   }
 
-  const std::string& type_name() const {
+  const std::string& type_name(void) const {
     return data_type_name;
   }
 };

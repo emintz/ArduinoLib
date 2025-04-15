@@ -63,7 +63,7 @@ public:
    * Returns: true if the operation succeeded, false if it failed.
    *
    */
-  bool verify(Flash32Status status, DataFieldConfig& field_configuration);
+  bool verify(Flash32Status status, const DataFieldConfig& field_configuration);
 };
 
 #endif /* PERSISTSTATUS_H_ */

@@ -1,8 +1,10 @@
 /*
- * DataTypeCharacteristics.cpp
+ * Int64ToFlash.h
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
+ *
+ * Persists an int64_t value to EEPROM.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,19 +23,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "DataTypeCharacteristics.h"
+#ifndef INT64TOFLASH_H_
+#define INT64TOFLASH_H_
 
-DataTypeCharacteristics::DataTypeCharacteristics(
-    const char *name,
-    std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-    std::unique_ptr<const DataFieldFunction> retriever,
-    const std::map<const std::string, std::string>& attributes) :
-        data_type_name(name),
-        to_flash_persister(std::move(to_flash_persister)),
-        field_retriever(std::move(retriever)),
-        field_attributes(attributes) {
-}
+#include "ToFlash32Persister.h"
 
-DataTypeCharacteristics::~DataTypeCharacteristics() {
-}
+class Int64ToFlash : public ToFlash32Persister {
+protected:
+  virtual Flash32Status save(
+      const char *field_name,
+      const char *field_value,
+      Flash32Namespace& flash_memory) const override;
 
+public:
+  Int64ToFlash();
+  virtual ~Int64ToFlash();
+};
+
+#endif /* INT64TOFLASH_H_ */

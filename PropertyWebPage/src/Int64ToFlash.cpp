@@ -1,7 +1,7 @@
 /*
- * TextPersister.cpp
+ * Int64ToFlash.cpp
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,25 +21,22 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "TextPersister.h"
+#include "Int64ToFlash.h"
 
-TextPersister::TextPersister(
-    Flash32Namespace& flash_namespace,
-    PersistStatus& errors) :
-        flash_namespace(flash_namespace),
-        errors(errors) {
+#include <string>
 
+Int64ToFlash::Int64ToFlash() {
 }
 
-TextPersister::~TextPersister() {
+Int64ToFlash::~Int64ToFlash() {
 }
 
-bool TextPersister::operator() (DataFieldConfig& field_config) const {
-  bool status =
-      errors.verify(
-          flash_namespace.set_str(
-              field_config.get_id().c_str(),
-              field_config.get_value().c_str()),
-          field_config);
-  return status;
+Flash32Status Int64ToFlash::save(
+    const char *field_name,
+    const char *field_value,
+    Flash32Namespace& flash_memory) const {
+  int64_t value_to_persist = std::stoll(field_value);
+  return flash_memory.set_int64(
+      field_name,
+      value_to_persist);
 }
