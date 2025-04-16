@@ -35,7 +35,7 @@ Int64Retriever::Int64Retriever(
 Int64Retriever::~Int64Retriever() {
 }
 
-bool Int64Retriever::operator() (DataFieldConfig& field_config) const {
+bool Int64Retriever::operator() (DataFieldConfig& field_config) {
   bool status = true;
   int64_t integer_value = 0;
   field_config.set_value("");

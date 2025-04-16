@@ -30,6 +30,6 @@ VacuousDataFieldFunction::VacuousDataFieldFunction() {
 VacuousDataFieldFunction::~VacuousDataFieldFunction() {
 }
 
-bool VacuousDataFieldFunction::operator()(DataFieldConfig& field_config) const {
+bool VacuousDataFieldFunction::operator()(DataFieldConfig& field_config) {
   return true;
 }

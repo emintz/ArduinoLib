@@ -31,7 +31,7 @@ SetBlankValue::SetBlankValue() {
 SetBlankValue::~SetBlankValue() {
 }
 
-bool SetBlankValue::operator () (DataFieldConfig& field_config) const {
+bool SetBlankValue::operator () (DataFieldConfig& field_config) {
   field_config.set_value("");
   return true;
 }

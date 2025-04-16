@@ -41,7 +41,7 @@ public:
       PersistStatus& errors);
   virtual ~Int64Retriever();
 
-  virtual bool operator() (DataFieldConfig& field_config) const override;
+  virtual bool operator() (DataFieldConfig& field_config) override;
 };
 
 #endif /* INT64RETRIEVER_H_ */

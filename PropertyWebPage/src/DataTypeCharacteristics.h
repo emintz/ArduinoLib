@@ -36,14 +36,14 @@
 class DataTypeCharacteristics {
   const std::string data_type_name;
   std::unique_ptr<const ToFlash32Persister> to_flash_persister;
-  std::unique_ptr<const DataFieldFunction> field_retriever;
+  std::unique_ptr<DataFieldFunction> field_retriever;
   const std::map<const std::string, std::string> field_attributes;
 
 public:
   DataTypeCharacteristics(
        const char *name,
        std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-       std::unique_ptr<const DataFieldFunction> retriever,
+       std::unique_ptr<DataFieldFunction> retriever,
        const std::map<const std::string, std::string>& attributes =
            std::map<const std::string, std::string>());
 
@@ -57,7 +57,7 @@ public:
     return *to_flash_persister;
   }
 
-  const DataFieldFunction& retriever(void) const {
+  DataFieldFunction& retriever(void) const {
     return *field_retriever;
   }
 

@@ -41,7 +41,7 @@ public:
       PersistStatus& errors);
   virtual ~TextRetriever();
 
-  virtual bool operator() (DataFieldConfig& configuration) const override;
+  virtual bool operator() (DataFieldConfig& configuration) override;
 };
 
 #endif /* TEXTRETRIEVER_H_ */

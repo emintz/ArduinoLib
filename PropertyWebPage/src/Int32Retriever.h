@@ -25,7 +25,7 @@ public:
       PersistStatus& errors);
   virtual ~Int32Retriever();
 
-  virtual bool operator() (DataFieldConfig& field_config) const override;
+  virtual bool operator() (DataFieldConfig& field_config) override;
 };
 
 #endif /* INT32RETRIEVER_H_ */

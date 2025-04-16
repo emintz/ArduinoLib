@@ -48,6 +48,7 @@ class DataFieldConfig {
   std::string name;   // Field name
   std::string value;  // Property value, defaults to "" on construction.
                       // Set to display a default value on the screen.
+  DataFieldFunction& initializer;
   const ToFlash32Persister& persister;
   std::map<const std::string, std::string> label_attributes;
   std::map<const std::string, std::string> value_attributes;
@@ -102,10 +103,6 @@ class DataFieldConfig {
    * Returns: the generated HTML, including a terminating new-line.
    */
   std::string as_value_html(int indent) const;
-
-  const ToFlash32Persister& get_persister(void) const {
-    return persister;
-  }
 
 public:
 
@@ -195,6 +192,10 @@ public:
     return id;
   }
 
+  const ToFlash32Persister& get_persister(void) const {
+    return persister;
+  }
+
   /*
    * Return: the current value
    */
@@ -219,7 +220,7 @@ public:
     const char *name;
     const char *initial_value;
     const char *type;
-    const DataFieldFunction& initializer;
+    DataFieldFunction& initializer;
     const ToFlash32Persister& persister;
     const std::map<const std::string, std::string> attributes;
 

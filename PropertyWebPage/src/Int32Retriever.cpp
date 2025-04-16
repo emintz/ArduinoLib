@@ -34,7 +34,7 @@ Int32Retriever::Int32Retriever(
 Int32Retriever::~Int32Retriever() {
 }
 
-bool Int32Retriever::operator() (DataFieldConfig& field_config) const {
+bool Int32Retriever::operator() (DataFieldConfig& field_config) {
   bool status = true;
   int32_t integer_value = 0;
   field_config.set_value("");

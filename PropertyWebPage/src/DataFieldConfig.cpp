@@ -58,6 +58,7 @@ DataFieldConfig::DataFieldConfig() :
   value(),
   label_attributes(),
   value_attributes(),
+  initializer(default_initializer),
   persister(default_flash32_persister) {
 }
 
@@ -67,6 +68,7 @@ DataFieldConfig::DataFieldConfig(
       label(configuration.label),
       name(configuration.name),
       value(),
+      initializer(configuration.initializer),
       persister(configuration.persister),
       value_attributes(configuration.attributes) {
   init_attributes(configuration.type);
@@ -80,6 +82,7 @@ DataFieldConfig::DataFieldConfig(const DataFieldConfig& copy_me) :
   value(copy_me.value),
   label_attributes(copy_me.label_attributes),
   value_attributes(copy_me.value_attributes),
+  initializer(copy_me.initializer),
   persister(copy_me.persister) {
 
 }

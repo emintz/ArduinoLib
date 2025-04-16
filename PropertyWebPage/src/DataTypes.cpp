@@ -46,17 +46,17 @@ DataTypes::DataTypes(
     int32(
         "number",
         std::make_unique<const Int32ToFlash>(),
-        std::make_unique<const Int32Retriever>(flash_namespace, errors),
+        std::make_unique<Int32Retriever>(flash_namespace, errors),
         number_attributes),
     int64(
         "number",
         std::make_unique<const Int64ToFlash>(),
-        std::make_unique<const Int64Retriever>(flash_namespace, errors),
+        std::make_unique<Int64Retriever>(flash_namespace, errors),
         number_attributes),
     text(
         "text",
         std::make_unique<const TextToFlash>(),
-        std::make_unique<const TextRetriever>(flash_namespace, errors)) {
+        std::make_unique<TextRetriever>(flash_namespace, errors)) {
 }
 
 DataTypes::~DataTypes() {

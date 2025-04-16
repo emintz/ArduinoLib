@@ -26,7 +26,7 @@
 DataTypeCharacteristics::DataTypeCharacteristics(
     const char *name,
     std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-    std::unique_ptr<const DataFieldFunction> retriever,
+    std::unique_ptr<DataFieldFunction> retriever,
     const std::map<const std::string, std::string>& attributes) :
         data_type_name(name),
         to_flash_persister(std::move(to_flash_persister)),

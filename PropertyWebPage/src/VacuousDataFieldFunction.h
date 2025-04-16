@@ -33,7 +33,7 @@ public:
   VacuousDataFieldFunction();
   virtual ~VacuousDataFieldFunction();
 
-  virtual bool operator()(DataFieldConfig& field_config) const override;
+  virtual bool operator()(DataFieldConfig& field_config) override;
 };
 
 #endif /* VACUOUSDATAFIELDFUNCTION_H_ */

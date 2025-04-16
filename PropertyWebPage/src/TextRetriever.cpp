@@ -35,7 +35,7 @@ TextRetriever::TextRetriever(
 TextRetriever::~TextRetriever() {
 }
 
-bool TextRetriever::operator() (DataFieldConfig& config) const {
+bool TextRetriever::operator() (DataFieldConfig& config) {
   char retrieved_value[64];
   size_t retrieved_byte_count = 0;
   std::memset(retrieved_value, '\0', sizeof(retrieved_value));
