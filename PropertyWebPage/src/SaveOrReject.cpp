@@ -23,6 +23,7 @@
 
 #include "SaveOrReject.h"
 
+#include "ConfirmationTableRowGenerator.h"
 #include "DataFieldConfig.h"
 #include "DataTypes.h"
 #include "PersistFunction.h"
@@ -44,6 +45,38 @@ static const char *update_cancelled =
     "  <h1>Cancelled</h1>\n"
     "  Cancelled by popular demand.\n"
     "</html>\n";
+
+// TODO(emintz): the following duplicate HTML in ConfirmationPage.cpp.
+//               Refactor.
+
+static const char *confirmation_page_style =
+    "<!DOCTYPE html>\n"
+    "<html>\n"
+    "<style>\n"
+    "  table, th, td {\n"
+    "    border: 1px solid black;\n"
+    "    border-collapse: collapse;\n"
+    "  }\n"
+    "</style>\n";
+
+static const char *confirmation_page_start =
+    "<p>\n"
+    "<table>\n"
+    "  <thead>\n"
+    "    <tr>\n"
+    "      <th>Setting</th>\n"
+    "      <th>Value</th>\n"
+    "    </tr>\n"
+    "  </thead>\n"
+    "  <tbody>\n"
+    ;
+
+// TODO (emintz): The following is a substring of the confirmation
+//                page end in ConfirmationPage.cpp. Refactor.
+static const char *confirmation_page_end =
+    "  </tbody>\n"
+    "</table>\n";
+
 
 SaveOrReject::SaveOrReject(
     FieldLayout& field_layout,
@@ -115,14 +148,13 @@ void SaveOrReject::show_errors(WebServer& server,const PersistStatus& errors) {
 }
 
 void SaveOrReject::show_success(WebServer& server) {
-  std::string html("<h1>Success!</h1>\n");
+  std::string html(confirmation_page_style);
+  html.append("<h1>Success!</h1>\n");
   html.append("<h2>Values:</h2>\n");
-
-  // TODO(emintz): retrieve and display values.
-
+  html.append(confirmation_page_start);
+  ConfirmationTableRowGenerator row_generator(html, 4);
+  apply(row_generator);
+  html.append(confirmation_page_end);
   html.append("<br>\n<br>\nWeb server stopped.\n");
   server.send(200, "text/html", html.c_str());
-
-  // TODO(emintz): stop the web server.
-
 }
