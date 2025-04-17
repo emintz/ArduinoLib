@@ -52,6 +52,7 @@ bool TextRetriever::operator() (DataFieldConfig& config) {
       config.set_value(retrieved_value);
       break;
     case Flash32Status::NOT_FOUND:
+      break;
     default:
       status = errors.verify(get_status, config);
   }
