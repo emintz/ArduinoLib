@@ -31,6 +31,7 @@
 #include "BaseTaskWithAction.h"
 #include "FieldLayout.h"
 #include "Flash32.h"
+#include "PersistStatus.h"
 #include "WebPage.h"
 
 class SaveOrReject : public WebPage {
@@ -39,6 +40,10 @@ class SaveOrReject : public WebPage {
   Flash32Namespace& eeprom;
 
   bool persist_values(WebServer& server);
+
+  void show_errors(WebServer& server, const PersistStatus& errors);
+
+  void show_success(WebServer& server);
 
 public:
   SaveOrReject(

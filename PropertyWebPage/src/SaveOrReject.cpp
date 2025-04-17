@@ -23,6 +23,12 @@
 
 #include "SaveOrReject.h"
 
+#include "DataFieldConfig.h"
+#include "DataTypes.h"
+#include "PersistFunction.h"
+
+#include <algorithm>
+
 static const char *redirect_to_home =
     "<!DOCTYPE html>\n"
     "<html>\n"
@@ -34,7 +40,6 @@ static const char *redirect_to_home =
     ;
 
 static const char *update_cancelled =
-    "<!DOCTYPE html>\n"
     "<html>\n"
     "  <h1>Cancelled</h1>\n"
     "  Cancelled by popular demand.\n"
@@ -79,13 +84,45 @@ bool SaveOrReject::handle(
 }
 
 bool SaveOrReject::persist_values(WebServer &server) {
-  bool status = true;
-
-  // TODO: persist to EEPROM
-  server.send(
-      503,
-      "text/plain",
-      "Persistence not implemented. Please try again later.");
-  waiting_task.notify();
+  PersistStatus errors(eeprom);
+  PersistFunction persister(eeprom, errors);
+  apply(persister);
+  bool status = errors.status();
+  if (status) {
+    show_success(server);
+  } else {
+    show_errors(server,errors);
+  }
   return status;
+}
+
+void SaveOrReject::show_errors(WebServer& server,const PersistStatus& errors) {
+  std::string html("<h1>Persistence Failed</h1>\n");
+  html.append("<h2>The following errors occurred:</h2>\n");
+  const std::list<std::string> error_messages = errors.errors();
+  for (
+      auto message = error_messages.cbegin();
+      message != error_messages.cend();
+      ++message) {
+    html.append(*message).append("<br>\n");
+  }
+  html.append("<br>\n").append("Web server stopped. Reboot and retry.\n");
+  server.send(
+      500,
+      "text/html",
+      html.c_str());
+  // TODO(emintz): stop web server.
+}
+
+void SaveOrReject::show_success(WebServer& server) {
+  std::string html("<h1>Success!</h1>\n");
+  html.append("<h2>Values:</h2>\n");
+
+  // TODO(emintz): retrieve and display values.
+
+  html.append("<br>\n<br>\nWeb server stopped.\n");
+  server.send(200, "text/html", html.c_str());
+
+  // TODO(emintz): stop the web server.
+
 }

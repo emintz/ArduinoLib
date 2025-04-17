@@ -44,8 +44,16 @@ public:
   PersistStatus(Flash32BaseNamespace& flash_namespace);
   virtual ~PersistStatus();
 
+  const std::list<std::string>& errors(void) const {
+    return error_messages;
+  }
+
   bool status(void) {
     return error_messages.empty();
+  }
+
+  int error_count(void) {
+    return error_messages.size();
   }
 
   void reset(void) {

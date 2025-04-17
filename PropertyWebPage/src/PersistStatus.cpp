@@ -21,6 +21,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "Arduino.h"
+
 #include "PersistStatus.h"
 
 PersistStatus::PersistStatus(Flash32BaseNamespace& flash_namespace) :
@@ -55,7 +57,7 @@ bool PersistStatus::verify(
       error_message
           .append("There is no room in the ")
           .append(flash_namespace.get_name())
-          .append(" to store the ")
+          .append(" namespace to store the ")
           .append(field_configuration.get_id())
           .append(" field.")
           ;
@@ -82,9 +84,9 @@ bool PersistStatus::verify(
       error_message
           .append("The operation on the ")
           .append(field_configuration.get_id())
-          .append(" field in the ")
+          .append(" field has failed in the ")
           .append(flash_namespace.get_name())
-          .append(" namespace failed.");
+          .append(" namespace.");
       break;
 
     default:

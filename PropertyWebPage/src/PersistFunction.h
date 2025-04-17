@@ -31,7 +31,7 @@
 class Flash32Namespace;
 class PersistStatus;
 
-class PersistFunction : DataFieldFunction {
+class PersistFunction : public DataFieldFunction {
   Flash32Namespace& eeprom;
   PersistStatus& errors;
 
