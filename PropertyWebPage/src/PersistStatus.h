@@ -32,19 +32,19 @@
 #include "DataFieldConfig.h"
 #include "Flash32.h"
 
-#include <list>
 #include <string>
+#include <vector>
 
 class PersistStatus {
   Flash32BaseNamespace& flash_namespace;
 
-  std::list<std::string> error_messages;
+  std::vector<std::string> error_messages;
 
 public:
   PersistStatus(Flash32BaseNamespace& flash_namespace);
   virtual ~PersistStatus();
 
-  const std::list<std::string>& errors(void) const {
+  const std::vector<std::string>& errors(void) const {
     return error_messages;
   }
 

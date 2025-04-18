@@ -26,14 +26,10 @@
 #ifndef WEBPAGE_H_
 #define WEBPAGE_H_
 
-#include "DataFieldConfig.h"
 #include "DataFieldFunction.h"
 #include "FieldLayout.h"
 #include "WebServer.h"
 
-#include <list>
-#include <functional>
-#include <memory>
 #include <string>
 
 class WebPage {

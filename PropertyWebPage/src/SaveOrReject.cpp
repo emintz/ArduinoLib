@@ -29,6 +29,7 @@
 #include "PersistFunction.h"
 
 #include <algorithm>
+#include <vector>
 
 static const char *redirect_to_home =
     "<!DOCTYPE html>\n"
@@ -133,7 +134,7 @@ bool SaveOrReject::persist_values(WebServer &server) {
 void SaveOrReject::show_errors(WebServer& server,const PersistStatus& errors) {
   std::string html("<h1>Persistence Failed</h1>\n");
   html.append("<h2>The following errors occurred:</h2>\n");
-  const std::list<std::string> error_messages = errors.errors();
+  const std::vector<std::string> error_messages = errors.errors();
   for (
       auto message = error_messages.cbegin();
       message != error_messages.cend();
