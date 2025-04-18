@@ -122,6 +122,7 @@ bool SaveOrReject::persist_values(WebServer &server) {
   apply(persister);
   bool status = errors.status();
   if (status) {
+    eeprom.commit();
     show_success(server);
   } else {
     show_errors(server,errors);
