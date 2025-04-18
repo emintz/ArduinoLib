@@ -34,8 +34,10 @@ FieldLayout::FieldLayout() :
 FieldLayout::~FieldLayout() {
 }
 
-FieldLayout& FieldLayout::add_field(const DataFieldConfig::Configuration configuration) {
-  auto emplacement = ordered_by_id.try_emplace(configuration.id, configuration);
+FieldLayout& FieldLayout::add_field(
+    const DataFieldConfig::Configuration configuration) {
+  auto emplacement = ordered_by_id.try_emplace(
+      configuration.id, configuration);
   if (emplacement.second) {
     auto & node = *emplacement.first;
     ordered_by_insertion.push_back(&(node.second));
