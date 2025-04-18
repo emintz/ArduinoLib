@@ -37,12 +37,19 @@
 
 class PersistStatus {
   Flash32BaseNamespace& flash_namespace;
-
   std::vector<std::string> error_messages;
 
 public:
   PersistStatus(Flash32BaseNamespace& flash_namespace);
   virtual ~PersistStatus();
+
+  void append_error(const char *message) {
+    error_messages.push_back(std::string(message));
+  }
+
+  void append_error(std::string& message) {
+    error_messages.push_back(message);
+  }
 
   const std::vector<std::string>& errors(void) const {
     return error_messages;

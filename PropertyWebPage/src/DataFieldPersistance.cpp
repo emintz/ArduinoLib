@@ -21,11 +21,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/DataFieldPersister.h>
+#include <src/DataFieldPersistance.h>
 
-DataFieldPersister::DataFieldPersister() {
+DataFieldPersistance::DataFieldPersistance() {
 }
 
-DataFieldPersister::~DataFieldPersister() {
+DataFieldPersistance::~DataFieldPersistance() {
 }
 

@@ -21,9 +21,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
   */
 
-#include "Arduino.h"
+#include <src/DataFieldPersistance.h>
 
+#include "Arduino.h"
+#include "DataFieldFunction.h"
 #include "FieldLayout.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
 FieldLayout::FieldLayout() :
     ordered_by_id(),
@@ -53,6 +57,23 @@ FieldLayout& FieldLayout::apply(DataFieldFunction& action) {
       iter != ordered_by_insertion.end();
       ++iter) {
     action(**iter);
+  }
+  return *this;
+}
+
+FieldLayout& FieldLayout::apply(
+    DataFieldPersistance& action,
+    Flash32Namespace& eeprom,
+    PersistStatus& errors) {
+  if (eeprom.ready()) {
+    for(
+        auto iter = ordered_by_insertion.begin();
+        iter != ordered_by_insertion.end();
+        ++iter) {
+      action(**iter, eeprom, errors);
+    }
+  } else {
+    errors.append_error("Non-volatile storage is not ready.");
   }
   return *this;
 }
