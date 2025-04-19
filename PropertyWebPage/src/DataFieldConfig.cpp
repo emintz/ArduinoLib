@@ -19,6 +19,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
+#include <src/PersistenceAction.h>
+
 #include "Arduino.h"
 
 #include "DataTypeCharacteristics.h"
@@ -40,6 +42,19 @@ static SetBlankValue default_initializer;
 static VacuousDataFieldFunction default_persister;
 static const VacuousFlash32Persister default_flash32_persister;
 
+class TrivialRetriever : public PersistenceAction {
+public:
+  bool operator() (
+       DataFieldConfig& field,
+       Flash32Namespace& eeprom,
+       PersistStatus& errors) {
+    field.set_value("");
+    return true;
+  }
+};
+
+static TrivialRetriever default_retriever;
+
 static std::string make_property(
     const std::string name, const std::string value) {
   std::string property;
@@ -58,7 +73,7 @@ DataFieldConfig::DataFieldConfig() :
   value(),
   label_attributes(),
   value_attributes(),
-  initializer(default_initializer),
+  initializer(default_retriever),
   persister(default_flash32_persister) {
 }
 
@@ -72,7 +87,6 @@ DataFieldConfig::DataFieldConfig(
       persister(configuration.persister),
       value_attributes(configuration.attributes) {
   init_attributes(configuration.type);
-  configuration.initializer(*this);
 }
 
 DataFieldConfig::DataFieldConfig(const DataFieldConfig& copy_me) :
@@ -188,7 +202,7 @@ DataFieldConfig::Configuration::Configuration() :
   name(""),
   initial_value(""),
   type("text"),
-  initializer(default_initializer),
+  initializer(default_retriever),
   persister(default_flash32_persister) {
 }
 
@@ -200,7 +214,7 @@ DataFieldConfig::Configuration::Configuration(
       name(id_and_name),
       initial_value(""),
       type("text"),
-      initializer(default_initializer),
+      initializer(default_retriever),
       persister(default_flash32_persister) {
 }
 

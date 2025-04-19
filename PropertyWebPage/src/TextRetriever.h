@@ -27,21 +27,22 @@
 #ifndef TEXTRETRIEVER_H_
 #define TEXTRETRIEVER_H_
 
-#include "DataFieldConfig.h"
-#include "DataFieldFunction.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
+#include "PersistenceAction.h"
 
-class TextRetriever : public DataFieldFunction {
-  Flash32BaseNamespace& flash_namespace;
-  PersistStatus& errors;
+class DataFieldConfig;
+class Flash32Namespace;
+class PersistStatus;
+
+class TextRetriever :
+    public PersistenceAction {
 public:
-  TextRetriever(
-      Flash32BaseNamespace& flash_namespace,
-      PersistStatus& errors);
+  TextRetriever();
   virtual ~TextRetriever();
 
-  virtual bool operator() (DataFieldConfig& configuration) override;
+  virtual bool operator() (
+      DataFieldConfig& field,
+      Flash32Namespace& eeprom,
+      PersistStatus& errors) override;
 };
 
 #endif /* TEXTRETRIEVER_H_ */

@@ -23,19 +23,16 @@
 
 #include "Int64Retriever.h"
 
+#include "DataFieldConfig.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
+
 #include <memory>
 
-Int64Retriever::Int64Retriever(
-    Flash32Namespace& flash_namespace,
-    PersistStatus& errors) :
-      flash_namespace(flash_namespace),
-      errors(errors) {
-}
-
-Int64Retriever::~Int64Retriever() {
-}
-
-bool Int64Retriever::operator() (DataFieldConfig& field_config) {
+static bool retrieve_value(
+    DataFieldConfig& field_config,
+    Flash32BaseNamespace& flash_namespace,
+    PersistStatus& errors) {
   bool status = true;
   int64_t integer_value = 0;
   field_config.set_value("");
@@ -54,4 +51,17 @@ bool Int64Retriever::operator() (DataFieldConfig& field_config) {
   }
 
   return status;
+}
+
+Int64Retriever::Int64Retriever() {
+}
+
+Int64Retriever::~Int64Retriever() {
+}
+
+bool Int64Retriever::operator() (
+    DataFieldConfig& field,
+    Flash32Namespace& eeprom,
+    PersistStatus& errors) {
+  return retrieve_value(field, eeprom, errors);
 }

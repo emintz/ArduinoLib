@@ -34,13 +34,12 @@
 class DataTypeCharacteristics;
 class Flash32Namespace;
 class ToFlash32Persister;
-class PersistStatus;
-
-#include "DataFieldFunction.h"
 
 #include <memory>
 #include <map>
 #include <string>
+
+class PersistenceAction;
 
 class DataFieldConfig {
   std::string id;     // Input field identifier, used to link the field label
@@ -48,7 +47,7 @@ class DataFieldConfig {
   std::string name;   // Field name
   std::string value;  // Property value, defaults to "" on construction.
                       // Set to display a default value on the screen.
-  DataFieldFunction& initializer;
+  PersistenceAction& initializer;
   const ToFlash32Persister& persister;
   std::map<const std::string, std::string> label_attributes;
   std::map<const std::string, std::string> value_attributes;
@@ -192,6 +191,10 @@ public:
     return id;
   }
 
+  PersistenceAction& get_initializer(void) {
+    return initializer;
+  }
+
   const ToFlash32Persister& get_persister(void) const {
     return persister;
   }
@@ -214,13 +217,17 @@ public:
     this->value = value;
   }
 
+  /**
+   * Provides data to the DataTypeCharacteristics constructor. The
+   * structure provides a convenient way to configure characteristics.
+   */
   struct Configuration {
     const char *id;
     const char *label;
     const char *name;
     const char *initial_value;
     const char *type;
-    DataFieldFunction& initializer;
+    PersistenceAction& initializer;
     const ToFlash32Persister& persister;
     const std::map<const std::string, std::string> attributes;
 
@@ -232,11 +239,6 @@ public:
         const char* id_and_name,
         const char *label,
         const DataTypeCharacteristics& characteristics);
-
-    Configuration& set_type(const char *type_value) {
-      type = type_value;
-      return *this;
-    }
   };
 };
 

@@ -34,9 +34,7 @@
 
 class DataTypes {
 public:
-  DataTypes(
-      Flash32Namespace& flash_namespace,
-      PersistStatus& errors);
+  DataTypes();
   virtual ~DataTypes();
 
   const DataTypeCharacteristics int32;

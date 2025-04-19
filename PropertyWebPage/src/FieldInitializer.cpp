@@ -1,7 +1,7 @@
 /*
- * DataFieldPersister.cpp
+ * FieldInitializer.cpp
  *
- *  Created on: Apr 14, 2025
+ *  Created on: Apr 19, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,11 +21,26 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/DataFieldPersistance.h>
+#include <src/PersistenceAction.h>
 
-DataFieldPersistance::DataFieldPersistance() {
+#include "Arduino.h"
+#include "FieldInitializer.h"
+#include "DataFieldConfig.h"
+
+FieldInitializer::FieldInitializer() {
 }
 
-DataFieldPersistance::~DataFieldPersistance() {
+FieldInitializer::~FieldInitializer() {
 }
 
+bool FieldInitializer::operator() (
+      DataFieldConfig& field,
+      Flash32Namespace& eeprom,
+      PersistStatus& errors)  {
+  PersistenceAction& initializer = field.get_initializer();
+  auto status = initializer(
+      field,
+      eeprom,
+      errors);
+  return status;
+}

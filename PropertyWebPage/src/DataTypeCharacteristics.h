@@ -4,7 +4,9 @@
  *  Created on: Apr 11, 2025
  *      Author: Eric Mintz
  *
- * Provides a data types name, persister, and retriever
+ * Provides a data type's name, persister, and retriever. The DataTypes
+ * class provides an instance of each subtype; prefer it to creating
+ * your own.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -26,24 +28,36 @@
 #ifndef DATATYPECHARACTERISTICS_H_
 #define DATATYPECHARACTERISTICS_H_
 
-#include "DataFieldFunction.h"
-#include "ToFlash32Persister.h"
-
 #include <map>
 #include <memory>
 #include <string>
 
+class PersistenceAction;
+class ToFlash32Persister;
+
 class DataTypeCharacteristics {
   const std::string data_type_name;
   std::unique_ptr<const ToFlash32Persister> to_flash_persister;
-  std::unique_ptr<DataFieldFunction> field_retriever;
+  std::unique_ptr<PersistenceAction> field_retriever;
   const std::map<const std::string, std::string> field_attributes;
 
 public:
+  /*
+   * Constructor
+   *
+   * Parameter            Contents
+   * -------------------- -----------------------------------------
+   * name                 The data type name, e.g. "int32"
+   * to_flash_persister   Saves the type to eeprom
+   * retriever            Retrievers the type from eeprom
+   * attributes           (name, value) pairs of field attributes to
+   *                      be formatted "<name>=<value>" in the
+   *                      generated HTML
+   */
   DataTypeCharacteristics(
        const char *name,
        std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-       std::unique_ptr<DataFieldFunction> retriever,
+       std::unique_ptr<PersistenceAction> retriever,
        const std::map<const std::string, std::string>& attributes =
            std::map<const std::string, std::string>());
 
@@ -57,7 +71,7 @@ public:
     return *to_flash_persister;
   }
 
-  DataFieldFunction& retriever(void) const {
+  PersistenceAction& retriever(void) const {
     return *field_retriever;
   }
 

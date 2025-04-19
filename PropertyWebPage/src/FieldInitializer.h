@@ -1,7 +1,7 @@
 /*
- * DataTypeCharacteristics.cpp
+ * FieldInitializer.h
  *
- *  Created on: Apr 11, 2025
+ *  Created on: Apr 19, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,21 +21,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "DataTypeCharacteristics.h"
+#ifndef FIELDINITIALIZER_H_
+#define FIELDINITIALIZER_H_
+
 #include "PersistenceAction.h"
-#include "ToFlash32Persister.h"
 
-DataTypeCharacteristics::DataTypeCharacteristics(
-    const char *name,
-    std::unique_ptr<const ToFlash32Persister> to_flash_persister,
-    std::unique_ptr<PersistenceAction> retriever,
-    const std::map<const std::string, std::string>& attributes) :
-        data_type_name(name),
-        to_flash_persister(std::move(to_flash_persister)),
-        field_retriever(std::move(retriever)),
-        field_attributes(attributes) {
-}
+class FieldInitializer : public PersistenceAction {
+public:
+  FieldInitializer();
+  virtual ~FieldInitializer();
 
-DataTypeCharacteristics::~DataTypeCharacteristics() {
-}
+  virtual bool operator() (
+      DataFieldConfig& field,
+      Flash32Namespace& eeprom,
+      PersistStatus& errors) override;
+};
 
+#endif /* FIELDINITIALIZER_H_ */

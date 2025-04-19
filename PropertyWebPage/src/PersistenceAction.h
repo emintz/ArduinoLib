@@ -7,8 +7,6 @@
  * Base class for functions that perform field value persistence-related
  * operations.
  *
- * TODO(emintz): implementation.
- *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
  *
@@ -26,17 +24,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef DATAFIELDPERSISTANCE_H_
-#define DATAFIELDPERSISTANCE_H_
+#ifndef PERSISTENCEACTION_H_
+#define PERSISTENCEACTION_H_
 
 class DataFieldConfig;
 class Flash32Namespace;
 class PersistStatus;
 
-class DataFieldPersistance {
+class PersistenceAction {
 public:
-  DataFieldPersistance();
-  virtual ~DataFieldPersistance();
+  PersistenceAction();
+  virtual ~PersistenceAction();
 
   /*
    * Performs an arbitrary action on a specified DataFieldConfig, posting
@@ -49,10 +47,10 @@ public:
    * eeprom               Non-Volatile storage
    * errors               Place error messages (if any) here.
    */
-  virtual void operator() (
+  virtual bool operator() (
       DataFieldConfig& field,
       Flash32Namespace& eeprom,
-      PersistStatus& errors);
+      PersistStatus& errors) = 0;
 };
 
-#endif /* DATAFIELDPERSISTANCE_H_ */
+#endif /* PERSISTENCEACTION_H_ */

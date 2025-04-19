@@ -22,20 +22,17 @@
  */
 
 #include "TextRetriever.h"
+#include "DataFieldConfig.h"
+#include "DataFieldFunction.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
 #include <cstring>
 
-TextRetriever::TextRetriever(
+static bool retrieve_value(
+    DataFieldConfig& config,
     Flash32BaseNamespace& flash_namespace,
-    PersistStatus& errors) :
-        flash_namespace(flash_namespace),
-        errors(errors) {
-}
-
-TextRetriever::~TextRetriever() {
-}
-
-bool TextRetriever::operator() (DataFieldConfig& config) {
+    PersistStatus& errors) {
   char retrieved_value[64];
   size_t retrieved_byte_count = 0;
   std::memset(retrieved_value, '\0', sizeof(retrieved_value));
@@ -58,4 +55,17 @@ bool TextRetriever::operator() (DataFieldConfig& config) {
   }
 
   return status;
+}
+
+TextRetriever::TextRetriever() {
+}
+
+TextRetriever::~TextRetriever() {
+}
+
+bool TextRetriever::operator() (
+    DataFieldConfig& field,
+    Flash32Namespace& eeprom,
+    PersistStatus& errors) {
+  return retrieve_value(field, eeprom, errors);
 }

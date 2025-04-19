@@ -26,22 +26,22 @@
 #ifndef INT64RETRIEVER_H_
 #define INT64RETRIEVER_H_
 
-#include "DataFieldFunction.h"
-#include "DataFieldConfig.h"
-#include "DataFieldFunction.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
+#include "PersistenceAction.h"
 
-class Int64Retriever : public DataFieldFunction {
-  Flash32Namespace& flash_namespace;
-  PersistStatus& errors;
+class DataFieldConfig;
+class Flash32Namespace;
+class PersistStatus;
+
+class Int64Retriever :
+    public PersistenceAction {
 public:
-  Int64Retriever(
-      Flash32Namespace& flash_namespace,
-      PersistStatus& errors);
+  Int64Retriever();
   virtual ~Int64Retriever();
 
-  virtual bool operator() (DataFieldConfig& field_config) override;
+  virtual bool operator() (
+      DataFieldConfig& field,
+      Flash32Namespace& eeprom,
+      PersistStatus& errors) override;
 };
 
 #endif /* INT64RETRIEVER_H_ */

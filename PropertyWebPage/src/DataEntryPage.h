@@ -30,15 +30,25 @@
 #include "FieldLayout.h"
 #include "WebPage.h"
 
+class Flash32Namespace;
+class PersistStatus;
+
 #include <string>
 
 class DataEntryPage : public WebPage {
 
-  std::string html(void);
+  Flash32Namespace& eeprom;
+
+  std::string data_entry_html(void);
+
+  std::string error_html(PersistStatus& errors);
+
+  void load_values(PersistStatus& errors);
 
 public:
 
   DataEntryPage(
+      Flash32Namespace& eeprom,
       FieldLayout& layout,
       std::string header);
 

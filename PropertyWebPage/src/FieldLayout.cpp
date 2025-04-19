@@ -21,9 +21,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
   */
 
-#include <src/DataFieldPersistance.h>
 
-#include "Arduino.h"
+#include <src/PersistenceAction.h>
 #include "DataFieldFunction.h"
 #include "FieldLayout.h"
 #include "Flash32.h"
@@ -62,7 +61,7 @@ FieldLayout& FieldLayout::apply(DataFieldFunction& action) {
 }
 
 FieldLayout& FieldLayout::apply(
-    DataFieldPersistance& action,
+    PersistenceAction& action,
     Flash32Namespace& eeprom,
     PersistStatus& errors) {
   if (eeprom.ready()) {

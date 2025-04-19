@@ -23,10 +23,9 @@
 
 #include "DataEntryPage.h"
 #include "DataEntryRowGenerator.h"
-
-static std::string page_start(
-    "<!DOCTYPE html>\n"
-    "<html>\n");
+#include "FieldInitializer.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
 static std::string data_entry_page_style(
     "    <style>\n"
@@ -36,12 +35,12 @@ static std::string data_entry_page_style(
     "        input { display: table-cell; }\n"
     "    </style>\n");
 
-static std::string page_end("</html>\n");
-
 DataEntryPage::DataEntryPage(
+    Flash32Namespace& eeprom,
     FieldLayout& layout,
     std::string header) :
-    WebPage(layout, header, data_entry_page_style) {
+    WebPage(layout, header, data_entry_page_style),
+    eeprom(eeprom) {
 }
 
 DataEntryPage::~DataEntryPage() {
@@ -50,12 +49,19 @@ DataEntryPage::~DataEntryPage() {
 bool DataEntryPage::handle(WebServer &server,
         HTTPMethod requestMethod,
         const String &requestUri) {
-  server.send(200, "text/html", html().c_str());
-
+  PersistStatus errors(eeprom);
+  if (!server.hasArg("noinit")) {
+    load_values(errors);
+  }
+  if (errors.status()) {
+    server.send(200, "text/html", data_entry_html().c_str());
+  } else {
+    server.send(500, "text/html", error_html(errors).c_str());
+  }
   return true;
 }
 
-std::string DataEntryPage::html() {
+std::string DataEntryPage::data_entry_html() {
   std::string page_html;
   page_html.append(page_start);
   append_header(page_html);
@@ -70,4 +76,19 @@ std::string DataEntryPage::html() {
       .append("  </form>\n")
       .append(page_end);
   return page_html;
+}
+
+void DataEntryPage::load_values(PersistStatus& errors) {
+  FieldInitializer initializer;
+  apply(initializer, eeprom, errors);
+}
+
+std::string DataEntryPage::error_html(PersistStatus& errors) {
+  std::string html(page_start);
+  html.append("<h1>Could Not Initialize Field Values</h1\n")
+      .append("<h2>The following errors occurred.</h2>\n")
+      .append(format_errors(errors))
+      .append("<br>\n")
+      .append(page_end);
+  return html;
 }

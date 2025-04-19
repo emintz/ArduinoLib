@@ -28,27 +28,53 @@
 #ifndef ACCEPTORREJECT_H_
 #define ACCEPTORREJECT_H_
 
-#include "BaseTaskWithAction.h"
-#include "FieldLayout.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
 #include "WebPage.h"
+
+class BaseTaskWithAction;
+class FieldLayout;
+class Flash32Namespace;
+class PersistStatus;
 
 class SaveOrReject : public WebPage {
 
   BaseTaskWithAction& waiting_task;
   Flash32Namespace& eeprom;
 
+  /*
+   * Persist the field values, the value in the field's configuration
+   *
+   * Parameter            Contents
+   * -------------------- -----------------------------------------
+   * server               Web server that displays the generated
+   *                      HTML.
+   */
   bool persist_values(WebServer& server);
 
+  /*
+   * Show the error page
+   *
+   * Parameter            Contents
+   * -------------------- -----------------------------------------
+   * server               Web server that displays the generated
+   *                      HTML.
+   * errors               The errors to format as HTML.
+   */
   void show_errors(WebServer& server, const PersistStatus& errors);
 
+  /*
+   * Show the success page
+   *
+   * Parameter            Contents
+   * -------------------- -----------------------------------------
+   * server               Web server that displays the generated
+   *                      HTML.
+   */
   void show_success(WebServer& server);
 
 public:
   SaveOrReject(
-      FieldLayout& layout,
       Flash32Namespace& eeprom,
+      FieldLayout& layout,
       BaseTaskWithAction& waiting_task);
   virtual ~SaveOrReject();
 

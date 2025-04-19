@@ -23,18 +23,14 @@
 
 #include "Int32Retriever.h"
 
-Int32Retriever::Int32Retriever(
-    Flash32Namespace& flash_namespace,
-    PersistStatus& errors) :
-        flash_namespace(flash_namespace),
-        errors(errors) {
+#include "DataFieldConfig.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
-}
-
-Int32Retriever::~Int32Retriever() {
-}
-
-bool Int32Retriever::operator() (DataFieldConfig& field_config) {
+static bool retrieve_value(
+    DataFieldConfig& field_config,
+    Flash32BaseNamespace& flash_namespace,
+    PersistStatus& errors) {
   bool status = true;
   int32_t integer_value = 0;
   field_config.set_value("");
@@ -53,5 +49,17 @@ bool Int32Retriever::operator() (DataFieldConfig& field_config) {
   }
 
   return status;
+}
 
+Int32Retriever::Int32Retriever() {
+}
+
+Int32Retriever::~Int32Retriever() {
+}
+
+bool Int32Retriever::operator() (
+    DataFieldConfig& field,
+    Flash32Namespace& eeprom,
+    PersistStatus& errors) {
+  return retrieve_value(field, eeprom, errors);
 }

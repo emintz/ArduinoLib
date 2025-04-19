@@ -23,10 +23,13 @@
 
 #include "SaveOrReject.h"
 
+#include "BaseTaskWithAction.h"
 #include "ConfirmationTableRowGenerator.h"
 #include "DataFieldConfig.h"
 #include "DataTypes.h"
+#include "Flash32.h"
 #include "PersistFunction.h"
+#include "PersistStatus.h"
 
 #include <algorithm>
 #include <vector>
@@ -35,7 +38,7 @@ static const char *redirect_to_home =
     "<!DOCTYPE html>\n"
     "<html>\n"
     "<h1>Redirecting to Home Page</h1>"
-    "<meta http-equiv=\"refresh\" content=\"3;URL=/\" />"
+    "<meta http-equiv=\"refresh\" content=\"3;URL=/?noinit=true\" />"
     "<p>Will redirect to the home page in 3 seconds. "
     "If redirection fails, please click <a href=\"/\">here</a>.</p>"
     "</html>\n"
@@ -47,41 +50,9 @@ static const char *update_cancelled =
     "  Cancelled by popular demand.\n"
     "</html>\n";
 
-// TODO(emintz): the following duplicate HTML in ConfirmationPage.cpp.
-//               Refactor.
-
-static const char *confirmation_page_style =
-    "<!DOCTYPE html>\n"
-    "<html>\n"
-    "<style>\n"
-    "  table, th, td {\n"
-    "    border: 1px solid black;\n"
-    "    border-collapse: collapse;\n"
-    "  }\n"
-    "</style>\n";
-
-static const char *confirmation_page_start =
-    "<p>\n"
-    "<table>\n"
-    "  <thead>\n"
-    "    <tr>\n"
-    "      <th>Setting</th>\n"
-    "      <th>Value</th>\n"
-    "    </tr>\n"
-    "  </thead>\n"
-    "  <tbody>\n"
-    ;
-
-// TODO (emintz): The following is a substring of the confirmation
-//                page end in ConfirmationPage.cpp. Refactor.
-static const char *confirmation_page_end =
-    "  </tbody>\n"
-    "</table>\n";
-
-
 SaveOrReject::SaveOrReject(
-    FieldLayout& field_layout,
     Flash32Namespace& eeprom,
+    FieldLayout& field_layout,
     BaseTaskWithAction& waiting_task) :
         WebPage(field_layout, "", ""),
         eeprom(eeprom),
@@ -110,7 +81,6 @@ bool SaveOrReject::handle(
       message.append(user_command.c_str());
       server.send(500, "text/plain", message.c_str());
     }
-
   } else {
     server.send(500, "text/plain", "No user command");
   }
@@ -132,16 +102,12 @@ bool SaveOrReject::persist_values(WebServer &server) {
 }
 
 void SaveOrReject::show_errors(WebServer& server,const PersistStatus& errors) {
-  std::string html("<h1>Persistence Failed</h1>\n");
-  html.append("<h2>The following errors occurred:</h2>\n");
-  const std::vector<std::string> error_messages = errors.errors();
-  for (
-      auto message = error_messages.cbegin();
-      message != error_messages.cend();
-      ++message) {
-    html.append(*message).append("<br>\n");
-  }
-  html.append("<br>\n").append("Web server stopped. Reboot and retry.\n");
+  std::string html(page_start);
+  html.append("<h1>Persistence Failed</h1>\n")
+    .append("<h2>The following errors occurred:</h2>\n")
+    .append(format_errors(errors))
+    .append("<br>\n").append("Web server stopped. Reboot and retry.\n")
+    .append(page_end);
   server.send(
       500,
       "text/html",
@@ -150,13 +116,18 @@ void SaveOrReject::show_errors(WebServer& server,const PersistStatus& errors) {
 }
 
 void SaveOrReject::show_success(WebServer& server) {
-  std::string html(confirmation_page_style);
-  html.append("<h1>Success!</h1>\n");
-  html.append("<h2>Values:</h2>\n");
-  html.append(confirmation_page_start);
-  ConfirmationTableRowGenerator row_generator(html, 4);
-  apply(row_generator);
-  html.append(confirmation_page_end);
-  html.append("<br>\n<br>\nWeb server stopped.\n");
+  std::string html(page_start);
+  html.append(table_style)
+      .append("<h1>Success!</h1>\n")
+      .append("<h2>Values:</h2>\n")
+      .append(table_start);
+  {
+    ConfirmationTableRowGenerator row_generator(html, 4);
+    apply(row_generator);
+  }
+  html.append(table_end)
+      .append("<br>\n<br>\nWeb server stopped.\n")
+      .append(page_end);
   server.send(200, "text/html", html.c_str());
+  // TODO(emintz): stop web server.
 }

@@ -23,11 +23,6 @@
 
 #include "DataTypes.h"
 
-#include "DataFieldFunction.h"
-#include "DataTypeCharacteristics.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
-
 #include "Int32Retriever.h"
 #include "Int32ToFlash.h"
 
@@ -40,23 +35,21 @@
 static std::map<const std::string, std::string> number_attributes =
     {{"title", "Please enter a valid decimal number."}};
 
-DataTypes::DataTypes(
-    Flash32Namespace& flash_namespace,
-    PersistStatus& errors) :
+DataTypes::DataTypes() :
     int32(
         "number",
         std::make_unique<const Int32ToFlash>(),
-        std::make_unique<Int32Retriever>(flash_namespace, errors),
+        std::make_unique<Int32Retriever>(),
         number_attributes),
     int64(
         "number",
         std::make_unique<const Int64ToFlash>(),
-        std::make_unique<Int64Retriever>(flash_namespace, errors),
+        std::make_unique<Int64Retriever>(),
         number_attributes),
     text(
         "text",
         std::make_unique<const TextToFlash>(),
-        std::make_unique<TextRetriever>(flash_namespace, errors)) {
+        std::make_unique<TextRetriever>()) {
 }
 
 DataTypes::~DataTypes() {

@@ -26,9 +26,13 @@
 #ifndef WEBPAGE_H_
 #define WEBPAGE_H_
 
-#include "DataFieldFunction.h"
 #include "FieldLayout.h"
 #include "WebServer.h"
+
+class DataFieldFunction;
+class PersistenceAction;
+class Flash32Namespace;
+class PersistStatus;
 
 #include <string>
 
@@ -38,6 +42,22 @@ class WebPage {
   std::string style;   // Page style. Defaults to ""
 
 protected:
+
+  static const char *page_end;
+  static const char *page_start;
+  static const char *table_end;
+  static const char *table_start;
+  static const char *table_style;
+
+  /*
+   * Format errors as HTML.
+   *
+   * Parameter            Contents
+   * -------------------- -----------------------------------------
+   * errors               The error messsages to format
+   */
+  static std::string format_errors(const PersistStatus& errors);
+
   /**
    * Constructor
    *
@@ -85,7 +105,7 @@ public:
    */
   DataFieldConfig& field_configuration(std::string id);
 
-  /**
+  /*
    * Applies a data field function to this web spaces data fields
    *
    * Parameter            Contents
@@ -94,6 +114,23 @@ public:
    */
   void apply(DataFieldFunction& f) {
     layout.apply(f);
+  }
+
+  /*
+   * Applies a persistence action to this web spaces data fields
+   *
+   * Parameter            Contents
+   * -------------------- -----------------------------------------
+   * action               The PersistenceAction to apply
+   * eeprom               Non-volatile storage, holds property
+   *                      values
+   * errors               Receives any generated errors
+   */
+  void apply(
+      PersistenceAction& action,
+      Flash32Namespace& eeprom,
+      PersistStatus& errors) {
+    layout.apply(action, eeprom, errors);
   }
 
   /*

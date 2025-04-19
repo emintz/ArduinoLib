@@ -34,7 +34,7 @@
 #include <vector>
 
 class DataFieldFunction;
-class DataFieldPersistance;
+class PersistenceAction;
 class Flash32Namespace;
 class PersistStatus;
 
@@ -103,7 +103,7 @@ public:
    * Return: a reference to this FieldLayout to support chaining.
    */
   FieldLayout& apply(
-      DataFieldPersistance& action,
+      PersistenceAction& action,
       Flash32Namespace& eeprom,
       PersistStatus& errors);
 

@@ -21,7 +21,56 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/WebPage.h>
+#include "WebPage.h"
+#include "PersistStatus.h"
+
+const char *WebPage::page_end = "</html>\n";
+
+const char *WebPage::page_start =
+    "<!DOCTYPE html>\n"
+    "<html>\n";
+
+const char *WebPage::table_end =
+    "<p>\n"
+    "<table>\n"
+    "  <thead>\n"
+    "    <tr>\n"
+    "      <th>Setting</th>\n"
+    "      <th>Value</th>\n"
+    "    </tr>\n"
+    "  </thead>\n"
+    "  <tbody>\n";
+
+const char *WebPage::table_start =
+    "<p>\n"
+    "<table>\n"
+    "  <thead>\n"
+    "    <tr>\n"
+    "      <th>Setting</th>\n"
+    "      <th>Value</th>\n"
+    "    </tr>\n"
+    "  </thead>\n"
+    "  <tbody>\n";
+
+const char *WebPage::table_style=
+    "<style>\n"
+    "  table, th, td {\n"
+    "    border: 1px solid black;\n"
+    "    border-collapse: collapse;\n"
+    "  }\n"
+    "</style>\n";
+
+std::string WebPage::format_errors(const PersistStatus& errors) {
+  std::string html;
+  const auto error_messages = errors.errors();
+  for (
+      auto message = error_messages.cbegin();
+      message != error_messages.cend();
+      ++message) {
+    html.append(*message).append("<br>\n");
+  }
+  return html;
+}
 
 WebPage::WebPage(
     FieldLayout& layout,
