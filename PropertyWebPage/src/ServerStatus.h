@@ -1,8 +1,12 @@
 /*
- * PageNotFound.cpp
+ * ServerStatus.h
  *
- *  Created on: Mar 31, 2025
+ *  Created on: Apr 20, 2025
  *      Author: Eric Mintz
+ *
+ * The server status: used to stop the server when data entry is
+ * complete and to indicate success or failure. The server must
+ * keep running while the state is State::RUNNING.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
@@ -21,23 +25,33 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "PageNotFound.h"
-#include "FieldLayout.h"
+#ifndef SERVERSTATUS_H_
+#define SERVERSTATUS_H_
 
-PageNotFound::PageNotFound(ServerStatus& status, FieldLayout& layout) :
-    WebPage(status, layout, "") {
-}
+class ServerStatus {
+public:
+  enum class State {
+    RUNNING,  // Server is running
+    SUCCESS,  // Operation succeeded
+    FAILURE,  // Operation failed
+  };
+private:
+  State state;
+public:
+  ServerStatus();
+  virtual ~ServerStatus();
 
-PageNotFound::~PageNotFound() {
-}
+  State operator() (void) const {
+    return state;
+  }
 
-bool PageNotFound::handle(
-    WebServer& server,
-    HTTPMethod requestMethod,
-    const String &requestUri) {
-  std::string message("The URI: ");
-  message += requestUri.c_str();
-  message += " was not found.";
-  server.send(404, "text/plain", message.c_str());
-  return true;
-}
+  void failure(void) {
+    state = State::FAILURE;
+  }
+
+  void success(void) {
+    state = State::SUCCESS;
+  }
+};
+
+#endif /* SERVERSTATUS_H_ */

@@ -51,10 +51,11 @@ static const char *update_cancelled =
     "</html>\n";
 
 SaveOrReject::SaveOrReject(
+    ServerStatus& status,
     Flash32Namespace& eeprom,
     FieldLayout& field_layout,
     BaseTaskWithAction& waiting_task) :
-        WebPage(field_layout, ""),
+        WebPage(status, field_layout, ""),
         eeprom(eeprom),
         waiting_task(waiting_task) {
 }

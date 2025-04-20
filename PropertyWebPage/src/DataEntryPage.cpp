@@ -36,10 +36,11 @@ static std::string data_entry_page_style(
     "    </style>\n");
 
 DataEntryPage::DataEntryPage(
+    ServerStatus& status,
     Flash32Namespace& eeprom,
     FieldLayout& layout,
     std::string header) :
-    WebPage(layout, header),
+    WebPage(status, layout, header),
     eeprom(eeprom) {
 }
 

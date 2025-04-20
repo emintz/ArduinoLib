@@ -23,6 +23,7 @@
 
 #include "WebPage.h"
 #include "PersistStatus.h"
+#include "ServerStatus.h"
 
 const char *WebPage::page_end = "</html>\n";
 
@@ -73,9 +74,11 @@ std::string WebPage::format_errors(const PersistStatus& errors) {
 }
 
 WebPage::WebPage(
+    ServerStatus& status,
     FieldLayout& layout,
     std::string header) :
-    layout(layout) {
+        status(status),
+        layout(layout) {
   if (0 < header.length()) {
     (this->header = "<h1>")
         .append(header)

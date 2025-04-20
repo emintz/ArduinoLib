@@ -37,25 +37,29 @@
 
 #include "Arduino.h"
 #include "TaskAction.h"
-#include "WebServer.h"
+
+class ServerStatus;
+class WebServer;
 
 class WebServerAction : public TaskAction {
   WebServer& web_server;
+  ServerStatus& status;
 public:
   /*
    * Constructor
    *
    * Parameters:
    *
-   * +============+=======================================================+
-   * | Name       | Contents                                              |
-   * +============+=======================================================+
-   * | web_server | The web server to run. Be sure to install a handler   |
-   * |            | and start the the web server before starting the      |
-   * |            | containing task.                                      |
-   * +------------+-------------------------------------------------------+
+   * +===============+=======================================================+
+   * | Name          | Contents                                              |
+   * +===============+=======================================================+
+   * | web_server    | The web server to run. Be sure to install a handler   |
+   * |               | and start the the web server before starting the      |
+   * |               | containing task.                                      |
+   * | server_status | Controls server behavior.                             |
+   * +------------+----------------------------------------------------------+
    */
-  WebServerAction(WebServer& web_server);
+  WebServerAction(WebServer& web_server, ServerStatus& server_status);
   virtual ~WebServerAction();
 
   /*

@@ -23,6 +23,7 @@
 
 #include "ConfirmationPage.h"
 #include "ConfirmationTableRowGenerator.h"
+#include "FieldLayout.h"
 #include "FieldValueSetter.h"
 
 static const char *confirmation_page_style =
@@ -75,9 +76,10 @@ static const char *confirmation_page_end =
     ;
 
 ConfirmationPage::ConfirmationPage(
+    ServerStatus& status,
     FieldLayout& layout,
     std::string header) :
-    WebPage(layout, header) {
+    WebPage(status, layout, header) {
 }
 
 ConfirmationPage::~ConfirmationPage() {

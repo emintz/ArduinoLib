@@ -26,8 +26,10 @@
 
 #include <string>
 
-#include "FieldLayout.h"
 #include "WebPage.h"
+
+class FieldLayout;
+class ServerStatus;
 
 class ConfirmationPage : public WebPage {
 
@@ -46,6 +48,7 @@ class ConfirmationPage : public WebPage {
 
 public:
   ConfirmationPage(
+      ServerStatus& status,
       FieldLayout& layout,
       std::string header);
   virtual ~ConfirmationPage();

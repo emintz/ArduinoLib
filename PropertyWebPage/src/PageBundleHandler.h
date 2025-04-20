@@ -30,13 +30,15 @@
 #ifndef WEBPAGEBUNDLE_H_
 #define WEBPAGEBUNDLE_H_
 
-#include "FieldLayout.h"
+//#include "FieldLayout.h"
 #include "PageNotFound.h"
 #include "WebPage.h"
 
 #include <WebServer.h>
 
 #include <map>
+
+class FieldLayout;
 
 class PageBundleHandler : public RequestHandler {
 
@@ -64,6 +66,7 @@ public:
    * web_pages            URL path |-> web page.
    */
   PageBundleHandler(
+      ServerStatus& status,
       FieldLayout& layout,
       std::map<std::string, std::unique_ptr<WebPage>>& web_pages);
   virtual ~PageBundleHandler();

@@ -26,12 +26,14 @@
 #ifndef EMPTYPAGE_H_
 #define EMPTYPAGE_H_
 
-#include "FieldLayout.h"
 #include "WebPage.h"
+
+class FieldLayout;
+class ServerStatus;
 
 class EmptyPage : public WebPage {
 public:
-  EmptyPage(FieldLayout& layout);
+  EmptyPage(ServerStatus& status, FieldLayout& layout);
   virtual ~EmptyPage();
 
   virtual bool handle(

@@ -1,7 +1,7 @@
 /*
- * PageNotFound.cpp
+ * ServerStatus.cpp
  *
- *  Created on: Mar 31, 2025
+ *  Created on: Apr 20, 2025
  *      Author: Eric Mintz
  *
  * Copyright (c) 2025, Eric Mintz
@@ -21,23 +21,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "PageNotFound.h"
-#include "FieldLayout.h"
+#include "ServerStatus.h"
 
-PageNotFound::PageNotFound(ServerStatus& status, FieldLayout& layout) :
-    WebPage(status, layout, "") {
+ServerStatus::ServerStatus() :
+  state(State::RUNNING){
 }
 
-PageNotFound::~PageNotFound() {
-}
-
-bool PageNotFound::handle(
-    WebServer& server,
-    HTTPMethod requestMethod,
-    const String &requestUri) {
-  std::string message("The URI: ");
-  message += requestUri.c_str();
-  message += " was not found.";
-  server.send(404, "text/plain", message.c_str());
-  return true;
+ServerStatus::~ServerStatus() {
 }

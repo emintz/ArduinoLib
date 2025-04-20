@@ -22,11 +22,13 @@
  */
 
 #include "PageBundleHandler.h"
+#include "FieldLayout.h"
 
 PageBundleHandler::PageBundleHandler(
+    ServerStatus& status,
     FieldLayout& layout,
     std::map<std::string, std::unique_ptr<WebPage>>& web_pages) :
-    not_found(layout),
+    not_found(status, layout),
     web_pages(web_pages) {
 }
 

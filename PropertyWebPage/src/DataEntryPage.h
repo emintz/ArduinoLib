@@ -32,6 +32,7 @@
 
 class Flash32Namespace;
 class PersistStatus;
+class ServerStatus;
 
 #include <string>
 
@@ -48,6 +49,7 @@ class DataEntryPage : public WebPage {
 public:
 
   DataEntryPage(
+      ServerStatus& status,
       Flash32Namespace& eeprom,
       FieldLayout& layout,
       std::string header);

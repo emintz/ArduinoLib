@@ -27,6 +27,7 @@
 #define WEBPAGE_H_
 
 #include "FieldLayout.h"
+#include "ServerStatus.h"
 #include "WebServer.h"
 
 class DataFieldFunction;
@@ -37,6 +38,7 @@ class PersistStatus;
 #include <string>
 
 class WebPage {
+  ServerStatus& status;
   FieldLayout& layout;
   std::string header;  // Page header
 
@@ -68,6 +70,7 @@ protected:
    *                      will be the first generated HTML.
    */
   WebPage(
+      ServerStatus& status,
       FieldLayout& layout,
       std::string header);
 
@@ -79,6 +82,14 @@ protected:
    * header               Text to append WITHOUT tags. May be empty.
    */
   WebPage& append_header(std::string& html);
+
+  void failure(void) {
+    status.failure();
+  }
+
+  void success(void) {
+    status.success();
+  }
 
 public:
 

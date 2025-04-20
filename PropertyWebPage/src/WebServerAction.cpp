@@ -30,8 +30,14 @@
 
 #include "WebServerAction.h"
 
-WebServerAction::WebServerAction(WebServer& web_server) :
-    web_server(web_server) {
+#include "ServerStatus.h"
+#include "WebServer.h"
+
+WebServerAction::WebServerAction(
+    WebServer& web_server,
+    ServerStatus& server_status) :
+    web_server(web_server),
+    status(server_status) {
 }
 
 WebServerAction::~WebServerAction() {
@@ -40,7 +46,7 @@ WebServerAction::~WebServerAction() {
 
 void WebServerAction::run(void) {
   Serial.println("Starting web server refresh.");
-  for (;;) {
+  while (status() == ServerStatus::State::RUNNING) {
     web_server.handleClient();
     vTaskDelay(1);
   }

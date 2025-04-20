@@ -26,14 +26,16 @@
 #ifndef PAGENOTFOUND_H_
 #define PAGENOTFOUND_H_
 
-#include "FieldLayout.h"
 #include "WebPage.h"
+
+class FieldLayout;
+class ServerStatus;
 
 #include <string>
 
 class PageNotFound : public WebPage {
 public:
-  PageNotFound(FieldLayout& layout);
+  PageNotFound(ServerStatus& status, FieldLayout& layout);
   virtual ~PageNotFound();
 
   virtual bool handle(

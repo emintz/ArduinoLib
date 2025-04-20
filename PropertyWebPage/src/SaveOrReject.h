@@ -34,6 +34,7 @@ class BaseTaskWithAction;
 class FieldLayout;
 class Flash32Namespace;
 class PersistStatus;
+class ServerStatus;
 
 class SaveOrReject : public WebPage {
 
@@ -73,6 +74,7 @@ class SaveOrReject : public WebPage {
 
 public:
   SaveOrReject(
+      ServerStatus& status,
       Flash32Namespace& eeprom,
       FieldLayout& layout,
       BaseTaskWithAction& waiting_task);

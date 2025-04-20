@@ -23,8 +23,10 @@
 
 #include "EmptyPage.h"
 
-EmptyPage::EmptyPage(FieldLayout& layout) :
-    WebPage(layout, "") {
+EmptyPage::EmptyPage(
+    ServerStatus& status,
+    FieldLayout& layout) :
+    WebPage(status, layout, "") {
 }
 
 EmptyPage::~EmptyPage() {
