@@ -23,6 +23,8 @@
 
 #include "Int64ToFlash.h"
 
+#include "Flash32.h"
+
 #include <string>
 
 Int64ToFlash::Int64ToFlash() {

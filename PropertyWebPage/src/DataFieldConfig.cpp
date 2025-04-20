@@ -1,5 +1,5 @@
 /*
- * PropertyConfig.cpp
+ * DataFieldConfig.cpp
  *
  *  Created on: Feb 7, 2025
  *      Author: Eric Mintz
@@ -19,14 +19,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-#include <src/PersistenceAction.h>
+#include "PersistenceAction.h"
 
 #include "Arduino.h"
 
 #include "DataTypeCharacteristics.h"
 #include "DataFieldConfig.h"
 #include "SetBlankValue.h"
-#include "ToFlash32Persister.h"
 #include "VacuousDataFieldFunction.h"
 #include "VacuousFlash32Persister.h"
 
@@ -40,7 +39,7 @@ static const std::string value_property_name("value");
 
 static SetBlankValue default_initializer;
 static VacuousDataFieldFunction default_persister;
-static const VacuousFlash32Persister default_flash32_persister;
+static VacuousFlash32Persister default_flash32_persister;
 
 class TrivialRetriever : public PersistenceAction {
 public:

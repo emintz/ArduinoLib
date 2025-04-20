@@ -23,7 +23,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/TextToFlash.h>
+#include "TextToFlash.h"
+#include "Flash32.h"
 
 TextToFlash::TextToFlash() {
 }

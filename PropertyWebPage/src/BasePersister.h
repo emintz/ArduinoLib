@@ -1,5 +1,5 @@
 /*
- * ToFlash32Persister.h
+ * BasePersister.h
  *
  *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
@@ -23,29 +23,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef TOFLASH32PERSISTER_H_
-#define TOFLASH32PERSISTER_H_
+#ifndef BASEPERSISTER_H_
+#define BASEPERSISTER_H_
 
-#include "DataFieldConfig.h"
-#include "Flash32.h"
-#include "PersistStatus.h"
+#include "PersistenceAction.h"
+
+class DataFieldConfig;
+class Flash32Namespace;
+enum class Flash32Status;
+class PersistStatus;
 
 #include <string>
 
-class ToFlash32Persister {
+class BasePersister : public PersistenceAction {
 protected:
   virtual Flash32Status save(
       const char *field_name,
       const char *field_value,
       Flash32Namespace& flash_memory) const = 0;
 public:
-  ToFlash32Persister();
-  virtual ~ToFlash32Persister();
+  BasePersister();
+  virtual ~BasePersister();
 
-  bool operator() (
-      const DataFieldConfig& field,
-      Flash32Namespace& flash_memory,
-      PersistStatus& errors) const;
+  virtual bool operator() (
+      DataFieldConfig& field,
+      Flash32Namespace& eeprom,
+      PersistStatus& errors) override;
 };
 
-#endif /* TOFLASH32PERSISTER_H_ */
+#endif /* BASEPERSISTER_H_ */

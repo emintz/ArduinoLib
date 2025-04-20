@@ -22,6 +22,7 @@
  */
 
 #include "Int32ToFlash.h"
+#include "Flash32.h"
 
 #include <string>
 

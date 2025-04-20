@@ -24,6 +24,7 @@
  */
 
 #include "VacuousFlash32Persister.h"
+#include "Flash32.h"
 
 VacuousFlash32Persister::VacuousFlash32Persister() {
 }

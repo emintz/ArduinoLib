@@ -28,9 +28,9 @@
 #ifndef TEXTTOFLASH_H_
 #define TEXTTOFLASH_H_
 
-#include "ToFlash32Persister.h"
+#include "BasePersister.h"
 
-class TextToFlash : public ToFlash32Persister {
+class TextToFlash : public BasePersister {
 protected:
   virtual Flash32Status save(
       const char *field_name,

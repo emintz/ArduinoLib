@@ -26,9 +26,9 @@
 #ifndef INT32TOFLASH_H_
 #define INT32TOFLASH_H_
 
-#include "ToFlash32Persister.h"
+#include "BasePersister.h"
 
-class Int32ToFlash : public ToFlash32Persister {
+class Int32ToFlash : public BasePersister {
 protected:
   virtual Flash32Status save(
       const char *field_name,

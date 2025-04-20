@@ -1,5 +1,5 @@
 /*
- * ToFlash32Persister.cpp
+ * BasePersister.cpp
  *
  *  Created on: Apr 14, 2025
  *      Author: Eric Mintz
@@ -21,18 +21,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/ToFlash32Persister.h>
+#include "BasePersister.h"
+#include "DataFieldConfig.h"
+#include "Flash32.h"
+#include "PersistStatus.h"
 
-ToFlash32Persister::ToFlash32Persister() {
+BasePersister::BasePersister() {
 }
 
-ToFlash32Persister::~ToFlash32Persister() {
+BasePersister::~BasePersister() {
 }
 
-bool ToFlash32Persister::operator() (
-        const DataFieldConfig& field,
+bool BasePersister::operator() (
+        DataFieldConfig& field,
         Flash32Namespace& flash_memory,
-        PersistStatus& errors) const {
+        PersistStatus& errors) {
   return errors.verify(
       save(
           field.get_id().c_str(),

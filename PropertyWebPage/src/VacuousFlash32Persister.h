@@ -24,9 +24,9 @@
 #ifndef VACUOUSFLASH32PERSISTER_H_
 #define VACUOUSFLASH32PERSISTER_H_
 
-#include "ToFlash32Persister.h"
+#include "BasePersister.h"
 
-class VacuousFlash32Persister : public ToFlash32Persister {
+class VacuousFlash32Persister : public BasePersister {
 protected:
   virtual Flash32Status save(
         const char *field_name,

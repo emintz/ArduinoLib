@@ -1,5 +1,5 @@
 /*
- * PropertyConfig.h
+ * DataFieldConfig.h
  *
  *  Created on: Feb 7, 2025
  *      Author: Eric Mintz
@@ -33,7 +33,6 @@
 
 class DataTypeCharacteristics;
 class Flash32Namespace;
-class ToFlash32Persister;
 
 #include <memory>
 #include <map>
@@ -48,7 +47,7 @@ class DataFieldConfig {
   std::string value;  // Property value, defaults to "" on construction.
                       // Set to display a default value on the screen.
   PersistenceAction& initializer;
-  const ToFlash32Persister& persister;
+  PersistenceAction& persister;
   std::map<const std::string, std::string> label_attributes;
   std::map<const std::string, std::string> value_attributes;
 
@@ -195,7 +194,7 @@ public:
     return initializer;
   }
 
-  const ToFlash32Persister& get_persister(void) const {
+  PersistenceAction& get_persister(void) const {
     return persister;
   }
 
@@ -228,7 +227,7 @@ public:
     const char *initial_value;
     const char *type;
     PersistenceAction& initializer;
-    const ToFlash32Persister& persister;
+    PersistenceAction& persister;
     const std::map<const std::string, std::string> attributes;
 
     Configuration();

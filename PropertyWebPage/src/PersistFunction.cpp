@@ -21,8 +21,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "BasePersister.h"
 #include "PersistFunction.h"
-#include "ToFlash32Persister.h"
+#include "DataFieldConfig.h"
+#include "PersistenceAction.h"
 
 PersistFunction::PersistFunction(
     Flash32Namespace& eeprom,
@@ -35,6 +37,6 @@ PersistFunction::~PersistFunction() {
 }
 
 bool PersistFunction::operator() (DataFieldConfig& field_config) {
-  const ToFlash32Persister& persister = field_config.get_persister();
+  PersistenceAction& persister = field_config.get_persister();
   return persister(field_config, eeprom, errors);
 }

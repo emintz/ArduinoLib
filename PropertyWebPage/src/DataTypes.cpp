@@ -38,17 +38,17 @@ static std::map<const std::string, std::string> number_attributes =
 DataTypes::DataTypes() :
     int32(
         "number",
-        std::make_unique<const Int32ToFlash>(),
+        std::make_unique<Int32ToFlash>(),
         std::make_unique<Int32Retriever>(),
         number_attributes),
     int64(
         "number",
-        std::make_unique<const Int64ToFlash>(),
+        std::make_unique<Int64ToFlash>(),
         std::make_unique<Int64Retriever>(),
         number_attributes),
     text(
         "text",
-        std::make_unique<const TextToFlash>(),
+        std::make_unique<TextToFlash>(),
         std::make_unique<TextRetriever>()) {
 }
 
