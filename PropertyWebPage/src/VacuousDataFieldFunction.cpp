@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/VacuousDataFieldFunction.h>
+#include "VacuousDataFieldFunction.h"
 
 VacuousDataFieldFunction::VacuousDataFieldFunction() {
 

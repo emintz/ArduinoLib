@@ -21,7 +21,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/PersistenceAction.h>
+#include "PersistenceAction.h"
 
 PersistenceAction::PersistenceAction() {
 }

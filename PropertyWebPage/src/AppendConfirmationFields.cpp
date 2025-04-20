@@ -26,7 +26,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include <src/AppendConfirmationFields.h>
+#include "AppendConfirmationFields.h"
 
 AppendConfirmationFields::AppendConfirmationFields(
     std::string& html, int indent) :
