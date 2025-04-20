@@ -24,7 +24,7 @@
 #include "PageNotFound.h"
 
 PageNotFound::PageNotFound(FieldLayout& layout) :
-    WebPage(layout, "", "") {
+    WebPage(layout, "") {
 }
 
 PageNotFound::~PageNotFound() {

@@ -24,7 +24,7 @@
 #include "EmptyPage.h"
 
 EmptyPage::EmptyPage(FieldLayout& layout) :
-    WebPage(layout, "", "") {
+    WebPage(layout, "") {
 }
 
 EmptyPage::~EmptyPage() {

@@ -39,7 +39,7 @@ DataEntryPage::DataEntryPage(
     Flash32Namespace& eeprom,
     FieldLayout& layout,
     std::string header) :
-    WebPage(layout, header, data_entry_page_style),
+    WebPage(layout, header),
     eeprom(eeprom) {
 }
 
@@ -65,8 +65,8 @@ std::string DataEntryPage::data_entry_html() {
   std::string page_html;
   page_html.append(page_start);
   append_header(page_html);
-  append_style(page_html);
-  page_html.append("  <form action=\"/submit\">\n");
+  page_html.append(data_entry_page_style)
+      .append("  <form action=\"/submit\">\n");
   {
     DataEntryRowGenerator row_generator(page_html, 4);
     apply(row_generator);

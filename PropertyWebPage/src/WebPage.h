@@ -39,7 +39,6 @@ class PersistStatus;
 class WebPage {
   FieldLayout& layout;
   std::string header;  // Page header
-  std::string style;   // Page style. Defaults to ""
 
 protected:
 
@@ -70,8 +69,7 @@ protected:
    */
   WebPage(
       FieldLayout& layout,
-      std::string header,
-      std::string style = "");
+      std::string header);
 
   /*
    * Appends the specified string to the web page header.
@@ -81,16 +79,6 @@ protected:
    * header               Text to append WITHOUT tags. May be empty.
    */
   WebPage& append_header(std::string& html);
-
-  /*
-   * Appends the page style to the specified html.
-   *
-   * Parameter            Contents
-   * -------------------- -----------------------------------------
-   * html                 The formatted HTML to receive the page
-   *                      style.
-   */
-  WebPage& append_style(std::string& html);
 
 public:
 

@@ -54,7 +54,7 @@ SaveOrReject::SaveOrReject(
     Flash32Namespace& eeprom,
     FieldLayout& field_layout,
     BaseTaskWithAction& waiting_task) :
-        WebPage(field_layout, "", ""),
+        WebPage(field_layout, ""),
         eeprom(eeprom),
         waiting_task(waiting_task) {
 }

@@ -74,10 +74,8 @@ std::string WebPage::format_errors(const PersistStatus& errors) {
 
 WebPage::WebPage(
     FieldLayout& layout,
-    std::string header,
-    std::string style) :
-    layout(layout),
-    style(style) {
+    std::string header) :
+    layout(layout) {
   if (0 < header.length()) {
     (this->header = "<h1>")
         .append(header)
@@ -92,11 +90,6 @@ WebPage::~WebPage() {
 
 WebPage& WebPage::append_header(std::string& html) {
   html.append(header);
-  return *this;
-}
-
-WebPage& WebPage::append_style(std::string& html) {
-  html.append(style);
   return *this;
 }
 

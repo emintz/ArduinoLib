@@ -77,7 +77,7 @@ static const char *confirmation_page_end =
 ConfirmationPage::ConfirmationPage(
     FieldLayout& layout,
     std::string header) :
-    WebPage(layout, header, confirmation_page_style) {
+    WebPage(layout, header) {
 }
 
 ConfirmationPage::~ConfirmationPage() {
@@ -94,7 +94,7 @@ bool ConfirmationPage::handle(
 
 std::string ConfirmationPage::html() {
   std::string page_html;
-  append_style(page_html);
+  page_html.append(confirmation_page_style);
   append_header(page_html);
   page_html.append(confirmation_page_start);
   {
