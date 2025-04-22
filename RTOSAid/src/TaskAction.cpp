@@ -40,7 +40,7 @@ void TaskAction::resume(void) {
   containing_task->resume();
 }
 
-void TaskAction::blink_off(void) {
+void TaskAction::stop(void) {
   containing_task->stop();
 }
 

@@ -79,7 +79,7 @@ protected:
    * be used. Prefer invoking calling stop() to returning from the task loop.
    * Note that this method does not return.
    */
-  virtual void blink_off(void);
+  virtual void stop(void);
 
   /**
    * Suspend this task. The task logic is halted until the application calls
