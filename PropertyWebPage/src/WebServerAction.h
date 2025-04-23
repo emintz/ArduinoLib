@@ -38,12 +38,14 @@
 #include "Arduino.h"
 #include "TaskAction.h"
 
+class CurrentTaskBlocker;
 class ServerStatus;
 class WebServer;
 
 class WebServerAction : public TaskAction {
   WebServer& web_server;
   ServerStatus& status;
+  CurrentTaskBlocker& blocker;
 public:
   /*
    * Constructor
@@ -57,9 +59,14 @@ public:
    * |               | and start the the web server before starting the      |
    * |               | containing task.                                      |
    * | server_status | Controls server behavior.                             |
-   * +------------+----------------------------------------------------------+
+   * | blocker       | The task that started the containing process waits on |
+   * |               | this. Notify it when the web page exits.              |
+   * +---------------+-------------------------------------------------------+
    */
-  WebServerAction(WebServer& web_server, ServerStatus& server_status);
+  WebServerAction(
+      WebServer& web_server,
+      ServerStatus& server_status,
+      CurrentTaskBlocker& blocker);
   virtual ~WebServerAction();
 
   /*

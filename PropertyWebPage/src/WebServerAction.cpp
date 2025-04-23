@@ -28,26 +28,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+#include "Arduino.h"
 #include "WebServerAction.h"
 
+#include "CurrentTaskBlocker.h"
 #include "ServerStatus.h"
 #include "WebServer.h"
 
 WebServerAction::WebServerAction(
     WebServer& web_server,
-    ServerStatus& server_status) :
+    ServerStatus& server_status,
+    CurrentTaskBlocker& blocker) :
     web_server(web_server),
-    status(server_status) {
+    status(server_status),
+    blocker(blocker) {
 }
 
 WebServerAction::~WebServerAction() {
-  Serial.println("Web server action deleted.");
+  Serial.println("WebServerAction destroyed.");
 }
 
 void WebServerAction::run(void) {
   Serial.println("Starting web server refresh.");
-  while (status() == ServerStatus::State::RUNNING) {
+  bool notified = false;
+  //  TODO(emintz): replace while(true) with
+  //      while (status() == ServerStatus::State::RUNNING)
+  // and move notification after the loop. The current
+  // baroque supported a successful effort to diagnose a
+  // crash.
+  while(true) {
     web_server.handleClient();
+    if (!notified && status() != ServerStatus::State::RUNNING) {
+      blocker.notify();
+      notified = true;
+    }
     vTaskDelay(1);
   }
+  stop();
 }

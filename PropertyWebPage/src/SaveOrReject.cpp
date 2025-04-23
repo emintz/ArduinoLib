@@ -45,6 +45,7 @@ static const char *redirect_to_home =
     ;
 
 static const char *update_cancelled =
+    "<!DOCTYPE html>\n"
     "<html>\n"
     "  <h1>Cancelled</h1>\n"
     "  Cancelled by popular demand.\n"
@@ -53,11 +54,9 @@ static const char *update_cancelled =
 SaveOrReject::SaveOrReject(
     ServerStatus& status,
     Flash32Namespace& eeprom,
-    FieldLayout& field_layout,
-    BaseTaskWithAction& waiting_task) :
+    FieldLayout& field_layout) :
         WebPage(status, field_layout, ""),
-        eeprom(eeprom),
-        waiting_task(waiting_task) {
+        eeprom(eeprom) {
 }
 
 SaveOrReject::~SaveOrReject() {
@@ -76,14 +75,15 @@ bool SaveOrReject::handle(
       server.send(200, "text/html", redirect_to_home);
     } else if (user_command == "cancel") {
       server.send(200, "text/html", update_cancelled);
-      waiting_task.notify();
+      success();
     } else {
       std::string message("Invalid request: \"");
-      message.append(user_command.c_str());
+      message.append(user_command.c_str()).append("\".");
       server.send(500, "text/plain", message.c_str());
     }
   } else {
     server.send(500, "text/plain", "No user command");
+    failure();
   }
   return status;
 }
@@ -113,7 +113,7 @@ void SaveOrReject::show_errors(WebServer& server,const PersistStatus& errors) {
       500,
       "text/html",
       html.c_str());
-  // TODO(emintz): stop web server.
+  failure();
 }
 
 void SaveOrReject::show_success(WebServer& server) {
@@ -130,5 +130,5 @@ void SaveOrReject::show_success(WebServer& server) {
       .append("<br>\n<br>\nWeb server stopped.\n")
       .append(page_end);
   server.send(200, "text/html", html.c_str());
-  // TODO(emintz): stop web server.
+  success();
 }

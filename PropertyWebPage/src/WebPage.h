@@ -83,13 +83,9 @@ protected:
    */
   WebPage& append_header(std::string& html);
 
-  void failure(void) {
-    status.failure();
-  }
+  void failure(void);
 
-  void success(void) {
-    status.success();
-  }
+  void success(void);
 
 public:
 

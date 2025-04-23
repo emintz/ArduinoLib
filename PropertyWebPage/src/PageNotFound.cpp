@@ -22,6 +22,8 @@
  */
 
 #include "PageNotFound.h"
+
+#include "CurrentTaskBlocker.h"
 #include "FieldLayout.h"
 
 PageNotFound::PageNotFound(ServerStatus& status, FieldLayout& layout) :
@@ -39,5 +41,6 @@ bool PageNotFound::handle(
   message += requestUri.c_str();
   message += " was not found.";
   server.send(404, "text/plain", message.c_str());
+  failure();
   return true;
 }

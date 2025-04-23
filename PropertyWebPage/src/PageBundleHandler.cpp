@@ -20,7 +20,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
-
+#include "Arduino.h"
 #include "PageBundleHandler.h"
 #include "FieldLayout.h"
 
@@ -50,14 +50,10 @@ bool PageBundleHandler::canHandle(HTTPMethod method, const String& uri) {
 
 bool PageBundleHandler::canHandle(
     WebServer& server, HTTPMethod method, const String& uri) {
-  Serial.print("canHandle called for ");
-  Serial.println(uri.c_str());
   return page(uri).can_handle(server, method);
 }
 
 bool PageBundleHandler::handle(
     WebServer& server, HTTPMethod method, const String& uri) {
-  Serial.print("handle called for ");
-  Serial.println(uri.c_str());
   return page(uri).handle(server, method, uri);
 }

@@ -28,6 +28,7 @@
 
 #include "WebPage.h"
 
+class CurrentTaskBlocker;
 class FieldLayout;
 class ServerStatus;
 

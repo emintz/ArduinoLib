@@ -30,7 +30,6 @@
 #ifndef WEBPAGEBUNDLE_H_
 #define WEBPAGEBUNDLE_H_
 
-//#include "FieldLayout.h"
 #include "PageNotFound.h"
 #include "WebPage.h"
 
@@ -39,6 +38,7 @@
 #include <map>
 
 class FieldLayout;
+class ServerStatus;
 
 class PageBundleHandler : public RequestHandler {
 

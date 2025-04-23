@@ -38,7 +38,6 @@ class ServerStatus;
 
 class SaveOrReject : public WebPage {
 
-  BaseTaskWithAction& waiting_task;
   Flash32Namespace& eeprom;
 
   /*
@@ -76,8 +75,7 @@ public:
   SaveOrReject(
       ServerStatus& status,
       Flash32Namespace& eeprom,
-      FieldLayout& layout,
-      BaseTaskWithAction& waiting_task);
+      FieldLayout& layout);
   virtual ~SaveOrReject();
 
   virtual bool handle(

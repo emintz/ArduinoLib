@@ -216,6 +216,10 @@ public:
     this->value = value;
   }
 
+  void set_value(const char *value) {
+    set_value(std::string(value));
+  }
+
   /**
    * Provides data to the DataTypeCharacteristics constructor. The
    * structure provides a convenient way to configure characteristics.

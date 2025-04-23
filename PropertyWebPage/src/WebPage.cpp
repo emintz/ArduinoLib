@@ -25,6 +25,10 @@
 #include "PersistStatus.h"
 #include "ServerStatus.h"
 
+#include "freertos/FreeRTOS.h"
+
+#define EXIT_DELAY_MS 5000
+
 const char *WebPage::page_end = "</html>\n";
 
 const char *WebPage::page_start =
@@ -32,15 +36,8 @@ const char *WebPage::page_start =
     "<html>\n";
 
 const char *WebPage::table_end =
-    "<p>\n"
-    "<table>\n"
-    "  <thead>\n"
-    "    <tr>\n"
-    "      <th>Setting</th>\n"
-    "      <th>Value</th>\n"
-    "    </tr>\n"
-    "  </thead>\n"
-    "  <tbody>\n";
+    "  </tbody>\n"
+    "</table>\n";
 
 const char *WebPage::table_start =
     "<p>\n"
@@ -89,6 +86,16 @@ WebPage::WebPage(
 }
 
 WebPage::~WebPage() {
+}
+
+void WebPage::failure(void) {
+  vTaskDelay(pdMS_TO_TICKS(EXIT_DELAY_MS));
+  status.failure();
+}
+
+void WebPage::success(void) {
+  vTaskDelay(pdMS_TO_TICKS(EXIT_DELAY_MS));
+  status.success();
 }
 
 WebPage& WebPage::append_header(std::string& html) {
