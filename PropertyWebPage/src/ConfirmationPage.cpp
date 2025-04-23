@@ -61,7 +61,7 @@ static const char *confirmation_page_end =
     "    <label for=\"accept\">Save Values</label>\n"
     "  </p>\n"
     "  <p>\n"
-    "    <input type=\"radio\" id=\"reject\" name=\"confirm_config\" value=\"reject\" />\n"
+    "    <input type=\"radio\" id=\"reject\" name=\"confirm_config\" value=\"reject\" checked=\"yes\" />\n"
     "    <label for=\"reject\">Edit Values (default)</label>\n"
     "  </p>\n"
     "  <p>\n"
