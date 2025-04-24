@@ -119,8 +119,6 @@ bool Configurator::run(void) {
     Serial.println("Web server refresh running, waiting for notification.");
     blocker.wait();
     vTaskDelay(pdMS_TO_TICKS(1000));
-    Serial.println("Removing hander.");
-    web_server.removeHandler(handler);
     Serial.println("Stopping web server");
     web_server.stop();
     Serial.println("Web server stopped.");
