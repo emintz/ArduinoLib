@@ -51,18 +51,10 @@ WebServerAction::~WebServerAction() {
 void WebServerAction::run(void) {
   Serial.println("Starting web server refresh.");
   bool notified = false;
-  //  TODO(emintz): replace while(true) with
-  //      while (status() == ServerStatus::State::RUNNING)
-  // and move notification after the loop. The current
-  // baroque supported a successful effort to diagnose a
-  // crash.
-  while(true) {
+  while (status() == ServerStatus::State::RUNNING) {
     web_server.handleClient();
-    if (!notified && status() != ServerStatus::State::RUNNING) {
-      blocker.notify();
-      notified = true;
-    }
     vTaskDelay(1);
   }
+  blocker.notify();
   stop();
 }
