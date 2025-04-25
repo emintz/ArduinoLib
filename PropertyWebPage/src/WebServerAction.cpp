@@ -9,7 +9,7 @@
  * within a specified timeout. The button must be wired between the specified
  * pin and ground.
  *
- * This class blocks. Use3 it during setup only.
+ * This class blocks. Use it during setup only.
  *
  * Copyright (C) 2024 Eric Mintz
  * All Rights Reserved
