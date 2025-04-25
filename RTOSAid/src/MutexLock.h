@@ -53,10 +53,14 @@ class MutexLock final {
    * Copy construction makes no sense in the class, so we
    * hide same.
    */
-  MutexLock(MutexLock *do_not_copy_me) = delete;
-  MutexLock(MutexLock& do_not_copy_me) = delete;
-  MutexLock& operator=(MutexLock const&) = delete;
-
+  MutexLock(MutexLock *) = delete;
+  MutexLock(const MutexLock *) = delete;
+  MutexLock(MutexLock&) = delete;
+  MutexLock(const MutexLock&) = delete;
+  MutexLock(MutexLock&&) = delete;
+  MutexLock(const MutexLock&&) = delete;
+  MutexLock& operator=(MutexLock&) = delete;
+  MutexLock& operator=(const MutexLock&) = delete;
 
   /**
    * Hiding the new and delete operators prevents allocation on the heap.

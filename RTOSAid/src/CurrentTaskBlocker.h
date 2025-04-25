@@ -4,7 +4,10 @@
  *  Created on: Apr 20, 2025
  *      Author: Eric Mintz
  *
- * Blocks the current (i.e. invoking) task until notified.
+ * Blocks the current (i.e. invoking) task until notified. This is
+ * meant to be used when the current task handle is not known. Prefer
+ * the native notification API when running within a TaskWithAction or
+ * TasksWithActionH.
  *
  * The layout of fields on a web page. Having this class saves memory by
  * allowing multiple web pages to use the same set of fields.
@@ -59,15 +62,33 @@
  * before the receiver invokes CurrentTaskBlocker::wait(), in which case
  * the wait() invocation returns immediately
  *
- * Note that the task that creates a CurrentTaskBlocker **must** be the
- * task that invokes CurrentTaskBlocker::wait(). If another task invokes
- * it, it will wait indefinitely.
+ * Note that the task that creates a CurrentTaskBlocker **MUST** be the
+ * task that invokes CurrentTaskBlocker::wait(). If a different task invokes
+ * it, it will never be notified and will wait indefinitely.
  *
  * Note that wait() times out after 4,294,967,295 microseconds, a little over
  * 49 days.
  */
-class CurrentTaskBlocker {
+class CurrentTaskBlocker final {
   TaskHandle_t h_invoking_task;
+
+  /*
+   * It doesn't matter which task invokes notify() or notify_from_isr(); the
+   * waiting process will receive the same notification. This implies that
+   * any number of tasks can invoke a single CurrentTaskBlocker instance
+   * without conflict. Hence any number of classes can reference an instance.
+   * Copying or assigning instance add no useful functionality and could
+   * cause undesirable behavior, so we forbid both.
+   */
+  CurrentTaskBlocker(CurrentTaskBlocker *) = delete;
+  CurrentTaskBlocker(const CurrentTaskBlocker *) = delete;
+  CurrentTaskBlocker(CurrentTaskBlocker&) = delete;
+  CurrentTaskBlocker(const CurrentTaskBlocker&) = delete;
+  CurrentTaskBlocker(CurrentTaskBlocker&&) = delete;
+  CurrentTaskBlocker(const CurrentTaskBlocker&&) = delete;
+  CurrentTaskBlocker& operator=(CurrentTaskBlocker&) = delete;
+  CurrentTaskBlocker& operator=(const CurrentTaskBlocker&) = delete;
+  CurrentTaskBlocker& operator=(const CurrentTaskBlocker *) = delete;
 public:
   /**
    * Constructor
@@ -88,8 +109,24 @@ public:
    * Notifies the task if a notification is not pending. The task is
    * notified even if it is not suspended, which will cause the next
    * wait() invocation to return immediately. This method is idempotent.
+   *
+   * Note that this method MUST only be invoked from application (i.e.
+   * non-interrupt handling) code. Interrupt handlers MUST invoke
+   * notify_from_isr instead. Violations will cause immediate and
+   * catastrophic consequences.
    */
   void notify(void);
+
+  /*
+   * Notifies the task if a notification is not pending. The task is
+   * notified even if it is not suspended, which will cause the next
+   * wait() invocation to return immediately. This method is idempotent.
+   *
+   * Note that this method MUST only be invoked from interrupt handlers.
+   * Application code MUST invoke notify() instead. Violations will
+   * cause immediate and catastrophic consequences.
+   */
+  void IRAM_ATTR notify_from_isr(void);
 
   /*
    * Wait for notification or until the maximum possible delay expires.

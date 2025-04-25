@@ -29,8 +29,9 @@
 
 CurrentTaskBlocker::CurrentTaskBlocker() :
   // Sets h_invoking_task to the task handle of the invoking
-  // task. This is why only the current task must invoke
-  // notify().
+  // task, meaning that invoking notify() or notify_from_isr()
+  // will notify ONLY the currently running task (hence the class
+  // name).
   h_invoking_task(xTaskGetCurrentTaskHandle()) {
 }
 
@@ -40,6 +41,14 @@ CurrentTaskBlocker::~CurrentTaskBlocker() {
 
 void CurrentTaskBlocker::notify(void) {
   xTaskNotify(h_invoking_task, 1, eSetValueWithoutOverwrite);
+}
+
+void IRAM_ATTR CurrentTaskBlocker::notify_from_isr(void) {
+  BaseType_t higher_priority_task_woken;
+  vTaskNotifyGiveFromISR(h_invoking_task, &higher_priority_task_woken);
+  if (higher_priority_task_woken) {
+     portYIELD_FROM_ISR();
+   }
 }
 
 void CurrentTaskBlocker::wait(void) {
