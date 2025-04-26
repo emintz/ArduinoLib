@@ -1,5 +1,5 @@
 /*
- * CheckForReset.h
+ * PressAndHold.h
  *
  *  Created on: Feb 5, 2024
  *      Author: Eric Mintz
@@ -7,7 +7,7 @@
  * Waits for a user to press and hold a button for a specified duration.
  * For the press and hold to be detected, the user must press the button
  * within a specified timeout. The button must be wired between the specified
- * pin and ground.
+ * pin and ground, and the pin must have a pullup resistor.
  *
  * This class blocks. Use it during setup only.
  *

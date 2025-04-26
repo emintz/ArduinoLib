@@ -1,5 +1,5 @@
 /*
- * CheckForReset.cpp
+ * PressAndHold.cpp
  *
  *  Created on: Feb 5, 2024
  *      Author: Eric Mintz
@@ -45,9 +45,18 @@ bool PressAndHold::wait_for_press_and_hold() {
   pinMode(pin, INPUT_PULLUP);
   active_timeout = press_timeout;
 
+  // Poll the button every millisecond Transition state based
+  // on the button pressed value and, if pressed, the elapsed
+  // time. Leave the loop if
+  //
+  // 1. The button is not pressed and the "wait for press"
+  //    time has expired, or
+  // 2. The button has been pressed for the specified time
   for (;;) {
     Event received_event = digitalRead(pin) == LOW ? Event::PRESSED : Event::RELEASED;
-    State maybe_new_state = TRANSITION_TABLE[(int)state][(int)received_event];
+    State maybe_new_state =
+        TRANSITION_TABLE [static_cast<int>(state)]
+                         [static_cast<int>(received_event)];
     if (maybe_new_state != State::STATE_COUNT) {
       switch (state = maybe_new_state) {
         case State::WAITING_FOR_PRESS:
@@ -75,7 +84,7 @@ bool PressAndHold::wait_for_press_and_hold() {
       }
     }
 
-    // If the current deadline has expired, return.
+    // If the prevailing deadline has expired, return.
     uint32_t now = millis();
     uint32_t increment = (current_time_millis ^ now) & 1;
     current_time_millis = now;
@@ -85,6 +94,6 @@ bool PressAndHold::wait_for_press_and_hold() {
       return button_held;
     }
 
-    vTaskDelay(1);
+    vTaskDelay(pdMS_TO_TICKS(1));
   }
 }
