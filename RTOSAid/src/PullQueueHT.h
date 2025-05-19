@@ -1,47 +1,25 @@
 /*
- * PullQueueT.h
+ * PullQueueHT.h
  *
- *  Created on: Nov 7, 2023
+ *  Created on: May 15, 2025
  *      Author: Eric Mintz
- *
- * Type-safe templated wrapper around the BasePullQueue class.
- *
- * Copyright (C) 2023 Eric Mintz
- * All Rights Reserved
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef PULLQUEUET_H_
-#define PULLQUEUET_H_
+#ifndef SRC_PULLQUEUEHT_H_
+#define SRC_PULLQUEUEHT_H_
 
-#include "Arduino.h"
+#include "BasePullQueueH.h"
 
-#include "BasePullQueue.h"
-
-template <class T> class PullQueueT : public BasePullQueue {
+template <class T> class PullQueueHT : public BasePullQueueH {
 public:
-  inline PullQueueT(
-      T *queue_storage,
+  inline PullQueueHT(
       UBaseType_t queue_length) :
-          BasePullQueue(
+          BasePullQueueH(
               sizeof(T),
-              queue_length,
-              reinterpret_cast<uint8_t *>(queue_storage)) {}
+              queue_length) {
+  }
 
-
-  virtual ~PullQueueT() {}
+  virtual ~PullQueueHT() {}
 
   /**
    * Attempt to retrieve a message from the queue leaving the retrieved message
@@ -182,4 +160,6 @@ public:
   }
 };
 
-#endif /* PULLQUEUET_H_ */
+
+
+#endif /* SRC_PULLQUEUEHT_H_ */
