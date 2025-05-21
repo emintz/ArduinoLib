@@ -77,7 +77,9 @@ class GpioChangeDetector final {
 
   /**
    * Invokes the VoidFunction that is bound to this change detector. The
-   * change_interrupt_handler() function invokes this method.
+   * change_interrupt_handler() function invokes this method. Note that
+   * handle_pin_change() and the invoked action are interrupt handers
+   * and run in interrupt mode. Code accordingly.
    */
   void handle_pin_change(void);
 

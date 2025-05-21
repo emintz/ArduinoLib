@@ -7,7 +7,7 @@ developers.
 ## Licence
 
 RTOSAid is open source software, free as in beer and as in speech. It has
-been released under the 
+been released under the
 [Affero General Public License](https://www.gnu.org/licenses/agpl-3.0.html)
 whose text resides
 [here](https://www.gnu.org/licenses/agpl-3.0.txt).
@@ -27,7 +27,7 @@ In the meantime, enjoy!
 ## Intended Use
 
 RTOSAid is intended for use in open source ESP32 software projects that
-are based on the Arduino runtime, especially for event driveen projects
+are based on the Arduino runtime, especially for event driven projects
 that have outgrown the Arduino's single task `setup()`/`loop()`
 architecture.
 
@@ -36,11 +36,11 @@ architecture.
 Users should be comfortable programming C++ and have a
 working understanding of interrupts, timers, and other low
 level hardware features. Familiarity with
-the ESP32 FreeRTOS APIs is helpful, but not required.
+the ESP32 FreeRTOS APIs is helpful, but not essential.
 
 Since the library is (meant to be, at least) self-documenting, it
-features long class, function, and variable names. We hope that 
-doesn't overly inconvenience you.
+features long class, function, and variable names. We hope that
+the resulting clarity justifies the resulting inconvenience.
 
 ### Arduino-Related Prerequisites
 
@@ -80,7 +80,7 @@ Users should understand and be comfortable using
 * Volatile fields
 
 Explanation of C++ and its many features requires hundreds of pages,
-and is beyond the scope of this document. In view of the many first-rate
+and is far beyond the scope of this document. In view of the many first-rate
 C++-related resources already available, any such effort would be
 redundant. The library does, however, provide extensive examples which we hope
 you find informative. 
@@ -132,7 +132,7 @@ software has significant disadvantages.
 Interrupts provide a way to minimizing CPU involvement by
 offloading event detection to hardware, which
 
-* Frees the CPU to do other work
+* Frees the CPU to for work
 * Minimizes response time
 * Minimizes the possibility of missing events
 
@@ -172,7 +172,7 @@ Pro tips:
   WiFi, and other external communication are also out of bounds, as are
   Arduino I/O APIs.
 * **Do not block, ever.** `vTaskDelay()`, `delay()`, and `delayMicroseconds()`
-  and the like are incompatible with interrupt handling. Don't even think about
+  and the like are incompatible with interrupt handling. Don't even consider
   invoking them.
 * Consider encapsulating each interrupt handler in its own process.
   That way, the handler can wait for notifications, and all the ISR
@@ -191,40 +191,40 @@ SRAM. It applies to free standing functions and to functions in classes.
 Here's an how to place a free-standing function in SRAM.
 
 ```
-#include "Arduino.h"
+    #include "Arduino.h"
 
-// ...
+    // ...
 
-void IRAM_ATTR isr_handler(void) {
-  // ...
-}
+    void IRAM_ATTR isr_handler(void) {
+      // ...
+    }
 ```
 
 In addition to being placed in SRAM, ISRs in classes must be declared `static`.
 
 ```
-#include "Arduino.h"
+    #include "Arduino.h"
 
-class ShortLongRedGreenEventHandler {
+    class ShortLongRedGreenEventHandler {
 
-  // Fields and other stuff
+      // Fields and other stuff
 
-  // Interrupt service routines can be private, if desired.
-  static void IRAM_ATTR take_interrupt(void);
+      // Interrupt service routines can be private, if desired.
+      static void IRAM_ATTR take_interrupt(void);
 
-  // ...
-  }
-};
+      // ...
+      }
+    };
 ```
 
 and implemented 
 
 ```
-#include "ShortLongRedGreenEventHandler"
+    #include "ShortLongRedGreenEventHandler.h"
 
-void IRAM_ATTR ShortLongRedGreenEventHandler::take_interrupt(void) {
-  // ...
-}
+    void IRAM_ATTR ShortLongRedGreenEventHandler::take_interrupt(void) {
+      // ...
+    }
 ```
 
 ### Hardware-Related Prerequisites
@@ -398,27 +398,27 @@ a task, your sketches already use them.
 
 ## Overview
 
-Let's start sidling up to tasks by considering a sketch that
+Let's sidle up to tasks with a sketch that
 blinks the built in LED once per second, 500 milliseconds on,
 500 milliseconds off.
 
 ```c++
-#include "Arduino.h"
+    #include "Arduino.h"
 
-#define BUILTIN_LED 2
+    #define BUILTIN_LED 2
 
-void setup() {
-  pinMode(BUILTIN_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, LOW);
-  Serial.println("Blinky initialized.");
-}
+    void setup() {
+      pinMode(BUILTIN_LED, OUTPUT);
+      digitalWrite(BUILTIN_LED, LOW);
+      Serial.println("Blinky initialized.");
+    }
 
-void loop() {
-  digitalWrite(BUILTIN_LED, HIGH);
-  vTaskDelay(pdMS_TO_TICKS(500));
-  digitalWrite(BUILTIN_LED, LOW);
-  vTaskDelay(pdMS_TO_TICKS(500));
-}
+    void loop() {
+      digitalWrite(BUILTIN_LED, HIGH);
+      vTaskDelay(pdMS_TO_TICKS(500));
+      digitalWrite(BUILTIN_LED, LOW);
+      vTaskDelay(pdMS_TO_TICKS(500));
+    }
 ```
 
 This is the embedded counterpart to "Hello, World", a
@@ -431,34 +431,34 @@ millisecond delays into two 250 millisecond delays and interleaves
 code that blinks the LEDs.
 
 ```c++
-#include "Arduino.h"
+    #include "Arduino.h"
 
-#define BUILTIN_LED 2
-#define RED_LED 13
+    #define BUILTIN_LED 2
+    #define RED_LED 13
 
-void setup() {
-  pinMode(BUILTIN_LED, OUTPUT);
-  pinMode(RED_LED, OUTPUT);
-  digitalWrite(BUILTIN_LED, LOW);
-  digitalWrite(RED_LED, LOW);
-  Serial.println("Blinky initialized.");
-}
+    void setup() {
+      pinMode(BUILTIN_LED, OUTPUT);
+      pinMode(RED_LED, OUTPUT);
+      digitalWrite(BUILTIN_LED, LOW);
+      digitalWrite(RED_LED, LOW);
+      Serial.println("Blinky initialized.");
+    }
 
-void loop() {
-  digitalWrite(BUILTIN_LED, HIGH);
-  digitalWrite(RED_LED, HIGH);
-  vTaskDelay(pdMS_TO_TICKS(250));
-  
-  digitalWrite(RED_LED, LOW);
-  vTaskDelay(pdMS_TO_TICKS(250));
-  
-  digitalWrite(BUILTIN_LED, LOW);
-  digitalWrite(RED_LED, HIGH);
-  vTaskDelay(pdMS_TO_TICKS(250));
-  
-  digitalWrite(RED_LED, LOW);
-  vTaskDelay(pdMS_TO_TICKS(250));
-}
+    void loop() {
+      digitalWrite(BUILTIN_LED, HIGH);
+      digitalWrite(RED_LED, HIGH);
+      vTaskDelay(pdMS_TO_TICKS(250));
+
+      digitalWrite(RED_LED, LOW);
+      vTaskDelay(pdMS_TO_TICKS(250));
+
+      digitalWrite(BUILTIN_LED, LOW);
+      digitalWrite(RED_LED, HIGH);
+      vTaskDelay(pdMS_TO_TICKS(250));
+
+      digitalWrite(RED_LED, LOW);
+      vTaskDelay(pdMS_TO_TICKS(250));
+    }
 ```
 
 Now let's kick it up a notch. Instead of toggling the second LED
@@ -472,19 +472,19 @@ The resulting sketch is too complex to show here so we've placed it in
 Implementation would be simple if we could run two independent loops.
 
 ```c++
-void loop_500_ms() {
-  digitalWrite(BUILTIN_LED, HIGH);
-  vTaskDelay(pdMS_TO_TICKS(500));
-  digitalWrite(BUILTIN_LED, LOW);
-  vTaskDelay(pdMS_TO_TICKS(500));
-}
+    void loop_500_ms() {
+      digitalWrite(BUILTIN_LED, HIGH);
+      vTaskDelay(pdMS_TO_TICKS(500));
+      digitalWrite(BUILTIN_LED, LOW);
+      vTaskDelay(pdMS_TO_TICKS(500));
+    }
 
-void loop_333_ms() {
-  digitalWrite(BUILTIN_LED, HIGH);
-  vTaskDelay(pdMS_TO_TICKS(333));
-  digitalWrite(BUILTIN_LED, LOW);
-  vTaskDelay(pdMS_TO_TICKS(333));
-}
+    void loop_333_ms() {
+      digitalWrite(BUILTIN_LED, HIGH);
+      vTaskDelay(pdMS_TO_TICKS(333));
+      digitalWrite(BUILTIN_LED, LOW);
+      vTaskDelay(pdMS_TO_TICKS(333));
+    }
 ```
 
 Tasks let us do just that. All that's needed is a bit of simple
@@ -494,9 +494,9 @@ boilerplate.
 
 Task code resides in a function whose logic either runs in an endless loop
 or, if it needs to stop, shuts itself down. If the function returns,
-FreeRTOS restarts the application. To prevent his, the RTOSAid tas
-shuts itself down if the task method returns, but it is extremely poor
-practice to rely on this.
+FreeRTOS restarts the application. To prevent his, RTOSAid task classes
+shuts themselves down if the task method returns. Relying on this
+behavior is considered poor practice.
 
 FreeRTOS never stops. It always runs _some_ task. If it has no real
 work to do, FreeRTOS runs its built-in, do-little idle task.
@@ -534,8 +534,8 @@ A task can be in the following states
 * Waiting: waiting for a notification or an event
 
 :warning: **Warning:** be sure to wake a  task appropriately.
-For example, application code must not attempt to resume a task that is
-waiting for a timer to expire.
+For example, application code must not attempt to resume a task while
+it waits for a timer to expire.
 
 ## Creating a Task
 
@@ -561,31 +561,31 @@ must run at priority 1 or higher.
 The following `BlinkAction` shows how to implement task logic.
 
 ```c++
-class BlinkAction : public TaskAction {
-  uint8_t pin_no;
-  uint32_t delay_ms;
+    class BlinkAction : public TaskAction {
+      uint8_t pin_no;
+      uint32_t delay_ms;
 
-public:
-  BlinkAction(
-      uint8_t pin_no,
-      uint32_t delay_ms) :
-        pin_no(pin_no),
-        delay_ms(delay_ms) {
-    pinMode(pin_no, OUTPUT);
-    digitalWrite(pin_no, LOW);
-  }
+    public:
+      BlinkAction(
+          uint8_t pin_no,
+          uint32_t delay_ms) :
+            pin_no(pin_no),
+            delay_ms(delay_ms) {
+        pinMode(pin_no, OUTPUT);
+        digitalWrite(pin_no, LOW);
+      }
 
-  virtual ~BlinkAction() {}
+      virtual ~BlinkAction() {}
 
-  virtual void run(void) {
-    for (;;) {
-      digitalWrite(pin_no, HIGH);
-      vTaskDelay(pdMS_TO_TICKS(delay_ms));
-      digitalWrite(pin_no, LOW);
-      vTaskDelay(pdMS_TO_TICKS(delay_ms));
-    }
-  }
-};
+      virtual void run(void) {
+        for (;;) {
+          digitalWrite(pin_no, HIGH);
+          vTaskDelay(pdMS_TO_TICKS(delay_ms));
+          digitalWrite(pin_no, LOW);
+          vTaskDelay(pdMS_TO_TICKS(delay_ms));
+        }
+      }
+    };
 ```
 
 The `BlinkAction` constructor accepts the target GPIO number and
@@ -598,16 +598,16 @@ we would use it to blink the built-in LED.
 Note that the library provides `BlinkAction`.
 
 ```c++
-#define BUILTIN_LED_PIN 2
+    #define BUILTIN_LED_PIN 2
 
-static BlinkAction builtin_action(BUILTIN_LED_PIN, 500);
-static uint8_t builtin_led_stack[2048];
-static TaskWithAction builtin_task(
-    "BuiltIn",
-    2,
-    &builtin_action,
-    builtin_led_stack,
-    sizeof(builtin_led_stack));
+    static BlinkAction builtin_action(BUILTIN_LED_PIN, 500);
+    static uint8_t builtin_led_stack[2048];
+    static TaskWithAction builtin_task(
+        "BuiltIn",
+        2,
+        &builtin_action,
+        builtin_led_stack,
+        sizeof(builtin_led_stack));
 ```
 
 The `builtin_led_stack` array provides the temporary storage
@@ -620,40 +620,40 @@ When started, `builtin_task` runs `builtin_action.run()`, which blinks the LED.
 We can also create a similar task that blinks the red LED. 
 
 ```c++
-static BlinkAction red_action(RED_LED_PIN, 333);
-static uint8_t red_led_stack[2048];
-static TaskWithAction red_task(
-    "Red",
-    2,
-    &red_action,
-    red_led_stack,
-    sizeof(red_led_stack));
+    static BlinkAction red_action(RED_LED_PIN, 333);
+    static uint8_t red_led_stack[2048];
+    static TaskWithAction red_task(
+        "Red",
+        2,
+        &red_action,
+        red_led_stack,
+        sizeof(red_led_stack));
 ```
 
 All that remains is to start the two tasks, which we do in `setup()`.
 
 ```c++
-void setup() {
-  Serial.begin(115200);
-  Serial.printf(
-      "Dual task blink sketch compiled on %s at %s.\n",
-      __DATE__,
-      __TIME__);
+    void setup() {
+      Serial.begin(115200);
+      Serial.printf(
+          "Dual task blink sketch compiled on %s at %s.\n",
+          \_\_DATE__,
+          \_\_TIME__);
 
-  builtin_task.start();
-  red_task.start();
+      builtin_task.start();
+      red_task.start();
 
-  Serial.println("Setup completed.");
-}
+      Serial.println("Setup completed.");
+    }
 ```
 
 The two tasks do all the work, so there's nothing to do in the `loop()` function. To
 minimize CPU load, we put it to sleep with `vTaskDelay()` as follows:
 
 ```c++
-void loop() {
-  vTaskDelay(portMAX_DELAY);
-}
+    void loop() {
+      vTaskDelay(portMAX_DELAY);
+    }
 ```
 
 :arrow_forward: **Note**: `portMAX_DELAY` is the longest possible delay time.
@@ -670,12 +670,12 @@ suspend itself, and yield to higher priority tasks.
 ### Constructor
 
 ```c++
-TaskWithAction(
-  const char *name,
-  uint16_t priority,
-  TaskAction *action,
-  void *stack,
-  size_t stack_size)
+    TaskWithAction(
+      const char *name,
+      uint16_t priority,
+      TaskAction *action,
+      void *stack,
+      size_t stack_size)
 ```
 
 Creates a `TaskWithAction` that runs the logic provided in the specified
@@ -751,13 +751,13 @@ use can leave the system in an invalud state or cause undesirable behavior.
 ### suspend
 
 Suspends a running task and does nothing if the task is already suspended.
-The 
+The
 [`resume()`](#resume)
  method (see above) resumes suspended tasks.
 
 :arrow_forward: **Note**: suspending a suspended task has no effect. No matter
-how many times the user invols `suspend()` on a suspended task, the next call
-to [`resume()`](#resume) will reactivate it.
+how many times the user invols `suspend()` on a suspended task, single
+to [`resume()`](#resume) invocation reactivates it.
 
 :arrow_forward: **Note:** suspended tasks do not respond to notifications.
 
@@ -770,11 +770,11 @@ to `TaskWithAction`.
 ### Constructor
 
 ```c++
-TaskWithActionH(
-  const char *name,
-  uint16_t priority,
-  TaskAction *action,
-  size_t stack_size)
+    TaskWithActionH(
+      const char *name,
+      uint16_t priority,
+      TaskAction *action,
+      size_t stack_size)
 ```
 
 Creates a `TaskWithActionT` that runs the logic provided in the specified
@@ -905,19 +905,29 @@ inter-task communication mechanism. Prefer them in wherever possible.
 
 ## Details
 
-Pull queue code resides in two classes: `BasePullQueue` a base class that
+Like its counterparts, the pull queue has a static and a heap-based
+implementation. The static memory based pull queue implementation resides
+in two classes: `BasePullQueue` a base class that
 implements the core queue logic, and `PullQueueT`, a templated wrapper class
-that adds type safely. To enforce type safely, the base class a protected API,
-making its services available only to child classes (i.e. classes,
-like `PullQueueT` that inherit the base class). Since the two classes work
-in concert, we document their public messages as a single API.
+that adds type safely. The heap-based implementation spans similar
+classes, `BasePullQueueH` and `PullQueueHT`. Except for constructors,
+the two implementations support identical APIs.
 
-Users access queues via the `PullQueueT` class.
+To enforce type safely, the base classes make their services available
+to their templated counterparts via a protected API. Only child classes
+(e.g. `PullQueueT` that inherit the base class) can invoke the API.
+Because the protected methods are hidden from end users, we only document
+the child classes' public APIs.
 
-:arrow_forward: **Note**: to ensure type safety, the `PullQueueT` class is
+Users access queues via the `PullQueueT` and `PullQueueTH` class.
+
+:arrow_forward: **Note**: to ensure type safety, the `PullQueueT` 
+and `PullQueueTH` classes are
 templated by the message type, which is set at instance declaration.In principal,
-each `PullQueueT` defines a unique class for each message type. The
-class design minimizes the resulting overhead.
+each `PullQueueT` or `PullQueueTH` declaration defines a unique class for its
+message type. Templated class methods are typically contain a single statement
+that invokes their protected counterpart, and are declared `inline` so as to
+minimize their instruction count.
 
 <!-- TODO: reorganize this!  -->
 
@@ -926,10 +936,10 @@ to a class) without methods, not even a constructor or destructor, as in
 
 
 ```c++
-struct LedCommand {
-  uint16_t step_time;
-  uint16_t inter_cycle_time;
-  uint16_t repititions;
+    struct LedCommand {
+      uint16_t step_time;
+      uint16_t inter_cycle_time;
+      uint16_t repititions;
 ```
 
 :arrow_forward: **Note**: in the example, `LedCommand` is declared in `LedCommand.h`.
@@ -952,29 +962,29 @@ Provide an array of `T` to hold enqueued messages. The resulting
 queue capacity capacity is the array length.
 
 ```c++
-#include "LedCommand.h"
-#include "PullQueueT.h"
+    #include "LedCommand.h"
+    #include "PullQueueT.h"
 
-#define QUEUE_CAPACITY 5
+    #define QUEUE_CAPACITY 5
 
-static LedCommand queue_storage[QUEUE_CAPACITY];
+    static LedCommand queue_storage[QUEUE_CAPACITY];
 
-static PullQueueT<LedCommand> led_command_queue(
-    queue_storage,
-    QUEUE_CAPACITY);
+    static PullQueueT<LedCommand> led_command_queue(
+        queue_storage,
+        QUEUE_CAPACITY);
 ```
 
 :arrow_forward: **Note**: `led_command_ queue` will be able to store 5
 `LedCommand` messages.
 
-## PullQueueT and BasePullQueue classes
+## PullQueueT and BasePullQueue Classes
 
 ### Constructor
 
 ```c++
-PullQueueT(
-    T *queue_storage,
-    UBaseType_t queue_length);
+    PullQueueT(
+        T *queue_storage,
+        UBaseType_t queue_length);
 ```
 
 Parameters:
@@ -992,11 +1002,39 @@ running. Applications must start it to make it usable.
 
 The destructor stops the queue if it is running, and has no effect otherwise.
 
+## PullQueueHT and BasePullQueueTH Classes
+
+### Constructor
+
+```c++
+    PullQueueHT(
+          UBaseType_t queue_length);
+```
+
+Parameters:
+
+| Name            | Contents |
+| --------------- | ----------------------------------------------------------|
+| `T`             | Message as a `struct`, the template avalue                |
+| `queue_length`  | Number of elements in the `queue_storage` array           |
+
+The constructor configures a newly created queue with queue storage allocated
+on the heap. The resulting queue is not running. Applications must start it to
+make it usable.
+
+### Destructor
+
+The destructor stops the queue if it is running, and has no effect otherwise.
+
+## PullQueueT and PullQueueTH Shared API
+
+Both `PullQueueT` and `PullQueueHT` provide the following methods.
+
 ### peek_message (single parameter)
 
 ```c++
-peek_message(
-    T *message);
+    peek_message(
+        T *message);
 ```
 
 Receive a message from the queue, waiting forever for a message to arrive
@@ -1033,8 +1071,8 @@ Returns: `true` if a message arrived, `false` otherwise.
 ### pull_message (single parameter)
 
 ```c++
-pull_message(
-    T *messsage);
+    pull_message(
+        T *messsage);
 ```
 
 Receive and remove a message from the queue, waiting forever for a message
@@ -1057,6 +1095,11 @@ Wait a specified time and pull a message from the queue should a message arrive
 during time. If a message is received, it is removed from the queue. If a
 message is already present in the queue, the function returns immediately.
 
+```c++
+    pull_message(
+        T *messsage,
+        uint32_t max_wait_ms);
+```
 
 Paremters:
 
@@ -1070,8 +1113,8 @@ Returns: `true` if a message arrived, `false` otherwise.
 ### send_message (single parameter)
 
 ```c++
-send_message(
-    T *messsage);
+    send_message(
+        T *messsage);
 ```
 
 Send a message to the rear of the queue, waiting forever for the queue
@@ -1097,6 +1140,11 @@ Send a message to the rear of the queue, waiting the specified time for the queu
 to accept the message. The newly added message will arrive at the receiver
 **after** preexisting messages arrive.
 
+```c++
+    send_message(
+        T *messsage,
+        uint32_t max_wait_ms);
+```
 
 Paremters:
 
@@ -1269,21 +1317,21 @@ Here's how to use a `MutexLock` in a method. Assume that
 the containing class contains a `Mutex` field named `mutex`.
 
 ```c++
-void SomeClass::do_something(void) {
-  MutexLock lock(mutex);  // Try to lock the mutex
-  if (lock.succeeded()) {
-    // Lock succeeded; carry on processing. Note that the
-    // current task is the only task that is running this
-    // code ...
-  } else {
-    // Lock request failed. Handle the error ...
-  }
+    void SomeClass::do_something(void) {
+      MutexLock lock(mutex);  // Try to lock the mutex
+      if (lock.succeeded()) {
+        // Lock succeeded; carry on processing. Note that the
+        // current task is the only task that is running this
+        // code ...
+      } else {
+        // Lock request failed. Handle the error ...
+      }
 
-  // All automatic variables, including the MutexLock lock, are
-  // destroyed here. When the lock variable is destroyed, its
-  // destructor releases the lock acquired during construction.
-  // There is no other way to release the lock.
-}
+      // All automatic variables, including the MutexLock lock, are
+      // destroyed here. When the lock variable is destroyed, its
+      // destructor releases the lock acquired during construction.
+      // There is no other way to release the lock.
+    }
 ```
 
 # Function Classes
@@ -2015,11 +2063,11 @@ If, for example, you are tempted to include a `char *` field in `S`, do
 something like the following instead.
 
 ```c++
-typedef struct {
-  // ...
-  char string_value[40];
-  // ...
-} MyStruct;
+    typedef struct {
+      // ...
+      char string_value[40];
+      // ...
+    } MyStruct;
 ```
 
 ## `Flash32Namespace` Class
@@ -2328,136 +2376,136 @@ and an outboard red LED at 333 milliseconds. Note that the logic is complexi
 and difficult to understand.
 
 ```c++
-#include "Arduino.h"
+    #include "Arduino.h"
 
-#define BUILTIN_LED 2
-#define RED_LED 13
+    #define BUILTIN_LED 2
+    #define RED_LED 13
 
-#define BUILTIN_DELAY 500
-#define RED_DELAY 333
+    #define BUILTIN_DELAY 500
+    #define RED_DELAY 333
 
-uint8_t builtin_level;
-uint8_t red_level;
+    uint8_t builtin_level;
+    uint8_t red_level;
 
-uint32_t builtin_delay;
-uint32_t red_delay;
+    uint32_t builtin_delay;
+    uint32_t red_delay;
 
-uint32_t current_delay;
+    uint32_t current_delay;
 
-uint8_t change_level(uint8_t level) {
-  return level == LOW ? HIGH : LOW;
-}
+    uint8_t change_level(uint8_t level) {
+      return level == LOW ? HIGH : LOW;
+    }
 
-void set_leds(void) {
-  digitalWrite(BUILTIN_LED, builtin_level);
-  digitalWrite(RED_LED, red_level);
-}
+    void set_leds(void) {
+      digitalWrite(BUILTIN_LED, builtin_level);
+      digitalWrite(RED_LED, red_level);
+    }
 
-void setup() {
-  pinMode(BUILTIN_LED, OUTPUT);
-  pinMode(RED_LED, OUTPUT);
+    void setup() {
+      pinMode(BUILTIN_LED, OUTPUT);
+      pinMode(RED_LED, OUTPUT);
 
-  builtin_level = HIGH;
-  red_level = HIGH;
-  builtin_delay = BUILTIN_DELAY;
-  red_delay = RED_DELAY;
-  current_delay = RED_DELAY;
-  set_leds();
-}
+      builtin_level = HIGH;
+      red_level = HIGH;
+      builtin_delay = BUILTIN_DELAY;
+      red_delay = RED_DELAY;
+      current_delay = RED_DELAY;
+      set_leds();
+    }
 
-void loop() {
-  vTaskDelay(pdMS_TO_TICKS(current_delay));
-  if (builtin_delay <= current_delay) {
-    builtin_level = change_level(builtin_level);
-    builtin_delay += BUILTIN_DELAY;
-  }
-  if (red_delay <= current_delay) {
-    red_level = change_level(red_level);
-    red_delay += RED_DELAY;
-  }
+    void loop() {
+      vTaskDelay(pdMS_TO_TICKS(current_delay));
+      if (builtin_delay <= current_delay) {
+        builtin_level = change_level(builtin_level);
+        builtin_delay += BUILTIN_DELAY;
+      }
+      if (red_delay <= current_delay) {
+        red_level = change_level(red_level);
+        red_delay += RED_DELAY;
+      }
 
-  builtin_delay -= current_delay;
-  red_delay -= current_delay;
+      builtin_delay -= current_delay;
+      red_delay -= current_delay;
 
-  current_delay =
-      builtin_delay <= red_delay
-          ? builtin_delay
-          : red_delay;
-  set_leds();
-}
+      current_delay =
+          builtin_delay <= red_delay
+              ? builtin_delay
+              : red_delay;
+      set_leds();
+    }
 ```
 
 # Appendex II: Dual Task 500/333 Milliseconds Blink
 
 ```c++
-#include "Arduino.h"
+    #include "Arduino.h"
 
-#include "TaskAction.h"
-#include "TaskWithAction.h"
+    #include "TaskAction.h"
+    #include "TaskWithAction.h"
 
-#define BUILTIN_LED_PIN 2
-#define RED_LED_PIN 13
+    #define BUILTIN_LED_PIN 2
+    #define RED_LED_PIN 13
 
-class BlinkAction : public TaskAction {
-  uint8_t pin_no;
-  uint32_t delay_ms;
+    class BlinkAction : public TaskAction {
+      uint8_t pin_no;
+      uint32_t delay_ms;
 
-public:
-  BlinkAction(
-      uint8_t pin_no,
-      uint32_t delay_ms) :
-        pin_no(pin_no),
-        delay_ms(delay_ms) {
-    pinMode(pin_no, OUTPUT);
-    digitalWrite(pin_no, LOW);
-  }
+    public:
+      BlinkAction(
+          uint8_t pin_no,
+          uint32_t delay_ms) :
+            pin_no(pin_no),
+            delay_ms(delay_ms) {
+        pinMode(pin_no, OUTPUT);
+        digitalWrite(pin_no, LOW);
+      }
 
-  virtual ~BlinkAction() {}
+      virtual ~BlinkAction() {}
 
-  virtual void run(void) {
-    for (;;) {
-      digitalWrite(pin_no, HIGH);
-      vTaskDelay(pdMS_TO_TICKS(delay_ms));
-      digitalWrite(pin_no, LOW);
-      vTaskDelay(pdMS_TO_TICKS(delay_ms));
+      virtual void run(void) {
+        for (;;) {
+          digitalWrite(pin_no, HIGH);
+          vTaskDelay(pdMS_TO_TICKS(delay_ms));
+          digitalWrite(pin_no, LOW);
+          vTaskDelay(pdMS_TO_TICKS(delay_ms));
+        }
+      }
+    };
+
+    static BlinkAction builtin_action(BUILTIN_LED_PIN, 500);
+    static uint8_t builtin_led_stack[2048];
+    static TaskWithAction builtin_task(
+        "BuiltIn",
+        2,
+        &builtin_action,
+        builtin_led_stack,
+        sizeof(builtin_led_stack));
+
+    static BlinkAction red_action(RED_LED_PIN, 333);
+    static uint8_t red_led_stack[2048];
+    static TaskWithAction red_task(
+        "Red",
+        2,
+        &red_action,
+        red_led_stack,
+        sizeof(red_led_stack));
+
+    void setup() {
+      Serial.begin(115200);
+      Serial.printf(
+          "Dual task blink sketch compiled on %s at %s.\n",
+          __DATE__,
+          __TIME__);
+
+      builtin_task.start();
+      red_task.start();
+
+      Serial.println("Setup completed.");
     }
-  }
-};
 
-static BlinkAction builtin_action(BUILTIN_LED_PIN, 500);
-static uint8_t builtin_led_stack[2048];
-static TaskWithAction builtin_task(
-    "BuiltIn",
-    2,
-    &builtin_action,
-    builtin_led_stack,
-    sizeof(builtin_led_stack));
-
-static BlinkAction red_action(RED_LED_PIN, 333);
-static uint8_t red_led_stack[2048];
-static TaskWithAction red_task(
-    "Red",
-    2,
-    &red_action,
-    red_led_stack,
-    sizeof(red_led_stack));
-
-void setup() {
-  Serial.begin(115200);
-  Serial.printf(
-      "Dual task blink sketch compiled on %s at %s.\n",
-      __DATE__,
-      __TIME__);
-
-  builtin_task.start();
-  red_task.start();
-
-  Serial.println("Setup completed.");
-}
-
-void loop() {
-  vTaskDelay(portMAX_DELAY);
-}
+    void loop() {
+      vTaskDelay(portMAX_DELAY);
+    }
 ```
 
 # References
