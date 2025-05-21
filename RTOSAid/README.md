@@ -637,8 +637,8 @@ All that remains is to start the two tasks, which we do in `setup()`.
       Serial.begin(115200);
       Serial.printf(
           "Dual task blink sketch compiled on %s at %s.\n",
-          \_\_DATE__,
-          \_\_TIME__);
+          __DATE__,
+          __TIME__);
 
       builtin_task.start();
       red_task.start();
