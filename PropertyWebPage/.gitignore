@@ -6,3 +6,8 @@
 /SignalPattern.cpp
 /SignalPattern.h
 /spec.d
+.cproject
+.gitignore
+.project
+.settings/
+.sproject
