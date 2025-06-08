@@ -77,7 +77,7 @@ enum class CanBusOpStatus {
  * CAN bus behavior, set when the bus is enabled.
  */
 enum class CanBusMode {
-  LURK,        // Lurk on the bus, receiving all messsages.
+  LURK,        // Lurk on the bus, receiving all messages.
   NORMAL,      // Receive and acknowledge messages; transmit
                // Normally. Use this in production.
   SELF_TEST,   // Do not acknowledge message receipt; transmit
@@ -89,7 +89,7 @@ enum class CanBusMode {
  * for "Bits Per Second".
  */
 enum class CanBusSpeed {
-  // TODO(emintz): uncoomment when supported
+  // TODO(emintz): enable when supported
 //  BPS_12_5K,    // 12.5 kilobits/second
 //  BPS_16K,      // 16 kilobits/second
 //  BPS_20K,      // 20 kilobits/second
@@ -108,18 +108,11 @@ enum class CanBusSpeed {
  */
 enum class CanBusStatus {
   DOWN,        // Bus is turned off and unavailable until it is
-               // brought up.
-  STOPPED,     // Bus is on but not running. Must be started
+               // installed.
+  STOPPED,     // Bus is installed but not running. Must be started
                // before use. Note that the bus comes up stopped.
-  ACTIVE,      // Bus up and running normally in its specified
-               // mode. Its error count is <= 128. It can send
-               // (if not lurking) and receive messages, and
-               // transmits an  Active Error Flag when it
-               //  detects an error.
-  PASSIVE,     // Bus is running in passive mode. It
-               // sends (if not lurking) and receives messages,
-               // and transmits a Passive Error flag when it
-               // detects an error.
+  ACTIVE,      // Node is participating in bus activity and can
+               // transmit (mode permitting) and receive.
   ERROR_HALT,  // Bus has halted due to errors and can neither
                // send nor receive messages. Bus must recover
                // before it can be used.
@@ -127,6 +120,13 @@ enum class CanBusStatus {
                // it recovers successfully, it will enter the
                // STOPPED state, and must be restarted before
                // it can participate in bus activity.
+  CORRUPT,     // An internal failure has corrupted the API. Recovery
+               // is impossible.
+};
+
+enum class CanBusNumber {
+  BUS_0,
+  BUS_1,
 };
 
 #endif /* LIBRARIES_CANBUS_SRC_CANENUMERATIONS_H_ */

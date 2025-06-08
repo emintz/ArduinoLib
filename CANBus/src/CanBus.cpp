@@ -18,86 +18,134 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "CanBus.h"
+#import "CanBus.h"
 
-#include "Arduino.h"
-#include "CanBusMaps.h"
-#include "CanPayloadHandler.h"
+#import "Arduino.h"
+#import "CanBusMaps.h"
+#import "CanPayload.h"
+#import "CanPayloadHandler.h"
 
-#include "MutexLock.h"
-
-CanBusMaps can_bus_maps;
+#import "MutexLock.h"
 
 static esp_err_t print_status(esp_err_t status) {
   Serial.printf("Status = %d (%s).\n",
-      static_cast<int>(status), can_bus_maps.to_c_string(status));
+      static_cast<int>(status), CanBusMaps::INSTANCE.to_c_string(status));
   return status;
 }
 
-static void dump_state(twai_handle_t h_twai) {
+static void dump_state(CanApi& can_api) {
   twai_status_info_t status_info;
   memset(&status_info, 0, sizeof(status_info));
   Serial.println("Fetching bus status for state dump.");
-  esp_err_t status_ret = twai_get_status_info_v2(h_twai, &status_info);
+  esp_err_t status_ret = can_api.read_status_info(status_info);
   print_status(status_ret);
   if (ESP_OK == status_ret) {
     Serial.printf(
-        "Bus status: %s.\n", can_bus_maps.to_c_string(status_info.state));
+        "Bus status: %s, pending sends: %d, errors: %d, pending transmits; "
+            "%d, errors: %d, bus errors: %d.\n",
+            CanBusMaps::INSTANCE.to_c_string(status_info.state),
+        static_cast<int>(status_info.msgs_to_tx),
+        static_cast<int>(status_info.tx_error_counter),
+        static_cast<int>(status_info.msgs_to_rx),
+        static_cast<int>(status_info.rx_error_counter),
+        static_cast<int>(status_info.bus_error_count));
   }
 }
 
-CanBusInitStatus CanBus::really_init(
-    int bus_number,
-    uint8_t receive_pin,
-    uint8_t transmit_pin,
-    CanBusSpeed bits_per_second,
-    CanBusMode mode) {
-    CanBusInitStatus start_status = CanBusInitStatus::FAILED;
+CanBusOpStatus CanBus::drain_input_queue(void) {
+  CanBusOpStatus result = CanBusOpStatus::SUCCEEDED;
+  twai_status_info_t status_info;
+  do {
+    memset(&status_info, 0, sizeof(status_info));
+    result = CanBusMaps::INSTANCE.to_op_status(
+        can_api.read_status_info(status_info));
+    if (result == CanBusOpStatus::SUCCEEDED && 0 < status_info.msgs_to_rx) {
+      vTaskDelay(pdMS_TO_TICKS(5));
+    }
+  } while (result == CanBusOpStatus::SUCCEEDED && 0 < status_info.msgs_to_rx);
+}
 
-  twai_general_config_t g_config = TWAI_GENERAL_CONFIG_DEFAULT(
-      static_cast<gpio_num_t>(receive_pin),
-      static_cast<gpio_num_t>(transmit_pin),
-      can_bus_maps.to_twai_mode(mode));
-  g_config.controller_id = bus_number;
-  twai_timing_config_t t_config = can_bus_maps.to_twai_speed(bits_per_second);
-  twai_filter_config_t f_config = TWAI_FILTER_CONFIG_ACCEPT_ALL();
-  esp_err_t install_result = print_status(
-      twai_driver_install_v2(&g_config, &t_config, &f_config, &h_twai));
+CanBusOpStatus CanBus::maybe_start_alert_task(
+      CanAlertHandlers& alert_handlers) {
+  CanBusOpStatus result = CanBusOpStatus::SUCCEEDED;
+  if (uint32_t active_alerts = alert_handlers.get_active_alerts()) {
+    Serial.println("Starting the alert task.");
+    result = CanBusMaps::INSTANCE.to_op_status(
+        can_api.reconfigure_alerts(active_alerts));
+    if (CanBusOpStatus::SUCCEEDED == result) {
+      alert_action = std::make_unique<CanAlertAction>(
+          alert_handlers, *this, *(receive_action.get()));
+      alert_task = std::make_unique<TaskWithActionH>(
+          "alert-handling",
+          20,
+          alert_action.get(),
+          8192);
+      if (alert_task->start()) {
+        result = CanBusOpStatus::SUCCEEDED;
+        Serial.println("Alert task is running \\o/");
+      } else {
+        result = CanBusOpStatus::FAILED;
+        alert_task.reset();
+        alert_action.reset();
+        Serial.println("Alert task startup failed :-(");
+      }
+    }
+  } else {
+    Serial.println("No alerts configured; not starting alert task.");
+  }
+  return result;
+}
+
+CanBusInitStatus CanBus::really_init(void) {
+    CanBusInitStatus start_status = CanBusInitStatus::FAILED;
+  esp_err_t install_result = can_api.install();
 
   if (install_result == ESP_OK) {
-    bus_status = CanBusStatus::STOPPED;
     start_status = CanBusInitStatus::SUCCEEDED;
   }
-  dump_state(h_twai);;
+  dump_state(can_api);
   return start_status;
 }
 
 CanBusDeinitStatus CanBus::really_deinit(void) {
-  esp_err_t stop_status = twai_driver_uninstall_v2(h_twai);
+  esp_err_t stop_status = can_api.uninstall();
   print_status(stop_status);
-  if (stop_status == ESP_OK) {
-    bus_status = CanBusStatus::DOWN;
-    h_twai = NULL;
-  }
   return stop_status == ESP_OK
       ? CanBusDeinitStatus::SUCCEEDED
       : CanBusDeinitStatus::FAILED;
 }
 
-CanBusOpStatus CanBus::really_start(CanPayloadHandler& handler) {
-  auto result = start_receive_task(handler);
+CanBusOpStatus CanBus::really_start(
+    CanPayloadHandler& payload_handler,
+    CanAlertHandlers& alert_handlers) {
+  auto result = start_bus();
   if (CanBusOpStatus::SUCCEEDED == result) {
-    result = start_bus();
+    result = start_receive_task(payload_handler);
   }
 
   if (CanBusOpStatus::SUCCEEDED == result) {
-    bus_status = CanBusStatus::ACTIVE;
-    receive_status = CanReceiveStatus::RECEIVING;
-  } else {
-    receive_task.reset();
-    receive_action.reset();
+    result = maybe_start_alert_task(alert_handlers);
   }
 
+  if (CanBusOpStatus::SUCCEEDED == result) {
+    set_receive_status(CanReceiveStatus::RECEIVING);
+  }
+
+  return result;
+}
+
+CanBusOpStatus CanBus::really_stop(void) {
+  CanBusOpStatus result = CanBusMaps::INSTANCE.to_op_status(can_api.stop());
+  if (CanBusOpStatus::SUCCEEDED == result) {
+    result = drain_input_queue();
+  }
+  if (CanBusOpStatus::SUCCEEDED == result) {
+    shut_down_receive_task();
+    result = wait_for_bus_shutdown();
+  }
+  if (CanBusOpStatus::SUCCEEDED == result) {
+    set_receive_status(CanReceiveStatus::DOWN);
+  }
   return result;
 }
 
@@ -115,52 +163,101 @@ void CanBus::set_receive_status(CanReceiveStatus receive_status)  {
 }
 
 CanBusOpStatus CanBus::start_bus(void) {
-  return can_bus_maps.to_op_status(twai_start_v2(h_twai));
-
+  CanBusOpStatus status =
+      CanBusMaps::INSTANCE.to_op_status(can_api.start());
+  return status;
 }
 
 CanBusOpStatus CanBus::start_receive_task(CanPayloadHandler& handler) {
+  Serial.println("Starting the receive task.");
   CanBusOpStatus result = CanBusOpStatus::FAILED;
   receive_action = std::make_unique<CanPayloadAction>(
       *this, handler);
   receive_task = std::make_unique<TaskWithActionH>(
       "can-receive",
-      20,
+      19,
       receive_action.get(),
-      4096);
+      8192);
   if (receive_task->start()) {
     result = CanBusOpStatus::SUCCEEDED;
-  } else {
-    shut_down_receive_task();
+    Serial.println("Start task is running \\o/");
+  }
+  if (CanBusOpStatus::SUCCEEDED != result) {
+    receive_task.reset();
+    receive_action.reset();
+    Serial.println("Receive task startup failed ;-(");
   }
   return result;
 }
 
-CanBus::CanBus() :
-    h_twai(NULL),
-    bus_status(CanBusStatus::DOWN),
-    receive_status(CanReceiveStatus::DOWN) {
-  status_mutex.begin();
+CanBusOpStatus CanBus::really_transmit(
+    const twai_message_t& message,
+    int timeout_ms) {
+  Serial.printf(
+      "In really_transmit, extd: %d, self: %d, flags: 0X%x, id: %d, length: %d.\n",
+      static_cast<int>(message.extd),
+      static_cast<int>(message.self),
+      static_cast<int>(message.flags),
+      static_cast<int>(message.identifier),
+      static_cast<int>(message.data_length_code));
+  CanBusOpStatus status = CanBusMaps::INSTANCE.to_op_status(
+    can_api.send(message, timeout_ms));
+  Serial.println("Message sent.");
+  return status;
 }
 
-CanBus::~CanBus() {
+CanBusOpStatus CanBus::wait_for_bus_shutdown(void) {
+  esp_err_t esp_status;
+  twai_status_info_t status_info;
+  bool keep_waiting = false;
+  do {
+    memset(&status_info, 0, sizeof(status_info));
+    esp_status = can_api.read_status_info(status_info);
+    keep_waiting =
+        ESP_OK == esp_status
+        && TWAI_STATE_STOPPED != status_info.state;
+    if (keep_waiting) {
+      vTaskDelay(pdMS_TO_TICKS(5));
+    }
+  } while (keep_waiting);
+  return CanBusMaps::INSTANCE.to_op_status(esp_status);
 }
 
-CanBusInitStatus CanBus::init(
-    int bus_number,
+CanBus::CanBus(
     uint8_t receive_pin,
     uint8_t transmit_pin,
     CanBusSpeed bits_per_second,
-    CanBusMode mode) {
-  return bus_status == CanBusStatus::DOWN
-      ? really_init(
-          bus_number, receive_pin, transmit_pin, bits_per_second, mode)
+    CanBusMode mode,
+    CanBusNumber bus_number) :
+        can_api(
+            receive_pin,
+            transmit_pin,
+            bits_per_second,
+            static_cast<uint8_t>(bus_number),
+            mode),
+        receive_status(CanReceiveStatus::DOWN) {
+  status_mutex.begin();
+}
+
+CanBus::~CanBus(void) {
+}
+
+
+ void CanBus::begin(void) {
+   CanApi::begin();
+ }
+
+CanBusInitStatus CanBus::init(void) {
+  Serial.printf("At CanBus::init(), bus status is %s,\n",
+      CanBusMaps::INSTANCE.to_c_string(can_api.bus_status()));
+  return can_api.bus_status() == CanBusStatus::DOWN
+      ? really_init()
       : CanBusInitStatus::ALREADY_UP;
 }
 
 CanBusDeinitStatus CanBus::deinit(void) {
   CanBusDeinitStatus status = CanBusDeinitStatus::NOT_STOPPED;
-  switch (bus_status) {
+  switch (can_api.bus_status()) {
     case CanBusStatus::STOPPED:
       status = really_deinit();
       break;
@@ -178,33 +275,37 @@ CanReceiveStatus CanBus::get_receive_status(void) {
   return receive_status;
 }
 
+CanBusOpStatus CanBus::recover_if_bus_off(void) {
+  return CanBusMaps::INSTANCE.to_op_status(can_api.recover_if_bus_off());
+}
 
-
-CanBusOpStatus CanBus::start(CanPayloadHandler& handler) {
+CanBusOpStatus CanBus::start(
+    CanPayloadHandler& payload_handler,
+    CanAlertHandlers& alert_handlers) {
   CanBusOpStatus result = CanBusOpStatus::INVALID_STATE;
-  if (bus_status == CanBusStatus::STOPPED) {
-    result = really_start(handler);
+  if (can_api.bus_status() == CanBusStatus::STOPPED) {
+    result = really_start(payload_handler, alert_handlers);
   }
   return result;
 }
 
 CanBusOpStatus CanBus::stop(void) {
   CanBusOpStatus result = CanBusOpStatus::INVALID_STATE;
-  if (CanReceiveStatus::DOWN != receive_status) {
-    result = can_bus_maps.to_op_status(twai_stop_v2(h_twai));
-    if (CanBusOpStatus::SUCCEEDED == result) {
-      twai_status_info_t bus_status_info;
-      memset(&bus_status, 0, sizeof(bus_status));
-      do {
-        twai_get_status_info_v2(h_twai, &bus_status_info);
-        if (0 < bus_status_info.msgs_to_rx) {
-          vTaskDelay(pdMS_TO_TICKS(2));
-        }
-      } while (0 < bus_status_info.msgs_to_rx);
-      shut_down_receive_task();
-      receive_status = CanReceiveStatus::DOWN;
-      bus_status = CanBusStatus::STOPPED;
-    }
+  switch (can_api.bus_status()) {
+    case CanBusStatus::STOPPED:  // Already stopped, nothing to do
+      result = CanBusOpStatus::SUCCEEDED;
+      break;
+    case CanBusStatus::ACTIVE:  // Running, shut the bus down
+      result = really_stop();
+      break;
+    default:  // Cannot stop in the current state. Result code already set.
+      break;
   }
   return result;
+}
+
+CanBusOpStatus CanBus::transmit(const CanPayload& payload, int timeout_ms) {
+  return can_api.bus_status() == CanBusStatus::ACTIVE
+      ? really_transmit(payload.as_twai_message(), timeout_ms)
+      : CanBusOpStatus::INVALID_STATE;
 }

@@ -18,16 +18,30 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "CanPayload.h"
+#import "CanPayload.h"
 
-CanPayload::CanPayload() :
-    id(0),
-    size(0) {
-  memset(data, 0, sizeof(data));
+CanPayload::CanPayload() // :
+//    id(0),
+//    size(0)
+    {
+//  memset(data, 0, sizeof(data));
+  memset(&twai_message, 0, sizeof(twai_message));
 }
 
-CanPayload::CanPayload(const twai_message_t& twai_message) :
-  id(twai_message.identifier),
-  size(twai_message.data_length_code) {
-    memcpy(data, twai_message.data, size);
+CanPayload::CanPayload(const twai_message_t& twai_message) // :
+//  id(twai_message.identifier),
+//  size(twai_message.data_length_code)
+  {
+//    memcpy(data, twai_message.data, size);
+    memcpy(&(this->twai_message), &twai_message, sizeof(twai_message_t));
+}
+
+CanPayload& CanPayload::set_id(int id) {
+//  this->id = id;
+  twai_message.identifier = id;
+  twai_message.extd =
+      twai_message.identifier & 0b11111111111111111100000000000
+      ? 1
+      : 0;
+  return *this;
 }

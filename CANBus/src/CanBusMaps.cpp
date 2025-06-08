@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#include "CanBusMaps.h"
+#import "CanBusMaps.h"
 
 CanBusMaps::CanBusMaps() {
   bus_mode_map[CanBusMode::LURK] = TWAI_MODE_LISTEN_ONLY;
@@ -51,31 +51,59 @@ CanBusMaps::CanBusMaps() {
   op_status_map[ESP_ERR_NOT_SUPPORTED] = CanBusOpStatus::CANNOT_SEND;
   op_status_map[ESP_FAIL] = CanBusOpStatus::TRANSMIT_FAILED;
 
+  op_status_to_string[CanBusOpStatus::SUCCEEDED] = "SUCCEEDED";
+  op_status_to_string[CanBusOpStatus::UNAVAILABLE] = "UNAVAILABLE";
+  op_status_to_string[CanBusOpStatus::INVALID_ARGUMENT] = "INVALID_ARGUMENT";
+  op_status_to_string[CanBusOpStatus::TIMEOUT] = "TIMEOUT";
+  op_status_to_string[CanBusOpStatus::TRANSMIT_FAILED] = "TRANSMIT_FAILED";
+  op_status_to_string[CanBusOpStatus::CANNOT_SEND] = "CANNOT_SEND";
+  op_status_to_string[CanBusOpStatus::MEMORY_FULL] = "MEMORY_FULL";
+  op_status_to_string[CanBusOpStatus::INVALID_STATE] = "INVALID_STATE";
+  op_status_to_string[CanBusOpStatus::FAILED] = "FAILED";
+  op_status_to_string[CanBusOpStatus::UNKNOWN] = "UNKNOWN";
+
   twai_state_map[TWAI_STATE_STOPPED] = "TWAI_STATE_STOPPED";
   twai_state_map[TWAI_STATE_RUNNING] = "TWAI_STATE_RUNNING";
   twai_state_map[TWAI_STATE_BUS_OFF] = "TWAI_STATE_BUS_OFF";
   twai_state_map[TWAI_STATE_RECOVERING] = "TWAI_STATE_RECOVERING";
+
+  bus_status_to_string[CanBusStatus::DOWN] = "DOWN";
+  bus_status_to_string[CanBusStatus::STOPPED] = "STOPPED";
+  bus_status_to_string[CanBusStatus::ACTIVE] = "ACTIVE";
+  bus_status_to_string[CanBusStatus::ERROR_HALT] = "ERROR_HALT";
+  bus_status_to_string[CanBusStatus::RECOVERING] = "RECOVERING";
+  bus_status_to_string[CanBusStatus::CORRUPT] = "CORRUPT";
 }
 
 CanBusMaps::~CanBusMaps() {
 }
 
-const char *CanBusMaps::to_c_string(esp_err_t error_code) {
-  auto iter = error_code_name.find(error_code);
+const CanBusMaps CanBusMaps::INSTANCE;
+
+const char *CanBusMaps::to_c_string(CanBusStatus status) const {
+  const auto iter = bus_status_to_string.find(status);
+  return iter == bus_status_to_string.end()
+      ? "Unknown bus status"
+      : iter->second;
+}
+
+const char *CanBusMaps::to_c_string(esp_err_t error_code) const {
+  const auto iter = error_code_name.find(error_code);
   return iter == error_code_name.end()
       ? "Unknown error code"
       : iter->second;
 }
 
-CanBusOpStatus CanBusMaps::to_op_status(esp_err_t error_code) {
-  auto iter = op_status_map.find(error_code);
+CanBusOpStatus CanBusMaps::to_op_status(esp_err_t error_code) const {
+  const auto iter =
+      op_status_map.find(error_code);
   return iter == op_status_map.end()
       ? CanBusOpStatus::UNKNOWN
       : iter->second;
 }
 
-const char *CanBusMaps::to_c_string(twai_state_t state) {
-  auto iter = twai_state_map.find(state);
+const char *CanBusMaps::to_c_string(twai_state_t state) const {
+  const auto iter = twai_state_map.find(state);
   return iter == twai_state_map.end()
       ? "UNKNOWN BUS STATE"
       : iter->second;
