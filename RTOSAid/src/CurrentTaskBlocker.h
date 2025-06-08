@@ -9,9 +9,6 @@
  * the native notification API when running within a TaskWithAction or
  * TasksWithActionH.
  *
- * The layout of fields on a web page. Having this class saves memory by
- * allowing multiple web pages to use the same set of fields.
- *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
  *
@@ -132,7 +129,7 @@ public:
    * Wait for notification or until the maximum possible delay expires.
    * Note that there is no way to distinguish between the two. Since the
    * longest possible delay is 4,294,967,295 microseconds, a little over
-   * 49 days,, this should not present a problem.
+   * 49 days, this should not present a problem.
    */
   void wait(void);
 };
