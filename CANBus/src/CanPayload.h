@@ -94,7 +94,7 @@ public:
    * data              Payload data. Cannot be NULL and must contain
    *                   at least size bytes.
    */
-  CanPayload& set_data(size_t size, const uint8_t *data) {
+  CanPayload& set_data(size_t size, const void *data) {
     memcpy(twai_message.data, data, twai_message.data_length_code = size);
     return *this;
   }
