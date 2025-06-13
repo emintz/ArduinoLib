@@ -80,7 +80,8 @@ public:
    * name            Timer name, a NULL-terminated string containing the
    *                 timer's name for display in debug and error messages.
    * target_function A VoidFunction subclass containing the code to run when
-   *                 the timer fires.
+   *                 the timer fires. Note: the function is invoked from an
+   *                 ISR. Keep it short and do NOT block.
    */
   MicrosecondTimer(
       const char *timer_name,
