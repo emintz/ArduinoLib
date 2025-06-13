@@ -165,6 +165,7 @@ void CanBus::set_receive_status(CanReceiveStatus receive_status)  {
 CanBusOpStatus CanBus::start_bus(void) {
   CanBusOpStatus status =
       CanBusMaps::INSTANCE.to_op_status(can_api.start());
+  Serial.printf("CanBus::start_bus returns: %s.\n", CanBusMaps::INSTANCE.to_c_string(status));
   return status;
 }
 
@@ -185,24 +186,26 @@ CanBusOpStatus CanBus::start_receive_task(CanPayloadHandler& handler) {
   if (CanBusOpStatus::SUCCEEDED != result) {
     receive_task.reset();
     receive_action.reset();
-    Serial.println("Receive task startup failed ;-(");
+    Serial.println("Receive task startup failed :-(");
   }
+  Serial.printf("CanBus::start_receive_task returns: %s.\n",
+      CanBusMaps::INSTANCE.to_c_string(result));
   return result;
 }
 
 CanBusOpStatus CanBus::really_transmit(
     const twai_message_t& message,
     int timeout_ms) {
-  Serial.printf(
-      "In really_transmit, extd: %d, self: %d, flags: 0X%x, id: %d, length: %d.\n",
-      static_cast<int>(message.extd),
-      static_cast<int>(message.self),
-      static_cast<int>(message.flags),
-      static_cast<int>(message.identifier),
-      static_cast<int>(message.data_length_code));
+//  Serial.printf(
+//      "In really_transmit, extd: %d, self: %d, flags: 0X%x, id: %d, length: %d.\n",
+//      static_cast<int>(message.extd),
+//      static_cast<int>(message.self),
+//      static_cast<int>(message.flags),
+//      static_cast<int>(message.identifier),
+//      static_cast<int>(message.data_length_code));
   CanBusOpStatus status = CanBusMaps::INSTANCE.to_op_status(
     can_api.send(message, timeout_ms));
-  Serial.println("Message sent.");
+//  Serial.println("Message sent.");
   return status;
 }
 

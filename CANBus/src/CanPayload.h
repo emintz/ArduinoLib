@@ -47,8 +47,22 @@ class CanPayload final{
   }
 
 public:
+  /**
+   * Constructor that creates an empty instance.
+   */
   CanPayload();
 
+  /*
+   * Constructor that creates an instance containing the specified
+   * message
+   *
+   * Parameters:
+   *
+   * Name              Contents
+   * ----------------- ------------------------------------------------------
+   * twai_messasge     The incoming messsage to place in the newly
+   *                   constructed instance.
+   */
   CanPayload(const twai_message_t& twai_message);
 
   /*
@@ -63,6 +77,8 @@ public:
    *                   available data.
    *
    * Returns: the number of bytes copied.
+   *
+   * TODO(emintz): Replace with memory-safe method.
    */
   size_t copy_payload_to(void *destination) const {
     memcpy(destination, twai_message.data, twai_message.data_length_code);
@@ -81,6 +97,22 @@ public:
    *                   This is not checked.
    */
   CanPayload& set_id(int id);
+
+  /*
+   * Set the message payload. This method is memory-safe.
+   *
+   * Parameters:
+   *
+   * Name              Contents
+   * ----------------- ------------------------------------------------------
+   * data              Payload data. Cannot be NULL and must contain
+   *                   at most TWAI_FRAME_MAX_DLC bytes.
+   */
+  template <typename T> CanPayload& set_data(const T& data) {
+    static_assert(sizeof(T) <= TWAI_FRAME_MAX_DLC, "Data is too big to fit.");
+    memcpy(twai_message.data, &data, twai_message.data_length_code = sizeof(T));
+    return *this;
+  }
 
   /*
    * Set the message payload.
