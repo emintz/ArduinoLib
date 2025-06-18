@@ -50,7 +50,6 @@ WebServerAction::~WebServerAction() {
 
 void WebServerAction::run(void) {
   Serial.println("Starting web server refresh.");
-  bool notified = false;
   while (status() == ServerStatus::State::RUNNING) {
     web_server.handleClient();
     vTaskDelay(1);

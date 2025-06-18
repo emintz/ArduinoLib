@@ -36,8 +36,6 @@ FieldValueSetter::~FieldValueSetter() {
 bool FieldValueSetter::operator() (DataFieldConfig& field_config) {
   String field_id(field_config.get_id().c_str());
   if (web_server.hasArg(field_id)) {
-    const char *value_from_server = web_server.arg(field_id.c_str()).c_str();
-    std::string field_value(value_from_server);
     field_config.set_value(web_server.arg(field_id).c_str());
   } else {
     field_config.set_value("");
