@@ -166,7 +166,7 @@ protected:
   inline Flash32BaseNamespace(
       const char *name) :
         name(name),
-        h_namespace(NULL),
+        h_namespace(0),
         namespace_state(Flash32MemoryState::CLOSED) {
   }
 

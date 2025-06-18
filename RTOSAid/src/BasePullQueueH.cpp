@@ -50,11 +50,12 @@ bool BasePullQueueH::really_pull_message(void *message, TickType_t timeout) {
   return xQueueReceive(queue_handle, message, timeout) == pdTRUE;
 }
 
-bool BasePullQueueH::really_send_message(void *message, TickType_t timeout) {
+bool BasePullQueueH::really_send_message(
+    const void * const message, TickType_t timeout) {
   return xQueueSendToBack(queue_handle, message, timeout) == pdTRUE;
 }
 
-bool BasePullQueueH::really_send_message_from_ISR(void *message) {
+bool BasePullQueueH::really_send_message_from_ISR(const void * const message) {
   BaseType_t higher_priority_task_woken;
   bool result = xQueueSendToBackFromISR(
       queue_handle,
@@ -71,7 +72,7 @@ UBaseType_t BasePullQueueH::available_message_storage(void) const {
 }
 
 bool BasePullQueueH::begin(void) {
-  return queue_handle = xQueueCreate(queue_length, message_size);
+  return (queue_handle = xQueueCreate(queue_length, message_size));
 }
 
 bool BasePullQueueH::valid(void) const {

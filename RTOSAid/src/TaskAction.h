@@ -62,6 +62,10 @@ protected:
    */
   virtual void delay_millis(uint32_t millis);
 
+  inline bool task_status(void) {
+    return containing_task != NULL;
+  }
+
   /**
    * Resumes this task. Should be called when the task has been suspended.
    */

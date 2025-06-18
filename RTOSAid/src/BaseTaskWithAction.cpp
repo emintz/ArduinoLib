@@ -57,7 +57,7 @@ void BaseTaskWithAction::notify(void) {
   xTaskNotify(task_handle, 1, eSetValueWithoutOverwrite);
 }
 
-void IRAM_ATTR BaseTaskWithAction::notify_from_isr(void) {
+void BaseTaskWithAction::notify_from_isr(void) {
   BaseType_t higher_priority_task_woken;
   vTaskNotifyGiveFromISR(task_handle, &higher_priority_task_woken);
   if (higher_priority_task_woken) {

@@ -22,7 +22,7 @@
  */
 
 #include "Flash32.h"
-#import <cstring>
+#include <cstring>
 #include "nvs_flash.h"
 
 HardwareFlash32 Flash32;
@@ -180,7 +180,7 @@ Flash32Status Flash32BaseNamespace::close(void) {
 
     case Flash32MemoryState::OPENED:
       nvs_close(h_namespace);
-      h_namespace = NULL;
+      h_namespace = 0;
       namespace_state = Flash32MemoryState::CLOSED;
       break;
     case Flash32MemoryState::CORRUPTED:
@@ -338,12 +338,12 @@ bool Flash32Iterator::advance(void) {
 
 bool Flash32Iterator::start(void) {
   iterator = NULL;
-  bool status = nvs_entry_find(
+  bool found = nvs_entry_find(
       NVS_DEFAULT_PART_NAME,
       flash32_namespace.get_name(),
       data_type,
 	  &iterator) == ESP_OK;
-  return iterator && load();
+  return found && iterator && load();
 }
 
 bool Flash32Iterator::load(void) {

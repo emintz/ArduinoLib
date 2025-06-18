@@ -19,7 +19,7 @@ public:
   TaskNotifierVoidFunction(BaseTaskWithAction& task);
   virtual ~TaskNotifierVoidFunction();
 
-  virtual void apply(void) override = 0;
+  virtual void apply(void) override;
 };
 
 #endif /* SRC_TASKNOTIFIERVOIDFUNCTION_H_ */

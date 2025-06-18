@@ -53,7 +53,8 @@ enum class GpioChangeType {
  * and setting pullup or pulldown resistors as needed.
  *
  * Be aware that the invoked VoidFunction runs from an ISR, so it runs in
- * interrupt mode.
+ * interrupt mode. Note that the GPIO signal could change at any time,
+ * so designers MUST NOT assume that that GPIO level remains constant.
  */
 class GpioChangeDetector final {
   gpio_num_t gpio_num;

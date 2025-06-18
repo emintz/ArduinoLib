@@ -48,8 +48,8 @@ protected:
       const size_t stack_size);
 
   inline const char *task_name(void) { return name; }
-  inline const UBaseType_t task_priority(void) { return priority; }
-  inline const size_t task_stack_size(void) { return stack_size; }
+  UBaseType_t task_priority(void) { return priority; }
+  size_t task_stack_size(void) { return stack_size; }
   bool set_task_handle(TaskHandle_t task_handle);
 
   /**

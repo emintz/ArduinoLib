@@ -46,11 +46,11 @@ BasePullQueue::~BasePullQueue() {
 }
 
 bool BasePullQueue::begin(void) {
-  return queue_handle = xQueueCreateStatic(
+  return (queue_handle = xQueueCreateStatic(
       queue_length,
       message_size,
       queue_storage,
-      &queue_buffer);
+      &queue_buffer));
 }
 
 UBaseType_t BasePullQueue::available_message_storage(void) const {
@@ -65,16 +65,17 @@ bool BasePullQueue::really_pull_message(void *message, TickType_t timeout) {
   return xQueueReceive(queue_handle, message, timeout) == pdTRUE;
 }
 
-bool BasePullQueue::really_send_message(void *message, TickType_t timeout) {
+bool BasePullQueue::really_send_message(
+    const void * const message, TickType_t timeout) {
   return xQueueSendToBack(queue_handle, message, timeout) == pdTRUE;
 }
 
-bool BasePullQueue::really_send_message_from_ISR(void *message) {
+bool BasePullQueue::really_send_message_from_ISR(const void * const message) {
   BaseType_t higher_priority_task_woken;
-  bool result = xQueueSendToBackFromISR(
+  bool result = (xQueueSendToBackFromISR(
       queue_handle,
       message,
-      &higher_priority_task_woken);
+      &higher_priority_task_woken));
   if (higher_priority_task_woken) {
     portYIELD_FROM_ISR();
   }

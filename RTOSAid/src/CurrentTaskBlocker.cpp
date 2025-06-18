@@ -43,7 +43,7 @@ void CurrentTaskBlocker::notify(void) {
   xTaskNotify(h_invoking_task, 1, eSetValueWithoutOverwrite);
 }
 
-void IRAM_ATTR CurrentTaskBlocker::notify_from_isr(void) {
+void CurrentTaskBlocker::notify_from_isr(void) {
   BaseType_t higher_priority_task_woken;
   vTaskNotifyGiveFromISR(h_invoking_task, &higher_priority_task_woken);
   if (higher_priority_task_woken) {

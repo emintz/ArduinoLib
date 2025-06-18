@@ -115,7 +115,7 @@ public:
    * Returns: true if the send succeeds, false otherwise. The call will fail
    * if the queue remains full throughout the wait period.
    */
-  inline bool send_message(T *message) {
+  inline bool send_message(const T *const message) {
     return really_send_message(message);
   }
 
@@ -135,7 +135,7 @@ public:
    * Returns: true if the send succeeds, false otherwise. The call will fail
    * if the queue remains full throughout the wait period.
    */
-  inline bool send_message(T *message, uint32_t max_wait_ms) {
+  inline bool send_message(const T * const message, uint32_t max_wait_ms) {
     return base_send_message(message, pdMS_TO_TICKS(max_wait_ms));
   }
 

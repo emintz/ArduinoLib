@@ -107,7 +107,8 @@ protected:
    * Returns: true if a message was sent within the specified timeout,
    * false otherwise. Send will fail if the queue is full.
    */
-  bool really_send_message(void *message, TickType_t timeout = portMAX_DELAY);
+  bool really_send_message(
+      const void * const message, TickType_t timeout = portMAX_DELAY);
 
   /*
    * Sends a message from an interrupt service routine (ISR) and yields if a
@@ -115,7 +116,7 @@ protected:
    *
    * Returns true if and only if the send succeeded.
    */
-  bool really_send_message_from_ISR(void *message);
+  bool really_send_message_from_ISR(const void * const message);
 
 public:
 
