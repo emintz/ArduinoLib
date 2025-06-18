@@ -24,9 +24,9 @@
 #ifndef LIBRARIES_CANBUS_SRC_CANALERTHANDLERS_H_
 #define LIBRARIES_CANBUS_SRC_CANALERTHANDLERS_H_
 
-#import "Arduino.h"
+#include "Arduino.h"
 
-#import <vector>
+#include <vector>
 
 class CanAlertHandler;
 class CanBus;

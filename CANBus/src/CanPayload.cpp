@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#import "CanPayload.h"
+#include "CanPayload.h"
 
 CanPayload::CanPayload() // :
 //    id(0),

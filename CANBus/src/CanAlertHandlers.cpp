@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#import "CanAlertHandlers.h"
+#include "CanAlertHandlers.h"
 #include "CanAlertHandler.h"
 
 CanAlertHandlers CanAlertHandlers::EMPTY;

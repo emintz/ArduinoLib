@@ -18,12 +18,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#import "CanPayloadAction.h"
+#include "CanPayloadAction.h"
 
-#import "CanBus.h"
-#import "CanBusMaps.h"
-#import "CanPayloadHandler.h"
-#import "MutexLock.h"
+#include "CanBus.h"
+#include "CanBusMaps.h"
+#include "CanPayloadHandler.h"
+#include "MutexLock.h"
 
 CanPayloadAction::State CanPayloadAction::get_state(void) {
   MutexLock lock(state_access);

@@ -31,16 +31,16 @@
 #ifndef CANAPI_H_
 #define CANAPI_H_
 
-#import "CanEnumerations.h"
+#include "CanEnumerations.h"
 
-#import "driver/twai.h"
+#include "driver/twai.h"
 
 class CanApi {
 private:
   const uint8_t rx_pin;
   const uint8_t tx_pin;
-  const uint8_t bus;
   const CanBusSpeed speed;
+  const uint8_t bus;
   twai_mode_t mode;
 
   twai_handle_t h_twai;  // To support V2 when come.

@@ -18,7 +18,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#import "CanBusMaps.h"
+#include "CanBusMaps.h"
 
 CanBusMaps::CanBusMaps() {
   bus_mode_map[CanBusMode::LURK] = TWAI_MODE_LISTEN_ONLY;

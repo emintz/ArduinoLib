@@ -18,11 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#import "Arduino.h"
-#import "CanApi.h"
-#import "CanBusMaps.h"
+#include "Arduino.h"
+#include "CanApi.h"
+#include "CanBusMaps.h"
 
-#import "driver/gpio.h"
+#include "driver/gpio.h"
 
 CanApi::CanApi(
     uint8_t rx_pin,

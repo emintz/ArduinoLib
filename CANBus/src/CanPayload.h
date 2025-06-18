@@ -24,9 +24,9 @@
 #ifndef LIBRARIES_CANBUS_SRC_CANPAYLOAD_H_
 #define LIBRARIES_CANBUS_SRC_CANPAYLOAD_H_
 
-#import "Arduino.h"
+#include "Arduino.h"
 
-#import "driver/twai.h"
+#include "driver/twai.h"
 
 class CanBus;
 class CanPayloadAction;

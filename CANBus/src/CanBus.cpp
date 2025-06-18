@@ -18,14 +18,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#import "CanBus.h"
+#include "CanBus.h"
 
-#import "Arduino.h"
-#import "CanBusMaps.h"
-#import "CanPayload.h"
-#import "CanPayloadHandler.h"
+#include "Arduino.h"
+#include "CanBusMaps.h"
+#include "CanPayload.h"
+#include "CanPayloadHandler.h"
 
-#import "MutexLock.h"
+#include "MutexLock.h"
 
 static esp_err_t print_status(esp_err_t status) {
   Serial.printf("Status = %d (%s).\n",
@@ -63,6 +63,7 @@ CanBusOpStatus CanBus::drain_input_queue(void) {
       vTaskDelay(pdMS_TO_TICKS(5));
     }
   } while (result == CanBusOpStatus::SUCCEEDED && 0 < status_info.msgs_to_rx);
+  return result;
 }
 
 CanBusOpStatus CanBus::maybe_start_alert_task(
