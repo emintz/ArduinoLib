@@ -25,7 +25,7 @@
 #include "GpioDebouncer.h"
 
 GpioDebouncerAction::GpioDebouncerAction(
-    char * timer_name,
+    const char * timer_name,
     uint64_t debounce_delay_micros,
     VoidFunction *function_to_call) :
       debounce_timer(timer_name, function_to_call),
@@ -62,9 +62,9 @@ void GoioDebounceFunction::apply(void) {
 GpioDebouncer::GpioDebouncer(
     uint8_t pin_no,
     uint32_t debounce_delay_micros,
-    char *task_name,
+    const char *task_name,
     uint16_t priority,
-    char *timer_name,
+    const char *timer_name,
     VoidFunction *function_to_call) :
       action(
           timer_name,

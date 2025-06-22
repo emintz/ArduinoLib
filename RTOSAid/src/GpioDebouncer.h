@@ -92,7 +92,7 @@ class GpioDebouncerAction final : public TaskAction {
    *                             chatter settles
    */
   GpioDebouncerAction(
-      char * timer_name,
+      const char * timer_name,
       uint64_t debounce_delay_micros,
       VoidFunction *function_to_call);
 
@@ -176,9 +176,9 @@ public:
   GpioDebouncer(
       uint8_t pin_no,
       uint32_t debounce_delay_micros,
-      char *task_name,
+      const char *task_name,
       uint16_t priority,
-      char *timer_name,
+      const char *timer_name,
       VoidFunction *function_to_call);
   virtual ~GpioDebouncer();
 
