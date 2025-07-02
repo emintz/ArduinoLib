@@ -144,6 +144,14 @@ public:
   static void begin(void);
 
   /*
+   * Returns a reference to the bound CanApi. Intended to support
+   * event handling.
+   */
+  CanApi& api(void) {
+    return can_api;
+  }
+
+  /*
    * Initializes the CAN bus driver. Has no effect if the bus is already
    * initialized. If this method succeeds, the bus must be started before
    * it can be used.

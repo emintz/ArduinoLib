@@ -75,7 +75,7 @@ public:
    * Name              Contents
    * ----------------- ------------------------------------------------------
    * alerts            Bit mask containing 1s for the alerts that the
-   *                   handler responds to. SHOUD be non-zero. If alerts
+   *                   handler responds to. SHOULD be non-zero. If alerts
    *                   is zero, the handler will never be invoked, so
    *                   the handler will not be added to the list and
    *                   the request is silently ignored.
