@@ -4,6 +4,9 @@
  *  Created on: May 24, 2025
  *      Author: Eric Mintz
  *
+ * Copyright (C) 2025 Eric Mintz
+ * All Rights Reserved
+ *
  * Controls the ESP32 CAN, its Controller Area Network bus. Note
  * that the library does not provide a default instance.
  *

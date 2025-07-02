@@ -7,6 +7,9 @@
  * Holds a vector of alert handlers and makes them available to
  * the alert processor.
  *
+ * Copyright (C) 2025 Eric Mintz
+ * All Rights Reserved
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
  * published by the Free Software Foundation, either version 3 of the
