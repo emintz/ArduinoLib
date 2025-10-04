@@ -137,6 +137,21 @@ public:
   bool begin(void);
 
   /*
+   * Retrieve this queue's FreeRTOS handle. Note that the returned
+   * handle will only be valid if the queue is running, i.e. if
+   * begin() has run successfully.
+   *
+   * NOTE: production code SHOULD NOT references the queue handle
+   *       directly. This method is provided ONLY to aid migrating
+   *       from the low-level Queue API to this class.
+   *
+   * Returns: the queue handle, as described above.
+   */
+  QueueHandle_t handle(void) const {
+	  return queue_handle;
+  }
+
+  /*
    * Returns true if the queue is valid and can be used or false otherwise.
    * Note that this method will return false if begin() has not been invoked,
    * and that the user is responsible for guarding against race conditions.
