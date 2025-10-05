@@ -131,12 +131,13 @@ public:
    * Name        Contents
    * ----------  --------------------------------------------------------------
    * message     The message to send.
+   * max_wait_ms Send timeout in milliseconds.
    *
    * Returns: true if the send succeeds, false otherwise. The call will fail
    * if the queue remains full throughout the wait period.
    */
   inline bool send_message(const T * const message, uint32_t max_wait_ms) {
-    return base_send_message(message, pdMS_TO_TICKS(max_wait_ms));
+    return really_send_message(message, pdMS_TO_TICKS(max_wait_ms));
   }
 
   /**
@@ -156,7 +157,7 @@ public:
    * if the queue remains full throughout the wait period.
    */
   inline bool send_message_from_ISR(T *message) {
-    return base_send_message_from_ISR(message);
+    return really_send_message_from_ISR(message);
   }
 };
 
