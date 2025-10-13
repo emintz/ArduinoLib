@@ -78,7 +78,7 @@ public:
    * locking. Note that valid will returns false until an invocation of
    * begin() succeeds.
    */
-  inline bool valid(void) {
+  inline bool valid(void) const {
     return semaphore_handle != NULL;
   }
 

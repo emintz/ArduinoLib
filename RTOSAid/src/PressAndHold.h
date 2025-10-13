@@ -38,7 +38,7 @@ class PressAndHold {
   enum class Event {
     PRESSED = 0,
     RELEASED = 1,
-    EVENT_COUNT = 3,
+    EVENT_COUNT = 2,
   };
 
   enum class State {
