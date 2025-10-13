@@ -76,6 +76,7 @@ bool OneShotTimerH::start_ticks_from_isr(TickType_t timeout_ticks) {
   if (higher_priority_task_woken) {
     portYIELD_FROM_ISR();
   }
+  return result;
 }
 
 bool OneShotTimerH::stop_from_isr(void) {
