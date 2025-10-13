@@ -2,7 +2,7 @@
 /sloeber.ino.cpp
 /RTOSAid.ino
 /install.sh
-**/*.ino
+/*.ino
 **/*.ino.cpp
 .cproject
 .project
