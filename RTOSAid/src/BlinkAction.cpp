@@ -63,10 +63,10 @@ void BlinkAction::blink_on(
   this->on_time_ms = on_time_ms;
   this->off_time_ms = off_time_ms;
   this->inter_group_wait_ms = inter_group_wait_ms;
-  TaskAction::resume();
+  resume();
 }
 
 void BlinkAction::blink_off(void) {
-  TaskAction::suspend();
+  suspend();
   digitalWrite(led_pin, LOW);
 }

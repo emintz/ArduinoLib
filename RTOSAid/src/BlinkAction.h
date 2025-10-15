@@ -64,10 +64,38 @@ public:
    * Runs the blink task. Note that the LED will start
    * blinking as configured at construction.
    */
-  virtual void run(void);
+  virtual void run(void) override;
 
-  virtual void blink_off(void);
+  /**
+   * Turns the blink off.
+   *
+   * Note: this method suspends the containing task. Since another task
+   *       (presumably) invokes it, it will continue running so the call
+   *       will return.
+   */
+  void blink_off(void);
 
+  /**
+   * Resumes blinking the previously configured pattern
+   */
+  void blink_on(void) {
+    resume();
+  }
+
+  /**
+   * Blinks the specified pattern.
+   *
+   * Parameters            Contents
+   * --------------------- ------------------------------------------------
+   * led_pin               Powers the LED to blink
+   * number_of_flashes     The number of times to flash.
+   * on_time_ms            How long the output pin (and by extension the LED)
+   *                       stays HIGH (on) in milliseconds.
+   * off_time_ms           How long the output pin stays LOW (off) in
+   *                       milliseconds.
+   * inter_group_wait_ms   The wait time between between flash groups in
+   *                       milliseconds
+   */
   void blink_on(
       uint16_t number_of_flashes,
       uint16_t on_time_ms,
