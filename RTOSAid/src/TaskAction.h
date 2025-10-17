@@ -62,9 +62,18 @@ protected:
    */
   virtual void delay_millis(uint32_t millis);
 
-  inline bool task_status(void) {
-    return containing_task != NULL;
-  }
+  /**
+   * Notify the task from application code. This will resume the task if it is
+   * waiting for a notification. Does nothing if the task has a pending
+   * notification.
+   */
+  void notify();
+
+  /**
+   * Notify the task from an interrupt service routine (ISR). Application code
+   * must invoke notify() instead.
+   */
+  void IRAM_ATTR notify_from_isr();
 
   /**
    * Resumes this task. Should be called when the task has been suspended.
@@ -90,6 +99,14 @@ protected:
    * the containing task's or resume() function or this->resume().
    */
   virtual void suspend(void);
+
+  /**
+   * Returns: true if the action has been started, false
+   *          otherwise.
+   */
+  inline bool task_status(void) {
+    return containing_task != NULL;
+  }
 
   /**
    * Suspend the task until some other task sends a notification or until

@@ -32,6 +32,14 @@ TaskAction::TaskAction() :
 TaskAction::~TaskAction() {
 }
 
+void TaskAction::notify() {
+  containing_task->notify();
+}
+
+void TaskAction::notify_from_isr() {
+  return containing_task->notify_from_isr();
+}
+
 void TaskAction::delay_millis(uint32_t millis) {
   containing_task->delay_millis(millis);
 }
