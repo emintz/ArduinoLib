@@ -41,6 +41,7 @@
  *
  * To implement a watchdog timer, start a one-shot timer and reset it
  * by invoking start_XXX. The timer will fire if the time between
+ *
  * start_XXX invocatations exceeds the timeout.
  *
  * Note: Many public FreeRTOS timer API functions send commands to the
