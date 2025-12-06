@@ -39,6 +39,10 @@
  * A running timer can be stopped before it expires, in which case it
  * does NOT invoke its action.
  *
+ * To implement a watchdog timer, start a one-shot timer and reset it
+ * by invoking start_XXX. The timer will fire if the time between
+ * start_XXX invocatations exceeds the timeout.
+ *
  * Note: Many public FreeRTOS timer API functions send commands to the
  *       timer service via the timer command queue, a private queue
  *       that application code cannot access. Like all queues, it has
@@ -132,11 +136,11 @@ public:
     return name_;
   }
 
-  bool start_ticks_from_isr(TickType_t timout_ticks);
-
   /**
    * Start the timer with the specified countdown time in milliseconds.
    * Wait the specified time for the timer queue to accept the request.
+   * Invoke this method ONLY from application code. Interrupt service
+   * routines MUST invoke start_ticks_from_isr() instead;
    *
    * Parameters:
    *
@@ -154,8 +158,9 @@ public:
   }
 
   /**
-   * Start the timer with the specified timeout in ticks. Wait the default
-   * time for the timer command queue to accept the request.
+   * Start the timer with the specified timeout in ticks and start it. Wait
+   * the default time for the timer command queue to accept the request.
+   * Interrupt service routines MUST invoke start_ticks_from_isr() instead;
    *
    * Parameters:
    *
@@ -170,7 +175,9 @@ public:
   }
 
   /**
-   * Start the timer with the specified timeout in ticks.
+   * Change the timer period (i.e. timeout) to the specified timeout in ticks
+   * and start it. Wait the specified time for the timer to accept the request.
+   * Interrupt service routines MUST invoke start_ticks_from_isr() instead;
    *
    * Parameters:
    *
@@ -185,9 +192,38 @@ public:
   bool start_ticks(
       TickType_t timeout_ticks, TickType_t wait_time);
 
+
+  /**
+   * Start the timer with the specified timeout in ticks. Wait the default
+   * time for the timer command queue to accept the request. Interrupt service
+   * routines MUST invoke start_ticks_from_isr() instead;
+   *
+   * Parameters:
+   *
+   * Name:                       Contents
+   * --------------------------- ----------------------------------------------
+   * timeout_ticks               The expiration time in ticks
+   *
+   * Return: true on success, false on failure.
+   */
   bool start_ticks(TickType_t timeout_ticks) {
     return start_ticks(timeout_ticks, default_timeout_);
   }
+
+  /**
+   * Start the timer with the specified timeout in ticks. Since interrupt
+   * service routines cannot block, the call fails if the request cannot
+   * be posted.
+   *
+   * Parameters:
+   *
+   * Name:                       Contents
+   * --------------------------- ----------------------------------------------
+   * timeout_ticks               The expiration time in ticks
+   *
+   * Return: true on success, false on failure.
+   */
+  bool start_ticks_from_isr(TickType_t timout_ticks);
 
   /**
    * Stop this timer if it is running. The ESP32 API documentation states that
