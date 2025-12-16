@@ -83,12 +83,14 @@ Configurator& Configurator::add_field(
   return *this;
 }
 
-bool Configurator::run(void) {
+bool Configurator::run(
+    WebServer& web_server,
+    const char *landing_page) {
   bool status = false;
   if (nvs_start()) {
     ServerStatus server_status;
     std::map<std::string, std::unique_ptr<WebPage>> web_pages;
-    web_pages["/"] = std::make_unique<DataEntryPage>(
+    web_pages[landing_page] = std::make_unique<DataEntryPage>(
         server_status,
         eeprom,
         layout,
@@ -106,7 +108,6 @@ bool Configurator::run(void) {
     CurrentTaskBlocker blocker;
     PageBundleHandler *handler =
         new PageBundleHandler(server_status, layout, web_pages);
-    WebServer web_server;
     web_server.addHandler(handler);
     WebServerAction action(web_server, server_status, blocker);
     TaskWithActionH web_server_refresh_task(

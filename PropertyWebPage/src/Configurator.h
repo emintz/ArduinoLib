@@ -28,6 +28,7 @@
 #include "Flash32.h"
 
 class DataTypeCharacteristics;
+class WebServer;
 
 class Configurator {
   const char *name;
@@ -102,7 +103,9 @@ public:
    *
    * Returns: true if and only if the operation succeeds.
    */
-  bool run(void);
+  bool run(
+    WebServer& web_server,
+    const char *landing_page = "/");
 };
 
 #endif /* CONFIGURATOR_H_ */
