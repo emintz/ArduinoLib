@@ -24,7 +24,8 @@
 #include "ServerStatus.h"
 
 ServerStatus::ServerStatus() :
-  state(State::RUNNING){
+  state(State::RUNNING),
+  lock(portMUX_INITIALIZER_UNLOCKED) {
 }
 
 ServerStatus::~ServerStatus() {

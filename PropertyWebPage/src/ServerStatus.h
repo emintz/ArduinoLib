@@ -28,6 +28,8 @@
 #ifndef SERVERSTATUS_H_
 #define SERVERSTATUS_H_
 
+#include <freertos/FreeRTOS.h>
+
 class ServerStatus {
 public:
   enum class State {
@@ -37,20 +39,33 @@ public:
   };
 private:
   State state;
+  portMUX_TYPE lock;
 public:
   ServerStatus();
+  ServerStatus(ServerStatus&) = delete;
+  ServerStatus(const ServerStatus&) = delete;
+  ServerStatus& operator=(ServerStatus&) = delete;
+  const ServerStatus& operator=(const ServerStatus&) = delete;
   virtual ~ServerStatus();
 
-  State operator() (void) const {
-    return state;
+  State operator() (void) {
+    State current_state;
+    portENTER_CRITICAL(&lock);
+    current_state = state;
+    portEXIT_CRITICAL(&lock);
+    return current_state;
   }
 
   void failure(void) {
+    portENTER_CRITICAL(&lock);
     state = State::FAILURE;
+    portEXIT_CRITICAL(&lock);
   }
 
   void success(void) {
+    portENTER_CRITICAL(&lock);
     state = State::SUCCESS;
+    portEXIT_CRITICAL(&lock);
   }
 };
 
