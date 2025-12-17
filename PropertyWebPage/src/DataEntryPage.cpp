@@ -27,13 +27,30 @@
 #include "Flash32.h"
 #include "PersistStatus.h"
 
+#include <Arduino.h>
+
 static std::string data_entry_page_style(
-    "    <style>\n"
-    "        form  { display: table;      }\n"
-    "        p     { display: table-row;  }\n"
-    "        label { display: table-cell; }\n"
-    "        input { display: table-cell; }\n"
-    "    </style>\n");
+    "  <style>\n"
+    "    form  { display: table;      }\n"
+    "    p     { display: table-row;  }\n"
+    "    label { display: table-cell; }\n"
+    "    input { display: table-cell; }\n"
+    "  </style>\n");
+
+static const char *cancel_form_and_buttons =
+    "  <br/>\n"
+    "  <form id='cancel-update' name='cancel-update' action='/confirmation'>\n"
+    "    <p>\n"
+    "      <input name='confirm_config'\n"
+    "             id='confirm-config' readonly\n"
+    "             accept-charset='utf-8'"
+    "             hidden value='cancel'></input>\n"
+    "    </p>\n"
+    "  </form>\n"
+    "  <br/>\n"
+    "  <button type='submit' style='background-color:MediumSeaGreen' form='save-changes'>Submit</button>\n"
+    "  <button type='submit' style='background-color:Red' form='cancel-update'>Cancel</button>\n"
+    ;
 
 DataEntryPage::DataEntryPage(
     ServerStatus& status,
@@ -67,14 +84,14 @@ std::string DataEntryPage::data_entry_html() {
   page_html.append(page_start);
   append_header(page_html);
   page_html.append(data_entry_page_style)
-      .append("  <form action=\"/submit\">\n");
+      .append("  <form name=\"save-changes\" id=\"save-changes\" accept-charset='utf-8' action=\"/save_changes\">\n");
   {
     DataEntryRowGenerator row_generator(page_html, 4);
     apply(row_generator);
   }
   page_html
-      .append("    <input type=\"submit\" value=\"Submit\" />\n")
       .append("  </form>\n")
+      .append(cancel_form_and_buttons)
       .append(page_end);
   return page_html;
 }
@@ -91,5 +108,7 @@ std::string DataEntryPage::error_html(PersistStatus& errors) {
       .append(format_errors(errors))
       .append("<br>\n")
       .append(page_end);
+  Serial.println("Generated HTML:");
+  Serial.println(html.c_str());
   return html;
 }

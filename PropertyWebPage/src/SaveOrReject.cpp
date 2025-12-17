@@ -47,8 +47,8 @@ static const char *redirect_to_home =
 static const char *update_cancelled =
     "<!DOCTYPE html>\n"
     "<html>\n"
-    "  <h1>Cancelled</h1>\n"
-    "  Cancelled by popular demand.\n"
+    "  <h1>Update Cancelled</h1>\n"
+    "  Configuration unchanged as requested.\n"
     "</html>\n";
 
 SaveOrReject::SaveOrReject(

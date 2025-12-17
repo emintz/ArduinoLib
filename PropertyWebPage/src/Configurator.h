@@ -101,6 +101,17 @@ public:
    * if the invocation fails, but this is not guaranteed. If a
    * failing invocation creates a namespace, it should be empty.
    *
+   * Parameter            Contents
+   * -------------------- -----------------------------------------
+   * web_server           The WebServer that presents the property
+   *                      pages. The WebServer MUST NOT be running.
+   *                      Users may load the server with application-
+   *                      specific web pages before invocation.
+   * landing_page         The path to the first displayed page (where
+   *                      the user sets the property values). Defaults
+   *                      to "/', the root page. Application-specific
+   *                      pages, if supplied, must invoke this page.
+   *
    * Returns: true if and only if the operation succeeds.
    */
   bool run(

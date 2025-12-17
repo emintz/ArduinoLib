@@ -95,7 +95,7 @@ bool Configurator::run(
         eeprom,
         layout,
         "Set Configuration");
-    web_pages["/submit"] = std::make_unique<ConfirmationPage>(
+    web_pages["/save_changes"] = std::make_unique<ConfirmationPage>(
         server_status,
         layout,
         "Confirm configuration");
@@ -105,32 +105,35 @@ bool Configurator::run(
     web_pages["/confirmation"] = std::make_unique<SaveOrReject>(
         server_status, eeprom, layout);
 
-    CurrentTaskBlocker blocker;
-    PageBundleHandler *handler =
-        new PageBundleHandler(server_status, layout, web_pages);
-    web_server.addHandler(handler);
-    WebServerAction action(web_server, server_status, blocker);
+    auto blocker = std::make_unique<CurrentTaskBlocker>();
+    auto handler =
+        std::make_unique<PageBundleHandler>(server_status, layout, web_pages);
+    web_server.addHandler(handler.get());
+    auto action = std::make_unique<WebServerAction>(web_server, server_status, *(blocker.get()));
     TaskWithActionH web_server_refresh_task(
         "Web server refresh",
         12,
-        &action,
+        action.get(),
         8 * 1024);
     web_server.begin(80);
     web_server_refresh_task.start();
     Serial.println("Web server refresh running, waiting for notification.");
-    blocker.wait();
+    blocker->wait();
     vTaskDelay(pdMS_TO_TICKS(1000));
     Serial.println("Stopping web server");
     web_server.stop();
     Serial.println("Web server stopped.");
     web_server_refresh_task.stop();
+    Serial.println("Web server refresh task stopped.");
     nvs_stop();
-    Serial.println("Configuration successful, returning from configurator.");
+    Serial.println(
+        "EEPROM management stopped. "
+        "Waiting for the system to shut down.");
     vTaskDelay(pdMS_TO_TICKS(1000));
-    Serial.println("Pre-return delay completed.");
+    Serial.println("Configuration successful, returning from configurator.");
+    status = true;
   }
 
-  digitalWrite(2, HIGH);
   vTaskDelay(2000);
   return status;
 }
