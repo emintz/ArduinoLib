@@ -55,5 +55,5 @@ void WebServerAction::run(void) {
     vTaskDelay(1);
   }
   blocker.notify();
-  stop();
+  vTaskDelay(portMAX_DELAY);
 }
