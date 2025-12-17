@@ -63,7 +63,7 @@ public:
    *                      construct the "page not found" handler.
    *                      We will pass the not found handler explicitly
    *                      in the next revision.
-   * web_pages            URL path |-> web page.
+   * web_pages            URL path --> web page.
    */
   PageBundleHandler(
       ServerStatus& status,
