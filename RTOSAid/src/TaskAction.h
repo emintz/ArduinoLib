@@ -40,7 +40,7 @@ class BaseTaskWithAction;
 class TaskAction {
   // Permits code in the BaseTaskWithAction class to access fields and
   // functions in this class
-  friend BaseTaskWithAction;
+  friend class BaseTaskWithAction;
 
   BaseTaskWithAction *containing_task;
 
