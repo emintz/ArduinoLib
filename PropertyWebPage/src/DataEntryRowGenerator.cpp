@@ -37,7 +37,11 @@ DataEntryRowGenerator::~DataEntryRowGenerator() {
 
 bool DataEntryRowGenerator::operator() (DataFieldConfig& field_config) {
   Serial.flush();
-  std::string row_html = field_config.as_input_form_row(indent);
+  std::string row_html;
+  row_html
+    .append("<tr>\n")
+    .append(field_config.as_input_form_row(indent))
+    .append("</tr>\n");
   html.append(row_html);
   return true;
 }

@@ -37,14 +37,16 @@ static std::string data_entry_page_style(
     "    input { display: table-cell; }\n"
     "  </style>\n");
 
+// TODO: What prevents hiding this form and its fields? The style?
 static const char *cancel_form_and_buttons =
     "  <br/>\n"
-    "  <form id='cancel-update' name='cancel-update' action='/confirmation'>\n"
+    "  <form id='cancel-update' name='cancel-update' style='background-color:White color:White'  action='/confirmation'>\n"
     "    <p>\n"
     "      <input name='confirm_config'\n"
-    "             id='confirm-config' readonly\n"
-    "             accept-charset='utf-8'"
-    "             hidden value='cancel'></input>\n"
+    "             id='confirm-config' readonly hidden \n"
+    "             style='background-color:White color:White'\n"
+    "             accept-charset='utf-8'\n"
+    "             value='cancel'></input>\n"
     "    </p>\n"
     "  </form>\n"
     "  <br/>\n"
@@ -83,14 +85,17 @@ std::string DataEntryPage::data_entry_html() {
   std::string page_html;
   page_html.append(page_start);
   append_header(page_html);
-  page_html.append(data_entry_page_style)
-      .append("  <form name=\"save-changes\" id=\"save-changes\" accept-charset='utf-8' action=\"/save_changes\">\n");
+  page_html.append(
+          "  <form name=\"save-changes\" id=\"save-changes\" accept-charset='utf-8' action=\"/save_changes\">\n"
+          "    <table>");
   {
     DataEntryRowGenerator row_generator(page_html, 4);
     apply(row_generator);
   }
   page_html
-      .append("  </form>\n")
+      .append(
+          "  </table>\n"
+          "    </form>\n")
       .append(cancel_form_and_buttons)
       .append(page_end);
   return page_html;

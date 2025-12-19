@@ -107,12 +107,8 @@ std::string DataFieldConfig::as_input_form_row(int indent) const {
   std::string html;
   html
       .append(indent, ' ')
-      .append("<p>\n")
       .append(as_label_html(indent + 2))
-      .append(as_input_html(indent + 2))
-      .append("\n")
-      .append(indent, ' ')
-      .append("</p>\n");
+      .append(as_input_html(indent + 2));
   return html;
 }
 
@@ -141,17 +137,24 @@ void DataFieldConfig::init_attributes(const char *type) {
 
 std::string DataFieldConfig::as_label_html(int indent) const {
   std::string html(indent, ' ');
+  html.append("<td style='vertical-align: middle;'>\n");
+  indent += 2;
   html.append("<label ");
   for (auto it = label_attributes.begin(); it != label_attributes.end(); ++it) {
     html.append(it->second).append(" ");
   }
   html.append(">").append(label).append("</label>\n");
+  indent -= 2;
+  html.append(indent, ' ')
+      .append("</td>\n");
   return html;
 }
 
 std::string DataFieldConfig::as_input_html(int indent) const {
   std::string html(indent, ' ');
-  html.append("<input ");
+  html.append("<td style='vertical-align: middle;'>\n")
+      .append(indent + 2, ' ')
+      .append("<input ");
   for (auto it = value_attributes.begin(); it != value_attributes.end(); ++it) {
     html.append(it->second).append(" ");
   }
