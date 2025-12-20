@@ -26,6 +26,8 @@
 #include "FieldLayout.h"
 #include "FieldValueSetter.h"
 
+#include <Arduino.h>
+
 static const char *confirmation_page_style =
     "<!DOCTYPE html>\n"
     "<html>\n"
@@ -51,36 +53,28 @@ static const char *confirmation_page_start =
 static const char *confirmation_page_end =
     "  </tbody>\n"
     "</table>\n"
-    "<p>Would you like to submit, edit, or cancel the changes?\n"
+    "<p>Would you like to save, change, or discard the changes?\n"
     "Submitting permanently changes the configuration."
     "</p>\n"
-    "<p>"
-    "<form name='confirmation-form'\n"
-    "      id='confirmation-form'\n"
-    "      accept-charset='utf-8'\n"
-    "      action=\"/confirmation\">\n"
-    "  <p>\n"
-    "    <input name='confirm_config'\n"
-    "           id='confirm_config'\n"
-    "           type='text' hidden readonly></input>\n"
-    "  </p>\n"
+    "<form action='/save-configuration' accept-charset='utf-8'\n"
+    "      name='save-configuration-form' id='save-configuration-form'>\n"
     "</form>\n"
-    "<button type='button'\n"
+    "<form action='/redirect-to-home' accept-charset='utf-8'\n"
+    "      name='redirect-to-home-form' id='redirect-to-home-form'>\n"
+    "</form>\n"
+    "<form action='/configuration-unchanged' accept-charset='utf-8'\n"
+    "      name='finish-form' id='finish-form'>\n"
+    "</form>\n"
+    "<button type='submit'\n"
     "        style='background-color:MediumSeaGreen'\n"
-    "        onclick='set_choice_and_submit(\"accept\")'>Submit</button>\n"
+    "        form='save-configuration-form'>Save</button>\n"
     "</button>\n"
-    "<button type='button'\n"
+    "<button type='submit'\n"
     "         style='background-color:Yellow'\n"
-    "         onclick='set_choice_and_submit(\"reject\")'>Edit</button>\n"
-    "<button type='button'\n"
+    "         form='redirect-to-home-form')'>Change</button>\n"
+    "<button type='submit'\n"
     "         style='background-color:Red'\n"
-    "         onclick='set_choice_and_submit(\"cancel\")'>Cancel</button>\n"
-    "<script>"
-    "  function set_choice_and_submit(choice) {\n"
-    "    document.getElementById('confirm_config').value = choice;\n"
-    "    document.getElementById('confirmation-form').submit();\n"
-    "  }\n"
-    "</script>"
+    "         form='finish-form'>Discard</button>\n"
     "</html>\n"
     ;
 
@@ -100,6 +94,7 @@ bool ConfirmationPage::handle(
     const String &request_uri) {
   pre_process(server, request_method, request_uri);
   server.send(200, "text/html", html().c_str());
+  Serial.printf("ConfirmationPage::handle %d returning.\n", __LINE__);
   return true;
 }
 

@@ -1,15 +1,14 @@
 /*
- * AcceptOrReject.h
+ * SaveConfiguration.h
  *
- *  Created on: Mar 29, 2025
+ *  Created on: Dec 20, 2025
  *      Author: Eric Mintz
- *
- * Saves the configuration or rejects it as directed by the user.
- * The user has the option of saving, correcting, or completely
- * rejecting changes.
  *
  * Copyright (c) 2025, Eric Mintz
  * All Rights reserved.
+ *
+ * Saves the field configuration settings, displays the "settings saved"
+ * page, and stops the web server
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as
@@ -25,19 +24,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-#ifndef ACCEPTORREJECT_H_
-#define ACCEPTORREJECT_H_
+#ifndef LIBRARIES_PROPERTYWEBPAGE_SAVECONFIGURATION_H_
+#define LIBRARIES_PROPERTYWEBPAGE_SAVECONFIGURATION_H_
 
 #include "WebPage.h"
 
-class BaseTaskWithAction;
-class FieldLayout;
+class FieldConfiguration;
 class Flash32Namespace;
-class PersistStatus;
 class ServerStatus;
 
-class SaveOrReject : public WebPage {
-
+class SaveConfiguration: public WebPage {
   Flash32Namespace& eeprom;
 
   /*
@@ -72,11 +68,15 @@ class SaveOrReject : public WebPage {
   void show_success(WebServer& server);
 
 public:
-  SaveOrReject(
+  SaveConfiguration(
       ServerStatus& status,
       Flash32Namespace& eeprom,
-      FieldLayout& layout);
-  virtual ~SaveOrReject();
+      FieldLayout& layout) :
+        WebPage(status, layout, ""),
+        eeprom(eeprom) {
+}
+
+  virtual ~SaveConfiguration() = default;
 
   virtual bool handle(
       WebServer &server,
@@ -84,4 +84,4 @@ public:
       const String &requestUri) override;
 };
 
-#endif /* ACCEPTORREJECT_H_ */
+#endif /* LIBRARIES_PROPERTYWEBPAGE_SAVECONFIGURATION_H_ */

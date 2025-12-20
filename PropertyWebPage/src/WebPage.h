@@ -28,7 +28,7 @@
 
 #include "FieldLayout.h"
 #include "ServerStatus.h"
-#include "WebServer.h"
+#include <WebServer.h>
 
 class DataFieldFunction;
 class PersistenceAction;
@@ -40,7 +40,7 @@ class PersistStatus;
 class WebPage {
   ServerStatus& status;
   FieldLayout& layout;
-  std::string header;  // Page header
+  std::string header;
 
 protected:
 

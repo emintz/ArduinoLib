@@ -27,13 +27,15 @@
 #include "Configurator.h"
 
 #include "DataFieldConfig.h"
+#include "ConfigurationCancelledPage.h"
 #include "ConfirmationPage.h"
 #include "CurrentTaskBlocker.h"
 #include "DataEntryPage.h"
 #include "DataTypes.h"
 #include "EmptyPage.h"
 #include "PageBundleHandler.h"
-#include "SaveOrReject.h"
+#include "RedirectToHome.h"
+#include "SaveConfiguration.h"
 #include "ServerStatus.h"
 #include "TaskWithActionH.h"
 #include "WebPage.h"
@@ -86,6 +88,8 @@ Configurator& Configurator::add_field(
 bool Configurator::run(
     WebServer& web_server,
     const char *landing_page) {
+  Serial.printf("Configuration::run %d landing page: %s\n",
+      __LINE__, landing_page);
   bool status = false;
   if (nvs_start()) {
     ServerStatus server_status;
@@ -94,7 +98,7 @@ bool Configurator::run(
         server_status,
         eeprom,
         layout,
-        "Set Configuration");
+        "Configure Practice Field Settings");
     web_pages["/save_changes"] = std::make_unique<ConfirmationPage>(
         server_status,
         layout,
@@ -102,14 +106,22 @@ bool Configurator::run(
     web_pages["/favicon.ico"] = std::make_unique<EmptyPage>(
         server_status,
         layout);
-    web_pages["/confirmation"] = std::make_unique<SaveOrReject>(
+    web_pages["/redirect-to-home"] = std::make_unique<RedirectToHome>(
+        server_status,
+        layout,
+        landing_page);
+    web_pages["/configuration-unchanged"] =
+        std::make_unique<ConfigurationCancelledPage>(
+            server_status, layout);
+    web_pages["/save-configuration"] = std::make_unique<SaveConfiguration>(
         server_status, eeprom, layout);
 
     auto blocker = std::make_unique<CurrentTaskBlocker>();
     auto handler =
         std::make_unique<PageBundleHandler>(server_status, layout, web_pages);
     web_server.addHandler(handler.get());
-    auto action = std::make_unique<WebServerAction>(web_server, server_status, *(blocker.get()));
+    auto action = std::make_unique<WebServerAction>(
+        web_server, server_status, *(blocker.get()));
     TaskWithActionH web_server_refresh_task(
         "Web server refresh",
         12,

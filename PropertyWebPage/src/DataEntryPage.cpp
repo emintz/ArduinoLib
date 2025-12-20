@@ -29,29 +29,15 @@
 
 #include <Arduino.h>
 
-static std::string data_entry_page_style(
-    "  <style>\n"
-    "    form  { display: table;      }\n"
-    "    p     { display: table-row;  }\n"
-    "    label { display: table-cell; }\n"
-    "    input { display: table-cell; }\n"
-    "  </style>\n");
-
-// TODO: What prevents hiding this form and its fields? The style?
 static const char *cancel_form_and_buttons =
     "  <br/>\n"
-    "  <form id='cancel-update' name='cancel-update' style='background-color:White color:White'  action='/confirmation'>\n"
-    "    <p>\n"
-    "      <input name='confirm_config'\n"
-    "             id='confirm-config' readonly hidden \n"
-    "             style='background-color:White color:White'\n"
-    "             accept-charset='utf-8'\n"
-    "             value='cancel'></input>\n"
-    "    </p>\n"
+    "  <form action='/configuration-unchanged' accept-charset='utf-8'"
+    "        name='finish-form' id='finish-form'>\n"
     "  </form>\n"
     "  <br/>\n"
     "  <button type='submit' style='background-color:MediumSeaGreen' form='save-changes'>Submit</button>\n"
-    "  <button type='submit' style='background-color:Red' form='cancel-update'>Cancel</button>\n"
+    "  &nbsp&nbsp&nbsp\n"
+    "  <button type='submit' style='background-color:Red' form='finish-form'>Cancel</button>\n"
     ;
 
 DataEntryPage::DataEntryPage(
@@ -113,7 +99,5 @@ std::string DataEntryPage::error_html(PersistStatus& errors) {
       .append(format_errors(errors))
       .append("<br>\n")
       .append(page_end);
-  Serial.println("Generated HTML:");
-  Serial.println(html.c_str());
   return html;
 }
