@@ -36,7 +36,7 @@ static const char *cancel_form_and_buttons =
     "  </form>\n"
     "  <br/>\n"
     "  <button type='submit' style='background-color:MediumSeaGreen' form='save-changes'>Submit</button>\n"
-    "  &nbsp&nbsp&nbsp\n"
+    "  &nbsp;\n"
     "  <button type='submit' style='background-color:Red' form='finish-form'>Cancel</button>\n"
     ;
 

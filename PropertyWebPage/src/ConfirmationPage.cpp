@@ -53,8 +53,8 @@ static const char *confirmation_page_start =
 static const char *confirmation_page_end =
     "  </tbody>\n"
     "</table>\n"
-    "<p>Would you like to save, change, or discard the changes?\n"
-    "Submitting permanently changes the configuration."
+    "<p>Would you like to save, change, or discard the setting values?\n"
+    "Submitting permanently changes the settings."
     "</p>\n"
     "<form action='/save-configuration' accept-charset='utf-8'\n"
     "      name='save-configuration-form' id='save-configuration-form'>\n"
@@ -67,11 +67,11 @@ static const char *confirmation_page_end =
     "</form>\n"
     "<button type='submit'\n"
     "        style='background-color:MediumSeaGreen'\n"
-    "        form='save-configuration-form'>Save</button>\n"
+    "        form='save-configuration-form'>Save</button>&nbsp;\n"
     "</button>\n"
     "<button type='submit'\n"
     "         style='background-color:Yellow'\n"
-    "         form='redirect-to-home-form')'>Change</button>\n"
+    "         form='redirect-to-home-form')'>Change</button>&nbsp;\n"
     "<button type='submit'\n"
     "         style='background-color:Red'\n"
     "         form='finish-form'>Discard</button>\n"
@@ -94,7 +94,6 @@ bool ConfirmationPage::handle(
     const String &request_uri) {
   pre_process(server, request_method, request_uri);
   server.send(200, "text/html", html().c_str());
-  Serial.printf("ConfirmationPage::handle %d returning.\n", __LINE__);
   return true;
 }
 
