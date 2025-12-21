@@ -55,5 +55,6 @@ void WebServerAction::run(void) {
     vTaskDelay(1);
   }
   blocker.notify();
+  Serial.println("Web server refresh task stopping. Main task notified.");
   vTaskDelay(portMAX_DELAY);
 }

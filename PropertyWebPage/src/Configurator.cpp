@@ -88,7 +88,7 @@ Configurator& Configurator::add_field(
 bool Configurator::run(
     WebServer& web_server,
     const char *landing_page) {
-  Serial.printf("Configuration::run %d landing page: %s\n",
+  Serial.printf("Configurator::run %d landing page: %s\n",
       __LINE__, landing_page);
   bool status = false;
   if (nvs_start()) {
