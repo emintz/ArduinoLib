@@ -146,6 +146,5 @@ bool Configurator::run(
     status = true;
   }
 
-  vTaskDelay(2000);
   return status;
 }
