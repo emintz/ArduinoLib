@@ -131,17 +131,19 @@ bool Configurator::run(
     web_server_refresh_task.start();
     Serial.println("Web server refresh running, waiting for notification.");
     blocker->wait();
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(50));
     Serial.println("Stopping web server");
     web_server.stop();
+    vTaskDelay(pdMS_TO_TICKS(50));
     Serial.println("Web server stopped.");
     web_server_refresh_task.stop();
+    vTaskDelay(pdMS_TO_TICKS(50));
     Serial.println("Web server refresh task stopped.");
     nvs_stop();
     Serial.println(
         "EEPROM management stopped. "
         "Waiting for the system to shut down.");
-    vTaskDelay(pdMS_TO_TICKS(1000));
+    vTaskDelay(pdMS_TO_TICKS(50));
     Serial.println("Configuration successful, returning from configurator.");
     status = true;
   }
