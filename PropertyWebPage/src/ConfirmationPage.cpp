@@ -54,7 +54,7 @@ static const char *confirmation_page_end =
     "  </tbody>\n"
     "</table>\n"
     "<p>Would you like to save, change, or discard the setting values?\n"
-    "Submitting permanently changes the settings."
+    "Saving permanently changes the settings."
     "</p>\n"
     "<form action='/save-configuration' accept-charset='utf-8'\n"
     "      name='save-configuration-form' id='save-configuration-form'>\n"

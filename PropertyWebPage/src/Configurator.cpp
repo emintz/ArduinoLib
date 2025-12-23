@@ -102,7 +102,7 @@ bool Configurator::run(
     web_pages["/save_changes"] = std::make_unique<ConfirmationPage>(
         server_status,
         layout,
-        "Confirm configuration");
+        "Confirm Configuration");
     web_pages["/favicon.ico"] = std::make_unique<EmptyPage>(
         server_status,
         layout);
