@@ -342,7 +342,7 @@ bool Flash32Iterator::start(void) {
       NVS_DEFAULT_PART_NAME,
       flash32_namespace.get_name(),
       data_type,
-	  &iterator) == ESP_OK;
+	    &iterator) == ESP_OK;
   return found && iterator && load();
 }
 
