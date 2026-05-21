@@ -53,6 +53,9 @@ protected:
 
   virtual ~BasePullQueueH();
 
+  BasePullQueueH(const BasePullQueueH&) = delete;
+  BasePullQueueH& operator=(const BasePullQueueH&) = delete;
+
   /*
    * Peek a message from the queue. Returns the first message found in
    * the queue, if any, without removing it from the queue.

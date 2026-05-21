@@ -19,7 +19,7 @@ public:
               queue_length) {
   }
 
-  virtual ~PullQueueHT() {}
+  virtual ~PullQueueHT() = default;
 
   /**
    * Attempt to retrieve a message from the queue leaving the retrieved message

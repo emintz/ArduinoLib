@@ -77,12 +77,11 @@ protected:
    * Sends a message from an interrupt service routine (ISR) and yields if a
    * higher priority task is awakened.
    *
-   * Returns true if and only if the send succeeded.
+   * @return true if and only if the send succeeded.
    */
   bool really_send_message_from_ISR(const void * const message);
 
 public:
-
   /**
    * Destructor, which runs when the queue is destroyed. If the underline
    * FreeRTOS queue is still running, the destrctor deletes it as a defensive
@@ -91,7 +90,7 @@ public:
   virtual ~BasePullQueue();
 
   /**
-   * Returns the number available message storage, the number of messages
+   * @return the number available message storage, the number of messages
    * that can be enqueued before the queue becomes full. Be sure that the
    * queue is valid before you invoke this method. Invoking it on an invalid
    * queue will cause unspecified and almost certainly undesirable behavior.
@@ -101,10 +100,23 @@ public:
   /**
    * Start the queue and make it available to transport messages.
    *
-   * Returns: true if the queue started successfully, false if the queue
+   * @return true if the queue started successfully, false if the queue
    * could not be started.
    */
   bool begin(void);
+
+  /**
+   * Accessor for the queue's buffer length
+   *
+   * @return the number of bytes this queue reserves for messages.
+   */
+  size_t buffer_length(void) const {
+    return message_size * queue_length;
+  }
+
+  QueueHandle_t handle(void) const {
+    return queue_handle;
+  }
 
   /**
    * Returns true if the queue is valid and can be used or false otherwise.
@@ -114,7 +126,7 @@ public:
   bool valid(void) const;
 
   /**
-   * Returns the number of waiting messages if the queue is valid. Calling this
+   * @return the number of waiting messages if the queue is valid. Calling this
    * method when the queue is not valid will cause undefined and almost
    * certainly undesirable behavior.
    */
