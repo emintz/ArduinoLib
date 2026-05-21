@@ -43,6 +43,7 @@ class CanBusMaps final {
   std::map<CanBusOpStatus, const char *> op_status_to_string;
   std::map<twai_state_t, const char *> twai_state_map;
   std::map<CanBusStatus, const char *> bus_status_to_string;
+  std::map<CanBusInitStatus, const char *> init_status_to_string;
 public:
   CanBusMaps();
   ~CanBusMaps();
@@ -71,6 +72,8 @@ public:
     const auto iter = bus_speed_map.find(can_bus_speed);
     return iter->second;
   }
+
+  const char *to_c_string(const CanBusInitStatus status) const;
 };
 
 #endif /* LIBRARIES_CANBUS_SRC_CANBUSMAPS_H_ */

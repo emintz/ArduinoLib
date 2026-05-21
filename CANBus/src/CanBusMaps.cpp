@@ -76,6 +76,18 @@ CanBusMaps::CanBusMaps() {
   bus_status_to_string[CanBusStatus::ERROR_HALT] = "ERROR_HALT";
   bus_status_to_string[CanBusStatus::RECOVERING] = "RECOVERING";
   bus_status_to_string[CanBusStatus::CORRUPT] = "CORRUPT";
+
+  init_status_to_string[CanBusInitStatus::ALREADY_UP] = "ALREADY_UP";
+  init_status_to_string[CanBusInitStatus::FAILED] = "FAILED";
+  init_status_to_string[CanBusInitStatus::SUCCEEDED] = "SUCCEEDED";
+
+  op_status_to_string[CanBusOpStatus::CANNOT_SEND] = "CANNOT_SEND";
+  op_status_to_string[CanBusOpStatus::FAILED] = "FAILED";
+  op_status_to_string[CanBusOpStatus::INVALID_ARGUMENT] = "INVALID_ARGUMENT";
+  op_status_to_string[CanBusOpStatus::INVALID_STATE] = "INVALID_STATE";
+  op_status_to_string[CanBusOpStatus::MEMORY_FULL] = "MEMORY_FULL";
+  op_status_to_string[CanBusOpStatus::SUCCEEDED] = "SUCCEEDED";
+  op_status_to_string[CanBusOpStatus::TIMEOUT] = "TIMEOUT";
 }
 
 CanBusMaps::~CanBusMaps() {
@@ -109,5 +121,12 @@ const char *CanBusMaps::to_c_string(twai_state_t state) const {
   const auto iter = twai_state_map.find(state);
   return iter == twai_state_map.end()
       ? "UNKNOWN BUS STATE"
+      : iter->second;
+}
+
+const char *CanBusMaps::to_c_string(const CanBusInitStatus status) const {
+  const auto iter = init_status_to_string.find(status);
+  return iter == init_status_to_string.end()
+      ? "UNKNOWN INITIALIZATION STATE"
       : iter->second;
 }
