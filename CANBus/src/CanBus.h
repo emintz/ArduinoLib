@@ -130,7 +130,8 @@ public:
    * Note: check the ESP32 hardware manual for the number of supported
    *       CAN buses.
    *       Be sure that transmit_pin supports output. On the ESP32-S2,
-   *       pins 34 - 39 are input-only and best avoided.
+   *       pins 34 - 39 are input-only and lack internal pullup and
+   *       pulldown resistors. They are suitable for receive.
    */
 
   CanBus(
