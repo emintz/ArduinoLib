@@ -95,7 +95,6 @@ protected:
    */
   bool really_pull_message(void *message, TickType_t timeout = portMAX_DELAY);
 
-
   /*
    * Add a a message to the end of the queue
    *
@@ -115,11 +114,50 @@ protected:
 
   /*
    * Sends a message from an interrupt service routine (ISR) and yields if a
-   * higher priority task is awakened.
+   * higher priority task is awakened. Message is sent to the back of the
+   * queue.
+   *
+   * Parameters
+   *
+   * Name          Contents
+   * ------------- ----------------------------------------------------------
+   * message       The message to send
    *
    * Returns true if and only if the send succeeded.
    */
   bool really_send_message_from_ISR(const void * const message);
+
+  /*
+   * Add a a message to the front of the queue. This is especially
+   * useful for handling self-directed events.
+   *
+   * Parameters
+   *
+   * Name          Contents
+   * ------------- ----------------------------------------------------------
+   * message       The message to send
+   * timeout       The wait limit in ticks.
+   *
+   * Returns: true if a message was sent within the specified timeout,
+   * false otherwise. Send will fail if the queue is full.
+   */
+  bool really_send_message_to_front(
+      const void * const message, TickType_t timeout = portMAX_DELAY);
+
+  /*
+   * Sends a message from an interrupt service routine (ISR) and yields if a
+   * higher priority task is awakened. Message is sent to the front of the
+   * queue.
+   *
+   * Parameters
+   *
+   * Name          Contents
+   * ------------- ----------------------------------------------------------
+   * message       The message to send
+   *
+   * Returns true if and only if the send succeeded.
+   */
+  bool really_send_message_to_front_from_ISR(const void * const message);
 
 public:
 
@@ -153,6 +191,11 @@ public:
   QueueHandle_t handle(void) const {
 	  return queue_handle;
   }
+
+  /**
+   * Resets the queue to its original empty state.
+   */
+  void reset(void);
 
   /*
    * Returns true if the queue is valid and can be used or false otherwise.

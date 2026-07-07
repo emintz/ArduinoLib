@@ -67,12 +67,34 @@ bool BasePullQueueH::really_send_message_from_ISR(const void * const message) {
   return result;
 }
 
+bool BasePullQueueH::really_send_message_to_front(
+    const void *const message, TickType_t timeout) {
+  return xQueueSendToFront(queue_handle, message, timeout) == pdTRUE;
+}
+
+bool BasePullQueueH::really_send_message_to_front_from_ISR(
+    const void * const message) {
+  BaseType_t higher_priority_task_woken;
+  bool result = xQueueSendToFrontFromISR(
+      queue_handle,
+      message,
+      &higher_priority_task_woken);
+  if (higher_priority_task_woken) {
+    portYIELD_FROM_ISR();
+  }
+  return result;
+}
+
 UBaseType_t BasePullQueueH::available_message_storage(void) const {
   return uxQueueSpacesAvailable(queue_handle);
 }
 
 bool BasePullQueueH::begin(void) {
   return (queue_handle = xQueueCreate(queue_length, message_size));
+}
+
+void BasePullQueueH::reset(void) {
+  xQueueReset(queue_handle);
 }
 
 bool BasePullQueueH::valid(void) const {

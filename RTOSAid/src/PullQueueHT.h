@@ -108,9 +108,6 @@ public:
    * Name        Contents
    * ----------  --------------------------------------------------------------
    * message     The message to send.
-   * max_wait_ms The maximum number of milliseconds to wait for the queue
-   *             to accept the message. If the wait time is zero, the call
-   *             returns immediately.
    *
    * Returns: true if the send succeeds, false otherwise. The call will fail
    * if the queue remains full throughout the wait period.
@@ -118,7 +115,6 @@ public:
   inline bool send_message(const T *const message) {
     return really_send_message(message);
   }
-
 
   /**
    * Add a message to the queue tail, waiting the specified milliseconds for
@@ -141,9 +137,8 @@ public:
   }
 
   /**
-   * Sends a message from an interrupt service routine (ISR) and yields if a
-   * higher priority task is awakened. If the send succeeds, the message is
-   * added to the queue's tail.
+   * Adds a message to the queue's tail from an interrupt service routine (ISR)
+   * and yields if a higher priority task is awakened.
    * Parameters:
    *
    * Name        Contents
@@ -154,10 +149,71 @@ public:
    *             returns immediately.
    *
    * Returns: true if the send succeeds, false otherwise. The call will fail
+   * if the queue is full.
+   */
+  inline bool send_message_from_ISR(const T * const message) {
+    return really_send_message_from_ISR(message);
+  }
+
+
+  /**
+   * Add a message to the queue head, waiting the maximum permitted time for
+   * space to become available in the queue. If the call succeeds, the
+   * subscriber will receive the newly sent message after it receives
+   * previously enqueued messages, if any.
+   *
+   * Parameters:
+   *
+   * Name        Contents
+   * ----------  --------------------------------------------------------------
+   * message     The message to send.
+   *
+   * Returns: true if the send succeeds, false otherwise. The call will fail
    * if the queue remains full throughout the wait period.
    */
-  inline bool send_message_from_ISR(T *message) {
-    return really_send_message_from_ISR(message);
+  inline bool send_message_to_front(const T * const message) {
+    return really_send_message_to_front(message);
+  }
+
+  /**
+   * Add a message to the queue head, waiting the specified milliseconds for
+   * space to become available in the queue. If the call succeeds, the
+   * subscriber will receive the newly sent message after it receives
+   * previously enqueued messages, if any.
+   *
+   * Parameters:
+   *
+   * Name        Contents
+   * ----------  --------------------------------------------------------------
+   * message     The message to send.
+   * max_wait_ms Send timeout in milliseconds.
+   *
+   * Returns: true if the send succeeds, false otherwise. The call will fail
+   * if the queue remains full throughout the wait period.
+   */
+  inline bool send_message_to_front(
+      const T * const message, TickType_t max_wait_ms) {
+    return really_send_message_to_front(message, pdMS_TO_TICKS(max_wait_ms));
+  }
+
+
+  /**
+   * Adds a message to the queue's head from an interrupt service routine (ISR)
+   * and yields if a higher priority task is awakened.
+   * Parameters:
+   *
+   * Name        Contents
+   * ----------  --------------------------------------------------------------
+   * message     The message to send.
+   * max_wait_ms The maximum number of milliseconds to wait for the queue
+   *             to accept the message. If the wait time is zero, the call
+   *             returns immediately.
+   *
+   * Returns: true if the send succeeds, false otherwise. The call will fail
+   * if the queue is full.
+   */
+  inline bool send_message_to_front_from_ISR(const T * const message) {
+    return really_send_message_to_front_from_ISR(message);
   }
 };
 
