@@ -46,7 +46,8 @@ private:
   const uint8_t bus;
   twai_mode_t mode;
 
-  twai_handle_t h_twai;  // To support V2 when come.
+  twai_handle_t h_twai;
+
 public:
   CanApi(
       uint8_t rx_pin,
