@@ -45,12 +45,13 @@ class DataFieldConfig {
   std::string label;  // Field label
   std::string name;   // Field name
   std::string value;  // Property value, defaults to "" on construction.
-                      // Set to display a default value on the screen.
-  std::map<const std::string, std::string> label_attributes;
-  std::map<const std::string, std::string> value_attributes;
 
   PersistenceAction& initializer;
   PersistenceAction& persister;
+
+  // Set to display a default value on the screen.
+  std::map<const std::string, std::string> label_attributes;
+  std::map<const std::string, std::string> value_attributes;
 
   /**
    * Sets the initial tag property values.

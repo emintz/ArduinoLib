@@ -70,10 +70,10 @@ DataFieldConfig::DataFieldConfig() :
   label(),
   name(),
   value(),
-  label_attributes(),
-  value_attributes(),
   initializer(default_retriever),
-  persister(default_flash32_persister) {
+  persister(default_flash32_persister),
+  label_attributes(),
+  value_attributes() {
 }
 
 DataFieldConfig::DataFieldConfig(
@@ -93,10 +93,10 @@ DataFieldConfig::DataFieldConfig(const DataFieldConfig& copy_me) :
   label(copy_me.label),
   name(copy_me.name),
   value(copy_me.value),
-  label_attributes(copy_me.label_attributes),
-  value_attributes(copy_me.value_attributes),
   initializer(copy_me.initializer),
-  persister(copy_me.persister) {
+  persister(copy_me.persister),
+  label_attributes(copy_me.label_attributes),
+  value_attributes(copy_me.value_attributes) {
 
 }
 
